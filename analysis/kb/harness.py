@@ -106,48 +106,163 @@ def run_iteration(
     iteration_id: int,
     task_ids: Optional[Sequence[str]] = None,
     output_root: Optional[Path] = None,
+    llm_response_path: Optional[Path] = None,
 ) -> RunReport:
-    """Drive one full generate -> evaluate pass.
+    """Drive one full generate -> (optional build_kg_planning_agent) -> evaluate pass.
 
-    The current implementation shells out to the existing pipeline. Once
-    Agent v2 is in place this should be replaced with a direct Python
-    call so we can pass the persistent retriever / verifier explicitly.
+    Pipeline:
+    1. If ``llm_response_path`` is None, call ``generate_outputs.py`` to
+       produce a draft ``*_outputs.json`` for (model, variant).
+    2. Optionally run ``build_kg_planning_agent.py`` to apply persistent-KB
+       grounding + conservative local repair (when KB_BACKEND=persistent is
+       set and Neo4j / Chroma are available).
+    3. Shell out to ``run_action_sequencing_eval.sh`` (via
+       LLM_RESPONSE_PATH env var) to run the EAI evaluator.
+    4. Locate and parse ``summary.json`` → ``RunReport``.
+
+    Soft-fail: any step that errors is logged as a warning; the report will
+    have empty rows, allowing the caller to decide whether to abort the loop.
     """
     output_root = Path(output_root or REPO_ROOT / "output" / "harness" / f"iter{iteration_id}")
     output_root.mkdir(parents=True, exist_ok=True)
-
+    started = time.time()
     log.info("[harness] iter=%d model=%s variant=%s -> %s",
              iteration_id, model, variant, output_root)
-    cmd = [
-        "bash", str(REPO_ROOT / "scripts" / "run_action_sequencing_eval.sh"),
-        "--model", model,
-        "--variant", variant,
-        "--out", str(output_root),
-    ]
-    if task_ids:
-        cmd.extend(["--task-ids", ",".join(task_ids)])
 
-    started = time.time()
-    # NOTE: current shell script does not yet accept these flags; this is
-    # the target interface for the v2 wiring. Until then, callers pass an
-    # already-produced summary.json path via ``parse_summary``.
-    try:
-        subprocess.run(cmd, check=True)
-    except (FileNotFoundError, subprocess.CalledProcessError) as exc:
-        log.warning("[harness] external runner failed (%s); "
-                    "expected during skeleton phase", exc)
+    # ---- step 1: generate drafts if not supplied
+    if llm_response_path is None:
+        llm_response_path = _generate_drafts(
+            model=model,
+            variant=variant,
+            output_root=output_root,
+            task_ids=task_ids,
+        )
 
-    summary_path = output_root / "summary.json"
-    rows = parse_summary(summary_path) if summary_path.is_file() else []
+    # ---- step 2: optionally run knowledge-grounded agent repair
+    import os
+    if os.environ.get("KB_BACKEND", "default").lower() == "persistent" \
+            and llm_response_path is not None \
+            and llm_response_path.is_file():
+        llm_response_path = _apply_kg_agent(
+            input_path=llm_response_path,
+            output_root=output_root,
+            iteration_id=iteration_id,
+        )
+
+    # ---- step 3: run EAI evaluator
+    eval_output_dir = output_root / "eval"
+    _run_eai_eval(
+        llm_response_path=llm_response_path,
+        output_dir=eval_output_dir,
+    )
+
+    # ---- step 4: locate summary.json (EAI writes it under
+    #  <output_dir>/virtualhome/evaluate_results/action_sequencing/<model>/summary.json)
+    summary_path = _find_summary(eval_output_dir, model)
+    rows = parse_summary(summary_path) if (summary_path and summary_path.is_file()) else []
+    if not rows:
+        log.warning("[harness] iter=%d: no summary rows found under %s",
+                    iteration_id, eval_output_dir)
+
     return RunReport(
         iteration_id=iteration_id,
         model=model,
         variant=variant,
-        summary_path=summary_path,
+        summary_path=summary_path or output_root / "summary_missing.json",
         rows=rows,
         started_at=started,
         finished_at=time.time(),
     )
+
+
+# ---- internal pipeline helpers
+def _generate_drafts(
+    model: str,
+    variant: str,
+    output_root: Path,
+    task_ids: Optional[Sequence[str]],
+) -> Optional[Path]:
+    """Call generate_outputs.py; return path to produced *_outputs.json or None."""
+    script = REPO_ROOT / "analysis" / "generate_outputs.py"
+    out_file = output_root / f"{model}_{variant}_outputs.json"
+    cmd = [
+        "python3", str(script),
+        "--model", model,
+        "--variant", variant,
+        "--output", str(out_file),
+    ]
+    if task_ids:
+        cmd.extend(["--task-ids", ",".join(task_ids)])
+    try:
+        subprocess.run(cmd, check=True, cwd=str(REPO_ROOT))
+        return out_file if out_file.is_file() else None
+    except (FileNotFoundError, subprocess.CalledProcessError) as exc:
+        log.warning("[harness] generate_drafts failed: %s", exc)
+        return None
+
+
+def _apply_kg_agent(
+    input_path: Path,
+    output_root: Path,
+    iteration_id: int,
+) -> Path:
+    """Run build_kg_planning_agent.py; return path to repaired outputs."""
+    script = REPO_ROOT / "analysis" / "build_kg_planning_agent.py"
+    repaired = output_root / f"iter{iteration_id}_repaired_outputs.json"
+    report = output_root / f"iter{iteration_id}_kg_agent_report.json"
+    try:
+        import os
+        env = {**os.environ, "KB_BACKEND": "persistent"}
+        subprocess.run(
+            ["python3", str(script),
+             "--input", str(input_path),
+             "--output", str(repaired),
+             "--report", str(report)],
+            check=True,
+            cwd=str(REPO_ROOT),
+            env=env,
+        )
+        return repaired if repaired.is_file() else input_path
+    except (FileNotFoundError, subprocess.CalledProcessError) as exc:
+        log.warning("[harness] kg_agent repair failed: %s; using unrepaired draft", exc)
+        return input_path
+
+
+def _run_eai_eval(
+    llm_response_path: Optional[Path],
+    output_dir: Path,
+) -> None:
+    """Shell out to run_action_sequencing_eval.sh with LLM_RESPONSE_PATH set."""
+    script = REPO_ROOT / "scripts" / "run_action_sequencing_eval.sh"
+    if not script.is_file():
+        log.warning("[harness] eval script not found: %s", script)
+        return
+    import os
+    env = {**os.environ, "LLM_RESPONSE_PATH": str(llm_response_path or "")}
+    try:
+        subprocess.run(
+            ["bash", str(script), "virtualhome", "none", str(output_dir)],
+            check=True,
+            cwd=str(REPO_ROOT),
+            env=env,
+        )
+    except subprocess.CalledProcessError as exc:
+        log.warning("[harness] eai eval returned non-zero: %s", exc)
+
+
+def _find_summary(eval_output_dir: Path, model: str) -> Optional[Path]:
+    """Locate the summary.json written by EAI under the eval output tree."""
+    # Canonical path: <eval_output_dir>/virtualhome/evaluate_results/action_sequencing/<model>/summary.json
+    canonical = (
+        eval_output_dir / "virtualhome" / "evaluate_results"
+        / "action_sequencing" / model / "summary.json"
+    )
+    if canonical.is_file():
+        return canonical
+    # Fallback: glob
+    for p in eval_output_dir.rglob("summary.json"):
+        return p
+    return None
 
 
 def parse_summary(summary_path: Path) -> List[Dict[str, Any]]:
