@@ -199,6 +199,71 @@ EAI evaluator 评测
 2. **可问场景**：不再是关键词匹配 + k-hop 暴力扩展，而是 BGE 语义检索找最相关 seed，再用 Cypher 精准扩展，可以处理"模型不知道场景里到底叫 'book' 还是 'novel'"这种语义模糊问题。
 3. **可问规则**：规则源在图数据库里，未来可以加新动作类型（如 BEHAVIOR-1K 的更多动作），不用改硬编码。
 
+### 6.5 迭代式 Harness：让 bad case 自动回流到知识库
+
+光有"知识库 + agent"还不够，还需要一套**评测—回流—再评测**的闭环 harness，让每一轮跑出来的失败案例（bad case）自动入库，下一轮再被同类任务检索到。这是把"诊断—改进"从一次性脚本变成持续学习循环的关键。
+
+```text
+┌──────────────────────────────────────────────────────────────┐
+│   Iteration N                                                │
+│                                                              │
+│   1. Agent v2 生成 -> EAI evaluator 评测                     │
+│   2. summary.json 解析 -> 划分 pass / fail                   │
+│   3. 对每个 fail：                                            │
+│      - 用 PreconditionKG.verify() 提取 violation code        │
+│      - 写入 FailureCase 节点：                                │
+│          (:FailureCase {iteration:N, file_id, model,         │
+│                         failure_type, task, raw, draft})     │
+│        -[:OCCURRED_IN]->(:Scene)                             │
+│        -[:VIOLATES]->(:Action)                               │
+│      - 同时 upsert 到 Chroma failure_cases collection         │
+│   4. 报告：每轮的 task success / 新增 failure / 修复 failure  │
+│                                                              │
+└────────────┬─────────────────────────────────────────────────┘
+             │ 失败案例已入库
+             ▼
+┌──────────────────────────────────────────────────────────────┐
+│   Iteration N+1                                              │
+│                                                              │
+│   - 同一个 task 再遇到时，agent 检索历史失败：               │
+│     "this task previously failed with MISSING_WALK on book   │
+│      in scene 11_1; the gold sequence inserts WALK before    │
+│      GRAB."                                                  │
+│   - 把检索到的过去失败 + 修复方式作为 few-shot 注入 prompt   │
+│   - 再生成 -> 再评测 -> 再回流                                │
+└──────────────────────────────────────────────────────────────┘
+```
+
+**Harness 职责**（即将在 `analysis/kb/harness.py` 中实现）：
+
+| 功能 | 接口 | 数据流 |
+| --- | --- | --- |
+| 跑一轮评测 | `harness.run_iteration(model, variant, task_ids) -> RunReport` | 调 `generate_outputs.py` + EAI evaluator，得到 per-task summary |
+| 划分 bad case | `harness.collect_bad_cases(run_report) -> List[BadCase]` | 解析 `summary.json` 中 `task_success=False` 的样本 |
+| 回流到 KG/RAG | `harness.ingest_bad_cases(bad_cases, iteration_id)` | 写入 Neo4j `FailureCase` + Chroma `failure_cases` |
+| 跨轮对比 | `harness.diff_iterations(run_a, run_b) -> Diff` | 哪些 fail 被修复了、哪些新失败了、整体 success delta |
+| 收敛判断 | `harness.has_converged(history) -> bool` | 连续 K 轮 success 增量 < ε，停止迭代 |
+
+**关键设计点**：
+
+1. **以 `iteration_id` 作为 FailureCase 节点的额外维度**，可以分析"这个 task 在第几轮才被修复"，做出收敛曲线。
+2. **保留每一版的 draft action sequence** 在 `FailureCase.raw` 里，未来做 case study 时不需要重跑。
+3. **Bad case 回流是单向的**：原始数据集（gold sequence）不变，只把 LLM 生成的失败注入 KG。这避免污染 evaluator 的 ground truth。
+4. **Harness 必须能在 dry-run provider 上跑通**：保证论文复现不依赖具体 LLM API。
+5. **接口与现有 `scripts/run_action_sequencing_eval.sh` 对齐**：迭代版只是把它包成 Python 函数 + 在循环外加 ingest 步骤，不另起一套评测体系。
+
+### 6.6 论文中的实验设计
+
+围绕 harness，可以做出三组核心实验：
+
+| 实验 | 描述 | 预期结论 |
+| --- | --- | --- |
+| **E1: Static KB** | 一次性建库（只用 `output/diagnostics/` 里已有的失败案例），不迭代 | 验证持久化 KG/RAG 本身的增量 |
+| **E2: Iterative KB** | 跑 N 轮，每轮把 bad case 回流，下一轮用 | 验证迭代是否带来累积提升 |
+| **E3: Convergence study** | 记录每轮 task success / 修复数 / 新失败数，画收敛曲线 | 找到收益拐点（K 轮后边际 < ε） |
+
+E2/E3 是这套 harness 真正的论文贡献：把传统的"一次评测"扩展成"持续诊断—修复—再评测"的循环，并且整个循环都是可复现、可审计的（每个 FailureCase 都有 iteration_id 和 raw draft）。
+
 ---
 
 ## 7. 实施进度与风险
@@ -210,6 +275,7 @@ EAI evaluator 评测
 - `analysis/kb/persistent_retriever.py` — `PersistentSceneGraphRetriever`（drop-in 替换原 retriever）
 - `analysis/kb/persistent_kg.py` — `PersistentPreconditionKG`（drop-in 替换原 verifier）
 - `analysis/kb/schema.cypher` — Neo4j 唯一性约束 + 索引
+- `analysis/kb/harness.py` — 迭代 harness 框架骨架（接口 + 数据结构 + 单轮 stub）
 - `scripts/start_neo4j.sh` — Docker 启动 Neo4j 5.20
 - `scripts/build_knowledge_base.sh` — 一键 bootstrap
 - `requirements-kb.txt` — chromadb / sentence-transformers / neo4j
@@ -217,8 +283,10 @@ EAI evaluator 评测
 ### 待执行
 1. 安装 Docker + `pip install -r requirements-kb.txt`
 2. 跑 `bash scripts/build_knowledge_base.sh` —— 完成 Chroma 索引和 Neo4j 灌库
-3. 实现"失败案例 few-shot 注入"修复策略
-4. 重跑 EAI evaluator，对比 `plan_then_ground` 与 v2 agent
+3. 把 `harness.run_iteration()` 内部的 stub 替换成真实的 generate + evaluate 调用
+4. 实现 v2 agent 的"失败案例 few-shot 注入"修复策略
+5. 跑 E1 / E2 / E3 三组实验，得到 Iterative KB 的收敛曲线
+6. 重跑 EAI evaluator，对比 `plan_then_ground` 与 v2 agent + iterative harness
 
 ### 风险与回退
 - Neo4j 需要 Docker：离线评审环境可能不可用 → 已实现自动回退到原内存实现，论文复现不会被卡住。
@@ -236,11 +304,12 @@ EAI evaluator 评测
 - **`state_checklist_plan` / `goal_conditioned_scaffold` / `bidirectional_causal_planning`** 作为消融，说明 prompt 复杂度有上限。
 - 关键发现：prompt 越复杂不一定越好，过多推理要求会干扰动作完整性。
 
-### 第二阶段：Knowledge-Grounded Planning Framework（下一步）
+### 第二阶段：Knowledge-Grounded Planning Framework with Iterative Harness（下一步）
 - **持久化 RAG**（Chroma + BGE）：解决场景 grounding。
 - **持久化 KG**（Neo4j 三层：场景/规则/失败链路）：解决动作约束 + 历史失败查询。
 - **Planning Agent v2**：把检索、生成、验证、案例反查、保守修复串成完整 pipeline。
-- 实验目标：在保留 `plan_then_ground` 收益的基础上，进一步降低 `missing_step` 与 `relation_grounding` 失败。
+- **Iterative Harness**：每轮把 bad case 自动回流到 KG/RAG，下一轮用，画收敛曲线。
+- 实验目标：在保留 `plan_then_ground` 收益的基础上，进一步降低 `missing_step` 与 `relation_grounding` 失败，并展示迭代带来的累积提升。
 
 ---
 
@@ -255,7 +324,8 @@ EAI evaluator 评测
 ## 10. 下一步计划
 
 1. 安装 Docker，跑通 `scripts/build_knowledge_base.sh`，得到一个真实可查询的 Chroma 向量库 + Neo4j 图谱。
-2. 实现 v2 的 Planning Agent：在 verifier 报错时，从 Neo4j 反查同类失败案例，作为 few-shot 注入修复 prompt。
-3. 重跑 DeepSeek-V4-Flash 在 EAI action sequencing 上的对比实验：`baseline` / `plan_then_ground` / `agent_v2`。
-4. 论文中把方法主线写成两阶段：第一阶段 prompt-only 的实证发现，第二阶段 knowledge-grounded framework 的设计与初步结果。
-5. 在 `paper/` 中追加方法学小节，正式描述持久化 RAG / KG 的架构与查询接口。
+2. 把 `analysis/kb/harness.py` 里的 stub 替换成真实评测调用，跑通**单轮闭环**（generate → evaluate → 划分 bad case → 回流 KG/RAG）。
+3. 实现 v2 Planning Agent：在 verifier 报错时，从 Neo4j / Chroma 反查同类失败案例，作为 few-shot 注入修复 prompt。
+4. 跑 E1（静态 KB）/ E2（迭代 KB）/ E3（收敛曲线）三组对比实验，记录每轮 task success / 修复数 / 新失败数。
+5. 论文中把方法主线写成两阶段：第一阶段 prompt-only 的实证发现，第二阶段 knowledge-grounded framework + iterative harness 的设计与初步结果。
+6. 在 `paper/` 中追加方法学小节，正式描述持久化 RAG / KG 架构与迭代 harness 的查询接口和数据流。

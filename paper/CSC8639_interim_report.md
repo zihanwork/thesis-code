@@ -32,7 +32,7 @@ The aim of this project is to investigate the goal-to-action gap in LLM-based em
 2. **Diagnose dominant failure modes.** Categorise action-sequencing failures into interpretable types such as parsing errors, hallucinated objects, missing steps, wrong order, and additional steps.
 3. **Evaluate prompt-only interventions.** Test whether methods such as format constraints, few-shot examples, and plan-then-ground prompting improve task success.
 4. **Analyse the limits of more complex prompting.** Compare simple planning prompts against checklist-based, goal-conditioned, and bidirectional-causal prompt variants to determine whether added prompt structure improves or harms action sequencing.
-5. **Design a persistent knowledge-grounded planning framework.** Specify and implement an external knowledge-base infrastructure (vector store + graph database) capable of supporting scene-aware retrieval, action-precondition reasoning, and lookup of past failure cases. This is positioned as the next-stage method following the prompt-only experiments.
+5. **Design a persistent knowledge-grounded planning framework with an iterative harness.** Specify and implement (i) an external knowledge-base infrastructure (vector store + graph database) capable of supporting scene-aware retrieval, action-precondition reasoning, and lookup of past failure cases, and (ii) an evaluation harness that automatically feeds every generated bad case back into the knowledge base, enabling a closed-loop iterative-improvement cycle. This is positioned as the next-stage method following the prompt-only experiments.
 6. **Produce a reproducible experimental pipeline.** Ensure that prompts, model outputs, normalised outputs, evaluation summaries, figures, and reports can be traced back to their source files.
 
 These objectives are scientific rather than purely functional. The goal is not only to build a working tool, but also to understand which failures are recoverable, which prompt-level interventions help, and what kind of external knowledge infrastructure is required to push past the prompt-only ceiling.
@@ -69,6 +69,10 @@ To genuinely move beyond prompt-only methods, the next stage of the project is t
 
 **Planning agent v2.** With the persistent infrastructure in place, the planning agent will: (i) embed the task prompt and query Chroma for the most relevant `scene_objects` in the current scene, (ii) expand them via Neo4j `RELATION*0..k` Cypher traversal to obtain a compact subgraph, (iii) invoke the LLM under a `plan_then_ground` prompt to produce a draft, (iv) verify the draft against the rule-schema layer in Neo4j, and (v) when violations occur, query the failure-case layer for similar past failures and inject them as few-shot exemplars into a conservative local-repair prompt. Steps (iv) and (v) are the genuinely new capability that the earlier in-memory verifier could not provide, because they require a queryable history of failures linked to actions and scenes.
 
+**Iterative evaluation harness.** A standalone harness (`analysis/kb/harness.py`) will close the loop between the planning agent and the knowledge base. Each iteration runs the agent on the EAI action-sequencing test split, parses the per-task evaluator summary, identifies every failed task as a `BadCase`, and writes the bad cases back into both the Chroma `failure_cases` collection and the Neo4j `(:FailureCase)` layer (tagged with an `iteration_id`). On the next iteration, the agent retrieves these freshly added failures when it encounters semantically similar tasks, and uses them as few-shot exemplars in the repair step. The harness reports per-iteration metrics (task success, number of newly fixed cases, number of newly failed cases, cumulative success delta) and provides a convergence test that stops once successive iterations yield gains below a configurable threshold. The original benchmark gold sequences are never modified; only LLM-generated drafts and their associated violation codes flow into the knowledge base, which keeps the EAI evaluator's ground truth clean.
+
+This iterative-harness design supports three planned experiments. **E1 (static KB)** builds the knowledge base once from the existing `output/diagnostics/` failures and runs a single evaluation, isolating the contribution of the persistent vector store and graph database. **E2 (iterative KB)** runs the full closed loop for several iterations, isolating the contribution of bad-case feedback. **E3 (convergence study)** tracks task success, repaired-failure count, and newly-introduced-failure count per iteration, producing a convergence curve and identifying the point at which marginal gain falls below a chosen threshold. Together, E1–E3 turn the project's evaluation from a one-shot benchmark sweep into a reproducible, auditable diagnostic-then-repair cycle.
+
 ### 3.5 Work completed and work outstanding
 
 Completed:
@@ -77,15 +81,16 @@ Completed:
 - a failure taxonomy and case-study analysis of goal-correct but action-failed examples;
 - prompt-variant generation, normalisation, and evaluation scripts;
 - evaluation of baseline, format-constrained, few-shot, plan-then-ground, checklist, goal-conditioned, and bidirectional prompt variants;
-- design and implementation of the persistent RAG + KG infrastructure (build scripts, drop-in retriever and verifier, schema definition, Docker bootstrap, dependency manifest), all committed to the project repository;
+- design and implementation of the persistent RAG + KG infrastructure and an iterative evaluation-harness skeleton (build scripts, drop-in retriever and verifier, schema definition, harness module, Docker bootstrap, dependency manifest), all committed to the project repository;
 - draft thesis chapters covering introduction, experimental setup, failure diagnosis, prompt methods, and discussion.
 
 Outstanding:
 
 - bootstrap the live Chroma index and Neo4j graph (install Docker, install `chromadb` / `sentence-transformers` / `neo4j-driver`, run `scripts/build_knowledge_base.sh`);
+- replace the harness `run_iteration` stub with real `generate_outputs.py` + EAI evaluator calls and verify a single closed-loop pass on the dry-run provider;
 - implement the failure-case retrieval and few-shot injection step inside the v2 planning agent;
-- re-run the EAI evaluator with the v2 agent and update the result tables;
-- write the persistent RAG / KG section into the methodology chapter and update the discussion accordingly.
+- run experiments E1 (static KB), E2 (iterative KB), and E3 (convergence study) and update the result tables;
+- write the persistent RAG / KG / harness section into the methodology chapter and update the discussion accordingly.
 
 ---
 
@@ -101,8 +106,8 @@ The remaining project work focuses on bringing up the persistent knowledge base,
 | Prompt-only intervention experiments |  |  |  | ████ | ████ | ████ |  |  |  |  |  |
 | Checklist / goal-conditioned / bidirectional prompt ablations |  |  |  |  |  | ████ |  |  |  |  |  |
 | Design persistent RAG + KG infrastructure |  |  |  |  |  | ████ |  |  |  |  |  |
-| Bootstrap Chroma and Neo4j; implement v2 agent |  |  |  |  |  |  | ░░░░ | ░░░░ |  |  |  |
-| Run v2 agent experiments and update results |  |  |  |  |  |  |  | ░░░░ | ░░░░ |  |  |
+| Bootstrap Chroma and Neo4j; implement v2 agent and harness |  |  |  |  |  |  | ░░░░ | ░░░░ |  |  |  |
+| Run E1 / E2 / E3 (static, iterative, convergence) experiments |  |  |  |  |  |  |  | ░░░░ | ░░░░ |  |  |
 | Dissertation writing and editing |  |  |  | ████ | ████ | ░░░░ | ░░░░ | ░░░░ | ░░░░ | ░░░░ |  |
 | Final proofing and submission |  |  |  |  |  |  |  |  |  | ░░░░ | ░░░░ |
 
