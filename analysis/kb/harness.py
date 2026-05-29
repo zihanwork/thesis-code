@@ -181,20 +181,59 @@ def _generate_drafts(
     variant: str,
     output_root: Path,
     task_ids: Optional[Sequence[str]],
+    provider: str = "dry_run",
+    api_model: str = "stub",
 ) -> Optional[Path]:
-    """Call generate_outputs.py; return path to produced *_outputs.json or None."""
+    """Call generate_outputs.py; return path to produced *_outputs.json or None.
+
+    Signature of generate_outputs.py::
+
+        --provider {openai,anthropic,gemini,openai_compatible,dry_run}
+        --api-model API_MODEL        (provider-specific model id)
+        --model-name MODEL_NAME      (friendly id used in output filenames)
+        --variant VARIANT
+        --eval-type action_sequencing
+        --helm-prompt HELM_PROMPT    (path to helm_prompt.json)
+        --out-dir OUT_DIR            (writes <model-name>_<variant>_outputs.json here)
+
+    Environment variables KB_PROVIDER, KB_API_MODEL, KB_API_KEY_ENV override
+    the provider defaults so callers don't need to change this function.
+    """
+    import os
+    provider = os.environ.get("KB_PROVIDER", provider)
+    api_model = os.environ.get("KB_API_MODEL", api_model)
+
     script = REPO_ROOT / "analysis" / "generate_outputs.py"
-    out_file = output_root / f"{model}_{variant}_outputs.json"
+    helm_prompt = (
+        REPO_ROOT / "output" / "improvement_run" / "prompts"
+        / "virtualhome" / "generate_prompts" / "action_sequencing" / "helm_prompt.json"
+    )
+    if not helm_prompt.is_file():
+        log.warning("[harness] helm_prompt.json not found at %s", helm_prompt)
+        return None
+
+    drafts_dir = output_root / "drafts"
+    drafts_dir.mkdir(parents=True, exist_ok=True)
+    out_file = drafts_dir / f"{model}_{variant}_outputs.json"
+
     cmd = [
         "python3", str(script),
-        "--model", model,
+        "--provider", provider,
+        "--api-model", api_model,
+        "--model-name", model,
         "--variant", variant,
-        "--output", str(out_file),
+        "--eval-type", "action_sequencing",
+        "--helm-prompt", str(helm_prompt),
+        "--out-dir", str(drafts_dir),
     ]
+    if "KB_API_KEY_ENV" in os.environ:
+        cmd.extend(["--api-key-env", os.environ["KB_API_KEY_ENV"]])
     if task_ids:
-        cmd.extend(["--task-ids", ",".join(task_ids)])
+        cmd.extend(["--max-prompts", str(len(task_ids))])
+
     try:
         subprocess.run(cmd, check=True, cwd=str(REPO_ROOT))
+        # generate_outputs writes <model-name>_<variant>_outputs.json
         return out_file if out_file.is_file() else None
     except (FileNotFoundError, subprocess.CalledProcessError) as exc:
         log.warning("[harness] generate_drafts failed: %s", exc)
