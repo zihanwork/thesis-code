@@ -1,4 +1,4 @@
-# 本周汇报：从 Prompt 方法到 Knowledge-Grounded Planning Agent
+# 本周汇报：从 Prompt 方法到 Knowledge-Grounded Planning Framework
 
 **日期**：2026-05-26  
 **汇报人**：吴子涵  
@@ -9,33 +9,29 @@
 
 ## 1. 本周主要结论
 
-本周的重点是继续寻找一个真正能提升 EAI / VirtualHome 动作规划成功率的方法。最开始我主要尝试 prompt 方法，后来发现只在 prompt 上继续加复杂结构，提升空间比较有限。因此，本周后半部分把方向调整为：**从 prompt-only 方法，转向结合 RAG、KG 和固定流程 agent 的 knowledge-grounded planning framework**。
+本周的重点是继续寻找一个真正能提升 EAI / VirtualHome 动作规划成功率的方法。我先继续测试了几种 prompt 方法，确认了在 prompt-only 这个层面上，再加复杂结构的提升空间已经比较有限。因此本周后半部分把方向调整为：**从 prompt-only 方法，转向规划一个真正基于外部知识库的 knowledge-grounded planning framework**。
 
-目前最稳定的结果仍然是 `plan_then_ground`，它把 DeepSeek-V4-Flash 的 task success 从 `75.58%` 提高到 `80.23%`。但新的 RAG/KG/agent 实验也提供了一个重要结论：外部知识确实能改善 object grounding 和 relation grounding，只是当前版本还没有解决最核心的 `missing_step` 问题。
+需要诚实地说明一点：之前在代码里写过的 `Scene Graph RAG` 和 `Precondition KG` 模块，本质上只是**在 prompt 前面拼接结构化信息 + 在内存里硬编码动作规则**，没有向量检索、没有图数据库、没有持久化。这种实现严格来说不属于 RAG / KG，更接近 "structured prompt injection + rule-based verifier"，本周已经把它从论文方法主线中去除，只保留 prompt-only 的实验作为当前的实证结果。
 
-整体结果如下：
+目前最稳定的结果仍然是 `plan_then_ground`，它把 DeepSeek-V4-Flash 的 task success 从 `75.58%` 提高到 `80.23%`。其余 prompt 变体作为消融。整体结果如下：
 
 | 方法 | 方法类型 | Task success | 主要现象 |
 | --- | --- | ---: | --- |
-| `baseline` | 原始 EAI prompt | 75.58% | 基线结果 |
+| `baseline` | 原始 EAI prompt | 75.58% | 基线 |
 | `plan_then_ground` | 轻量 prompt 方法 | **80.23%** | 当前最强，明显降低 missing step |
 | `goal_conditioned_scaffold` | 目标倒推 prompt | 79.65% | relation goal 提升，但不超过主方法 |
 | `state_checklist_plan` | checklist prompt | 79.07% | execution success 高，但 additional step 增加 |
 | `bidirectional_causal_planning` | 双向因果 prompt | 74.43% | relation goal 很高，但 missing step 变差 |
-| `kg_rag_plan_then_ground` | RAG + KG + plan prompt | 76.39% | grounding 改善，但动作完整性不足 |
-| `kg_planning_agent` | 固定流程 knowledge-grounded agent | 76.72% | 比 RAG+KG prompt 略好，但仍不如 `plan_then_ground` |
 
-因此，本周最重要的结论不是“某个复杂方法已经超过了 `plan_then_ground`”，而是：
+本周最重要的判断不是 "某个新方法已经超过了 `plan_then_ground`"，而是：
 
-> 单纯增加 prompt 复杂度并不可靠；RAG 和 KG 能改善 grounding，但要真正提升 task success，需要把它们做成更强的、可控的 planning agent，而不是只作为 prompt 前缀。
+> 单纯增加 prompt 复杂度不可靠；要真正提升 task success，需要把 RAG 和 KG 做成**持久化、可查询、可被 agent 反复调用**的外部知识基础设施，而不是塞在 prompt 里的一段文本。
 
 ---
 
 ## 2. 目前最稳的方法：`plan_then_ground`
 
-`plan_then_ground` 不是 EAI 原论文中的方法，而是本项目在 EAI action sequencing 任务上设计的轻量 prompt 变体。它的思想可以用中文概括为：**种因得果**。
-
-也就是说，不让模型一开始就直接写动作，而是先让模型在内部想清楚高层计划，再把这个计划落地成 VirtualHome JSON 动作序列。
+`plan_then_ground` 不是 EAI 原论文中的方法，而是本项目在 EAI action sequencing 任务上设计的轻量 prompt 变体。它的思想可以用中文概括为：**种因得果**。也就是说，不让模型一开始就直接写动作，而是先让模型在内部想清楚高层计划，再把这个计划落地成 VirtualHome JSON 动作序列。
 
 代码中的提示思想大致是：
 
@@ -45,14 +41,14 @@ Step 2: Convert the plan into the compact JSON action sequence.
 Output ONLY the JSON sequence; never reveal the plan.
 ```
 
-这个方法的效果目前最稳定：
+效果如下：
 
 | 方法 | Task success | Execution success | Missing step | Additional step |
 | --- | ---: | ---: | ---: | ---: |
 | `baseline` | 75.58% | 82.6% | 12.79% | 4.07% |
 | `plan_then_ground` | **80.23%** | **86.6%** | **8.14%** | 5.23% |
 
-它最主要的贡献是降低 `missing_step`。例如任务是 `Read book`，模型不能只输出 `READ book`，而需要先 `WALK book -> GRAB book -> READ book`。`plan_then_ground` 的作用就是让模型先想清楚这些中间步骤，再生成动作。
+它最主要的贡献是降低 `missing_step`。例如任务是 `Read book`，模型不能只输出 `READ book`，而需要先 `WALK book -> GRAB book -> READ book`。`plan_then_ground` 让模型先想清楚这些中间步骤，再生成动作。
 
 ---
 
@@ -60,13 +56,11 @@ Output ONLY the JSON sequence; never reveal the plan.
 
 在 `plan_then_ground` 的基础上，我尝试了另一种思路：不是从任务出发正向规划，而是从最终目标倒推必要动作。这个方法叫 `goal_conditioned_scaffold`，中文可以理解为：**由果倒推因**。
 
-它的逻辑是：
-
 ```text
 最终目标条件 -> 直接实现目标的动作 -> 必要前置步骤 -> JSON 动作序列
 ```
 
-例如：
+例：
 
 ```text
 Goal: book is read / held
@@ -76,195 +70,192 @@ Goal: cup INSIDE dishwasher
 Skeleton: WALK cup -> GRAB cup -> WALK dishwasher -> OPEN dishwasher -> PUTIN cup dishwasher
 ```
 
-实验结果：
-
 | 方法 | Task success | Relation goal | Action goal | Missing step |
 | --- | ---: | ---: | ---: | ---: |
 | `baseline` | 75.58% | 64.41% | 62.67% | 12.79% |
 | `plan_then_ground` | **80.23%** | 67.80% | **73.33%** | **8.14%** |
 | `goal_conditioned_scaffold` | 79.65% | 71.19% | 70.67% | 8.72% |
 
-这个方法有效，但没有超过 `plan_then_ground`。它的优点是 relation goal 更高，说明目标倒推有助于关系目标落地；缺点是它没有进一步降低 missing step。
+这个方法有效但没有超过 `plan_then_ground`：relation goal 更高，说明目标倒推有助于关系目标落地；缺点是它没有进一步降低 missing step。
 
 ---
 
 ## 4. 本周尝试二：双向因果规划
 
-之后我尝试把“种因得果”和“由果倒推因”结合起来，设计了 `bidirectional_causal_planning`。它的想法是：
+之后我尝试把"种因得果"和"由果倒推因"结合起来，设计了 `bidirectional_causal_planning`：
 
 ```text
 先由果倒推因：从最终目标反推关键动作
 再种因得果：按可执行顺序展开动作
 ```
 
-理论上，这个方法应该同时具备两个优点：
-
-- 目标倒推可以避免漏掉最终目标；
-- 正向规划可以保证动作顺序自然可执行。
-
-但实际结果不理想：
+理论上它应该同时具备两个优点，但实际结果不理想：
 
 | 方法 | Task success | Relation goal | Action goal | Missing step |
 | --- | ---: | ---: | ---: | ---: |
 | `baseline` | 75.58% | 64.41% | 62.67% | 12.79% |
 | `bidirectional_causal_planning` | 74.43% | **80.00%** | 61.49% | 17.05% |
 
-这个实验说明，复杂 prompt 会让模型更关注最终关系目标，所以 relation goal 明显提高；但同时它反而漏掉更多中间执行步骤，导致 missing step 上升，task success 下降。
-
-这个结果对论文是有价值的，因为它说明：
+复杂 prompt 让模型更关注最终关系目标，所以 relation goal 明显提高；但同时它反而漏掉更多中间执行步骤，导致 missing step 上升、task success 下降。这个负面结果对论文是有价值的：
 
 > Prompt 不是越复杂越好。对 embodied planning 来说，过多推理要求可能会干扰模型生成完整动作序列。
 
 ---
 
-## 5. 为什么转向 RAG 和 KG
+## 5. 为什么需要真正的外部知识基础设施
 
-前面的 prompt 实验说明，继续只在 prompt 上做文章已经不够了。EAI/VirtualHome 的失败不是单纯“模型没想清楚”，还包括两个更具体的问题：
+前面的 prompt 实验说明，继续只在 prompt 上做文章已经不够了。EAI/VirtualHome 的失败不是单纯"模型没想清楚"，还包括两个更具体的问题：
 
-1. **场景 grounding 问题**  
-   模型需要知道有哪些对象、对象 id 是什么、对象状态和关系是什么。
+1. **场景 grounding 问题**：模型需要知道有哪些对象、对象 id 是什么、对象状态和关系是什么。VirtualHome 单个场景平均 287 个节点 / 5690 条边，全量塞进 prompt 不现实，必须按需检索。
+2. **动作前置条件问题**：模型需要知道每个动作之前必须满足什么条件，比如 `READ` 前要 `GRAB`，`PUTIN` 前要 `OPEN` 容器。规则数量虽小，但需要和**历史失败案例**关联起来才能给出有针对性的反馈。
 
-2. **动作前置条件问题**  
-   模型需要知道每个动作之前必须满足什么条件，比如 `READ` 前要 `GRAB`，`PUTIN` 前要 `OPEN` 容器。
+要解决这两个问题，光靠在 prompt 里拼一段文字是不够的。需要的是：
 
-因此，本周后半部分我把方法方向调整为：
+- **真正的向量检索 RAG**：embedding 模型 + 向量数据库 + 持久化索引，可以按语义检索任务相关对象，而不是关键词匹配。
+- **真正的图数据库 KG**：把场景图、动作规则和失败案例同时建模到图数据库中，支持 Cypher k-hop 查询，能反查"过去同类失败案例"。
 
-> Prompt 负责规划流程，RAG 负责提供场景信息，KG 负责提供动作前置条件。
+> Prompt 负责规划流程，向量库负责场景信息检索，图数据库负责动作约束和失败模式查询。
 
-这比单纯 prompt 更符合论文题目里的 **Knowledge-Grounded Recovery**。
+这才是论文题目里 **Knowledge-Grounded Recovery** 真正应该承载的方法。
 
 ---
 
-## 6. 本周尝试三：`kg_rag_plan_then_ground`
+## 6. 下一阶段方案：持久化 RAG + KG 知识库（已设计、待执行）
 
-这个方法是一个 single-pass 的 knowledge-grounded 版本。它不是只改 prompt，而是在生成前加入两个外部知识源：
+本周完成了完整的工程方案设计，**所有代码已提交到仓库**（`analysis/kb/` 包），但尚未实际跑通 bootstrap（需要 Docker + 安装依赖）。具体方案如下。
 
-- **Scene Graph RAG**：检索任务相关对象、id、状态和关系；
-- **Precondition KG**：提供任务相关动作的前置条件规则；
-- **Plan-then-ground**：让模型在这些知识约束下生成动作。
+### 6.1 选型
 
-流程如下：
+| 组件 | 选型 | 理由 |
+| --- | --- | --- |
+| 向量数据库 | **Chroma**（本地 sqlite + parquet 持久化） | 零运维、单机够用、便于论文复现 |
+| Embedding 模型 | **BAAI/bge-small-en-v1.5**（384 维，本地推理） | 不依赖外部 API、效果优于 MiniLM |
+| 图数据库 | **Neo4j 5**（Docker 启动） | 成熟的 Cypher 查询、图可视化、社区方案 |
+| Drop-in 切换 | 环境变量 `KB_BACKEND=persistent` | 离线评审或没有 Docker 时自动回退到原内存实现，保证论文实验可复现 |
+
+### 6.2 RAG 层：双 collection 向量库
+
+- `scene_objects`：每个 (file_id, node_id) 一条文档；document = `"{class_name}; properties: ...; states: ..."`；元数据含 `file_id, scene_id, node_id, class_name, category, properties, states`。共 518 个场景 × 平均 287 节点 ≈ **15 万向量**。
+- `failure_cases`：每条历史失败案例一条文档（来自 `output/diagnostics/`）；document = `"task=... failure_type=... :: <raw_text>"`；元数据含 `failure_type, model, file_id`。
+
+检索接口：
+```python
+PersistentSceneGraphRetriever.retrieve(
+    identifier="11_1",
+    task_prompt="Read the book on the bedside table",
+    k_neighbours=1,
+    max_objects=20,
+) -> str  # 返回 [Scene Subgraph] 文本块（保持与原版字节级一致）
+```
+
+### 6.3 KG 层：三层 Neo4j 图谱
+
+```cypher
+// 第一层：场景图实例（来自 EAI 数据集 518 个 JSON）
+(:Scene {file_id})-[:CONTAINS]->(:Object {file_id, node_id, class_name, properties, states})
+(:Object)-[:RELATION {type}]->(:Object)
+
+// 第二层：动作规则 schema（来自 22 条 ActionRule）
+(:Action {name, arity})-[:REQUIRES_PROP {slot}]->(:Property {name})
+(:Action)-[:REQUIRES_STATE]->(:Precondition {kind})
+(:Action)-[:PRODUCES]->(:Effect {kind})
+
+// 第三层：失败案例链路（来自 output/diagnostics/）
+(:FailureCase {uid, file_id, model, failure_type, task})-[:OCCURRED_IN]->(:Scene)
+(:FailureCase)-[:VIOLATES]->(:Action)
+```
+
+关键查询能力（这正是当前内存版做不到的）：
+
+- "在 file 11_1 这个场景下，从 book(123) 出发 1 跳能到达哪些对象？" → Cypher 一行
+- "过去所有违反 GRAB 前置条件的失败案例里，哪个 failure_type 占比最高？" → 反查 `(:FailureCase)-[:VIOLATES]->(:Action {name:'GRAB'})`
+- "动作 PUTIN 需要满足哪些前置状态？" → schema 子图直接读
+
+### 6.4 Knowledge-Grounded Planning Agent v2（下一步）
+
+有了真正的持久化 KG / RAG 之后，agent 流程会变成：
 
 ```text
 Task instruction
-        ↓
-Scene Graph RAG
-        ↓
-Precondition KG guidance
-        ↓
-Plan-then-ground generation
-        ↓
-VirtualHome JSON action sequence
-```
-
-实验结果：
-
-| 方法 | Task success | Execution success | Relation goal | Hallucination | Missing step |
-| --- | ---: | ---: | ---: | ---: | ---: |
-| `baseline` | 75.58% | 82.6% | 64.41% | 2.33% | 12.79% |
-| `kg_rag_plan_then_ground` | 76.39% | 83.0% | **76.67%** | **1.97%** | 12.79% |
-
-这个方法比 baseline 有小幅提升，并且 relation goal 和 hallucination 都改善了。这说明 RAG/KG 的确帮助模型更好地找到对象和关系。但是，它没有解决 missing step，导致总成功率没有超过 `plan_then_ground`。
-
----
-
-## 7. 本周尝试四：Knowledge-Grounded Planning Agent
-
-接着我进一步做了一个固定流程的 `kg_planning_agent`。这个 agent 不是开放式、多轮自由 agent，而是一个可复现、能被 EAI evaluator 直接评测的固定流程 planning framework。
-
-它的流程是：
-
-```text
-RAG + KG 生成 draft
-        ↓
-加载当前任务的 scene graph
-        ↓
-用 Precondition KG 检查动作前置条件
-        ↓
-只做保守 local repair
-        ↓
-输出最终 VirtualHome action sequence
-        ↓
+    ↓
+Chroma 语义检索 -> seed objects（按任务语义找最相关对象）
+    ↓
+Neo4j Cypher k-hop 扩展 -> 紧凑场景子图
+    ↓
+LLM plan-then-ground 生成 draft
+    ↓
+Neo4j 规则子图加载 -> 检查 draft 的前置条件
+    ↓
+若违反规则：Cypher 反查同类失败案例 -> few-shot 注入修复 prompt
+    ↓
+保守 local repair -> 输出 VirtualHome JSON
+    ↓
 EAI evaluator 评测
 ```
 
-这里的关键是：不让 LLM 自由重写整个计划，因为之前 `pc_kg_self_check` 的结果说明，LLM 自我纠错容易 over-correct。因此这个 agent 只做高置信局部修复，例如插入 `WALK`、`GRAB`、`OPEN` 这类前置动作，不删除、不重排、不大幅改写原动作序列。
+相比之前那个内存版 agent，最大区别有三点：
 
-实际执行中，agent 修改了 `25 / 342` 条样本，总共插入了 `49` 个动作。
-
-实验结果：
-
-| 方法 | Task success | Execution success | Relation goal | Missing step | Additional step |
-| --- | ---: | ---: | ---: | ---: | ---: |
-| `kg_rag_plan_then_ground` | 76.39% | 83.0% | 76.67% | 12.79% | 2.62% |
-| `kg_planning_agent` | **76.72%** | **83.3%** | **77.22%** | **12.46%** | 2.62% |
-
-这个 agent 比 single-pass RAG/KG prompt 略有提升，说明 KG verifier + local repair 是有效的。但提升很小，原因是当前 repair policy 太保守：很多样本因为 parse error、unknown action、arity mismatch 等问题被跳过，只有 25 条被真正修复。
+1. **可问历史**：当 verifier 发现违反 `MISSING_WALK` 时，可以查询过去同类失败案例，把它们作为 few-shot 注入到修复 prompt，而不是让 LLM 凭空想。
+2. **可问场景**：不再是关键词匹配 + k-hop 暴力扩展，而是 BGE 语义检索找最相关 seed，再用 Cypher 精准扩展，可以处理"模型不知道场景里到底叫 'book' 还是 'novel'"这种语义模糊问题。
+3. **可问规则**：规则源在图数据库里，未来可以加新动作类型（如 BEHAVIOR-1K 的更多动作），不用改硬编码。
 
 ---
 
-## 8. 本周实验给出的判断
+## 7. 实施进度与风险
 
-本周实验可以总结成三点：
+### 已完成（已提交至 GitHub）
+- `analysis/kb/config.py` — 路径/模型/Neo4j 连接（环境变量可覆写）
+- `analysis/kb/build_vector_store.py` — 一次性构建 Chroma（场景 + 失败案例）
+- `analysis/kb/build_graph_db.py` — 一次性写入 Neo4j（Scene / Object / RELATION / Action 规则子图 / FailureCase 链路）
+- `analysis/kb/persistent_retriever.py` — `PersistentSceneGraphRetriever`（drop-in 替换原 retriever）
+- `analysis/kb/persistent_kg.py` — `PersistentPreconditionKG`（drop-in 替换原 verifier）
+- `analysis/kb/schema.cypher` — Neo4j 唯一性约束 + 索引
+- `scripts/start_neo4j.sh` — Docker 启动 Neo4j 5.20
+- `scripts/build_knowledge_base.sh` — 一键 bootstrap
+- `requirements-kb.txt` — chromadb / sentence-transformers / neo4j
 
-### 1. `plan_then_ground` 仍然是当前最强主方法
+### 待执行
+1. 安装 Docker + `pip install -r requirements-kb.txt`
+2. 跑 `bash scripts/build_knowledge_base.sh` —— 完成 Chroma 索引和 Neo4j 灌库
+3. 实现"失败案例 few-shot 注入"修复策略
+4. 重跑 EAI evaluator，对比 `plan_then_ground` 与 v2 agent
 
-它简单、稳定，并且真正降低了最关键的 `missing_step`。所以论文中仍然应该把它作为当前最强的 prompt-based improvement。
-
-### 2. RAG 和 KG 的作用是明确的，但不能只作为 prompt 前缀
-
-`kg_rag_plan_then_ground` 明显提高 relation goal，并降低 hallucination，说明外部知识是有用的。但它没有解决动作步骤缺失，所以仅仅把 RAG/KG 塞进 prompt 不够。
-
-### 3. Agent 方向更符合后续方法发展
-
-`kg_planning_agent` 虽然还没有超过 `plan_then_ground`，但它证明了一个更合理的方向：
-
-> 用 RAG 做场景 grounding，用 KG 做动作约束，用固定流程 agent 做检查和局部修复。
-
-这比单纯 prompt 更像一个完整的 knowledge-grounded planning framework。
+### 风险与回退
+- Neo4j 需要 Docker：离线评审环境可能不可用 → 已实现自动回退到原内存实现，论文复现不会被卡住。
+- BGE 模型首次下载约 130MB → 已配置缓存到 `data/kb/models/`。
+- 工程量较大：bootstrap + 实验跑完估计需要本周后半到下周。
 
 ---
 
-## 9. 建议论文中如何定位
+## 8. 论文方法线索的重新组织
 
 我建议论文中这样组织方法线索：
 
-### 主结果：`plan_then_ground`
+### 第一阶段：Prompt-only（已完成，主结果）
+- **`plan_then_ground`** 作为最强的 prompt-only 方法（task success 75.58 → 80.23）。
+- **`state_checklist_plan` / `goal_conditioned_scaffold` / `bidirectional_causal_planning`** 作为消融，说明 prompt 复杂度有上限。
+- 关键发现：prompt 越复杂不一定越好，过多推理要求会干扰动作完整性。
 
-作为当前最稳定、最有效的 prompt-based 方法，强调它能显著降低 missing step。
-
-### 补充消融：复杂 prompt 方法
-
-包括 `state_checklist_plan`、`goal_conditioned_scaffold` 和 `bidirectional_causal_planning`。这些实验说明：
-
-- 目标倒推可以改善 relation grounding；
-- checklist 和双向推理不一定提升总成功率；
-- prompt 复杂度过高可能伤害 action sequencing。
-
-### 新方向：Knowledge-Grounded Planning Agent
-
-把 `kg_rag_plan_then_ground` 和 `kg_planning_agent` 作为从 prompt-only 转向 knowledge-grounded framework 的探索。当前版本还没有超过主方法，但已经证明：
-
-- RAG/KG 能改善 grounding；
-- KG local repair 能小幅降低 missing step；
-- 后续需要更强的 structured parser 和 constrained repair agent。
+### 第二阶段：Knowledge-Grounded Planning Framework（下一步）
+- **持久化 RAG**（Chroma + BGE）：解决场景 grounding。
+- **持久化 KG**（Neo4j 三层：场景/规则/失败链路）：解决动作约束 + 历史失败查询。
+- **Planning Agent v2**：把检索、生成、验证、案例反查、保守修复串成完整 pipeline。
+- 实验目标：在保留 `plan_then_ground` 收益的基础上，进一步降低 `missing_step` 与 `relation_grounding` 失败。
 
 ---
 
-## 10. 可以对老师这样说
+## 9. 可以对老师这样说
 
-这周我先继续测试了几种 prompt 方法。结果发现，`plan_then_ground` 仍然是最稳定的，能把成功率从 `75.58%` 提到 `80.23%`。我也尝试了目标倒推和双向因果规划，虽然它们能提升 relation goal，但没有进一步提升整体成功率，说明不是 prompt 越复杂越好。
+这周我先继续测试了几种 prompt 方法。结果发现，`plan_then_ground` 仍然是最稳定的，能把成功率从 `75.58%` 提到 `80.23%`。我也尝试了目标倒推和双向因果规划，发现 prompt 越复杂不一定越好。
 
-所以我把方向从 prompt-only 调整到了 knowledge-grounded planning。具体来说，我加入了 Scene Graph RAG 和 Precondition KG，让模型在生成动作前看到相关场景对象和动作前置条件。这个方法改善了 relation goal 和 hallucination，但没有明显降低 missing step。
-
-进一步地，我实现了一个固定流程的 knowledge-grounded planning agent：先生成 draft，再用 KG 检查前置条件，并做保守的局部修复。这个 agent 比单纯 RAG/KG prompt 略有提升，但还没有超过 `plan_then_ground`。目前结论是：RAG 和 KG 是有用的，但下一步需要做更强的 constrained repair agent，而不是只把知识塞进 prompt。
+更重要的是，我对之前的 RAG / KG 模块做了一次诚实的复盘：那两个模块本质上只是 prompt 前缀拼接和内存里的规则查询，并不算真正的 RAG 或 KG。所以本周后半部分我把方向调整成：设计一个真正基于向量数据库（Chroma + BGE）和图数据库（Neo4j）的持久化知识库。代码已经写完并提交到 GitHub，包括建库脚本、drop-in 替换接口、和环境变量切换机制。下一步是实际跑通 bootstrap、把失败案例反查接进 agent，并重新跑 EAI 评测。
 
 ---
 
-## 11. 下一步计划
+## 10. 下一步计划
 
-1. 保留 `plan_then_ground` 作为当前主实验结果。
-2. 把复杂 prompt 方法作为消融，说明 prompt-only 的上限和风险。
-3. 继续发展 `knowledge-grounded planning agent`，重点解决 parse error、unknown action 和 arity mismatch 不能修的问题。
-4. 设计更强的 structured parser，把模型输出先转成可操作的 action graph，再做 KG 约束修复。
-5. 在论文中把方法主线从“prompt 提升”扩展为“knowledge-grounded planning framework”。
+1. 安装 Docker，跑通 `scripts/build_knowledge_base.sh`，得到一个真实可查询的 Chroma 向量库 + Neo4j 图谱。
+2. 实现 v2 的 Planning Agent：在 verifier 报错时，从 Neo4j 反查同类失败案例，作为 few-shot 注入修复 prompt。
+3. 重跑 DeepSeek-V4-Flash 在 EAI action sequencing 上的对比实验：`baseline` / `plan_then_ground` / `agent_v2`。
+4. 论文中把方法主线写成两阶段：第一阶段 prompt-only 的实证发现，第二阶段 knowledge-grounded framework 的设计与初步结果。
+5. 在 `paper/` 中追加方法学小节，正式描述持久化 RAG / KG 的架构与查询接口。
