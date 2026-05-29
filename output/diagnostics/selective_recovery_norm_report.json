@@ -1,0 +1,1459 @@
+{
+  "input": "output/improvement_run/helm_output_norm/virtualhome/action_sequencing/deepseek-v4-flash_plan_then_ground_outputs.json",
+  "output": "output/improvement_run/helm_output_norm/virtualhome/action_sequencing/deepseek-v4-flash_selective_recovery_outputs.json",
+  "total_rows": 200,
+  "changed_rows": 15,
+  "inserted_actions": 28,
+  "skipped": {
+    "max_insertions_exceeded": 5,
+    "no_repair_needed": 100,
+    "unsafe_unknown_action": 76,
+    "unsafe_arity_mismatch": 3,
+    "empty_sequence": 1
+  },
+  "rows": [
+    {
+      "identifier": "27_2",
+      "changed": true,
+      "inserted_actions": 1,
+      "skipped_reason": null,
+      "inserted_steps": [
+        "{\"WALK\":[\"clothes_jacket\",\"1003\"]}"
+      ]
+    },
+    {
+      "identifier": "417_1",
+      "changed": false,
+      "inserted_actions": 0,
+      "skipped_reason": "max_insertions_exceeded",
+      "inserted_steps": []
+    },
+    {
+      "identifier": "850_1",
+      "changed": true,
+      "inserted_actions": 1,
+      "skipped_reason": null,
+      "inserted_steps": [
+        "{\"WALK\":[\"clothes_pants\",\"1001\"]}"
+      ]
+    },
+    {
+      "identifier": "954_2",
+      "changed": false,
+      "inserted_actions": 0,
+      "skipped_reason": "max_insertions_exceeded",
+      "inserted_steps": []
+    },
+    {
+      "identifier": "11_1",
+      "changed": false,
+      "inserted_actions": 0,
+      "skipped_reason": "no_repair_needed",
+      "inserted_steps": []
+    },
+    {
+      "identifier": "120_1",
+      "changed": false,
+      "inserted_actions": 0,
+      "skipped_reason": "no_repair_needed",
+      "inserted_steps": []
+    },
+    {
+      "identifier": "125_2",
+      "changed": false,
+      "inserted_actions": 0,
+      "skipped_reason": "no_repair_needed",
+      "inserted_steps": []
+    },
+    {
+      "identifier": "150_2",
+      "changed": false,
+      "inserted_actions": 0,
+      "skipped_reason": "no_repair_needed",
+      "inserted_steps": []
+    },
+    {
+      "identifier": "160_1",
+      "changed": false,
+      "inserted_actions": 0,
+      "skipped_reason": "no_repair_needed",
+      "inserted_steps": []
+    },
+    {
+      "identifier": "180_2",
+      "changed": false,
+      "inserted_actions": 0,
+      "skipped_reason": "no_repair_needed",
+      "inserted_steps": []
+    },
+    {
+      "identifier": "205_1",
+      "changed": false,
+      "inserted_actions": 0,
+      "skipped_reason": "no_repair_needed",
+      "inserted_steps": []
+    },
+    {
+      "identifier": "222_1",
+      "changed": false,
+      "inserted_actions": 0,
+      "skipped_reason": "no_repair_needed",
+      "inserted_steps": []
+    },
+    {
+      "identifier": "232_2",
+      "changed": false,
+      "inserted_actions": 0,
+      "skipped_reason": "no_repair_needed",
+      "inserted_steps": []
+    },
+    {
+      "identifier": "310_1",
+      "changed": false,
+      "inserted_actions": 0,
+      "skipped_reason": "no_repair_needed",
+      "inserted_steps": []
+    },
+    {
+      "identifier": "311_1",
+      "changed": false,
+      "inserted_actions": 0,
+      "skipped_reason": "no_repair_needed",
+      "inserted_steps": []
+    },
+    {
+      "identifier": "331_2",
+      "changed": false,
+      "inserted_actions": 0,
+      "skipped_reason": "no_repair_needed",
+      "inserted_steps": []
+    },
+    {
+      "identifier": "339_1",
+      "changed": false,
+      "inserted_actions": 0,
+      "skipped_reason": "no_repair_needed",
+      "inserted_steps": []
+    },
+    {
+      "identifier": "345_1",
+      "changed": false,
+      "inserted_actions": 0,
+      "skipped_reason": "no_repair_needed",
+      "inserted_steps": []
+    },
+    {
+      "identifier": "392_1",
+      "changed": false,
+      "inserted_actions": 0,
+      "skipped_reason": "no_repair_needed",
+      "inserted_steps": []
+    },
+    {
+      "identifier": "394_2",
+      "changed": false,
+      "inserted_actions": 0,
+      "skipped_reason": "no_repair_needed",
+      "inserted_steps": []
+    },
+    {
+      "identifier": "432_1",
+      "changed": false,
+      "inserted_actions": 0,
+      "skipped_reason": "no_repair_needed",
+      "inserted_steps": []
+    },
+    {
+      "identifier": "443_2",
+      "changed": false,
+      "inserted_actions": 0,
+      "skipped_reason": "no_repair_needed",
+      "inserted_steps": []
+    },
+    {
+      "identifier": "445_1",
+      "changed": false,
+      "inserted_actions": 0,
+      "skipped_reason": "no_repair_needed",
+      "inserted_steps": []
+    },
+    {
+      "identifier": "511_1",
+      "changed": false,
+      "inserted_actions": 0,
+      "skipped_reason": "no_repair_needed",
+      "inserted_steps": []
+    },
+    {
+      "identifier": "585_1",
+      "changed": false,
+      "inserted_actions": 0,
+      "skipped_reason": "no_repair_needed",
+      "inserted_steps": []
+    },
+    {
+      "identifier": "604_2",
+      "changed": false,
+      "inserted_actions": 0,
+      "skipped_reason": "no_repair_needed",
+      "inserted_steps": []
+    },
+    {
+      "identifier": "616_1",
+      "changed": false,
+      "inserted_actions": 0,
+      "skipped_reason": "no_repair_needed",
+      "inserted_steps": []
+    },
+    {
+      "identifier": "627_1",
+      "changed": false,
+      "inserted_actions": 0,
+      "skipped_reason": "no_repair_needed",
+      "inserted_steps": []
+    },
+    {
+      "identifier": "705_1",
+      "changed": false,
+      "inserted_actions": 0,
+      "skipped_reason": "no_repair_needed",
+      "inserted_steps": []
+    },
+    {
+      "identifier": "708_1",
+      "changed": false,
+      "inserted_actions": 0,
+      "skipped_reason": "no_repair_needed",
+      "inserted_steps": []
+    },
+    {
+      "identifier": "715_2",
+      "changed": false,
+      "inserted_actions": 0,
+      "skipped_reason": "no_repair_needed",
+      "inserted_steps": []
+    },
+    {
+      "identifier": "737_2",
+      "changed": false,
+      "inserted_actions": 0,
+      "skipped_reason": "no_repair_needed",
+      "inserted_steps": []
+    },
+    {
+      "identifier": "780_1",
+      "changed": false,
+      "inserted_actions": 0,
+      "skipped_reason": "no_repair_needed",
+      "inserted_steps": []
+    },
+    {
+      "identifier": "812_1",
+      "changed": false,
+      "inserted_actions": 0,
+      "skipped_reason": "no_repair_needed",
+      "inserted_steps": []
+    },
+    {
+      "identifier": "835_2",
+      "changed": false,
+      "inserted_actions": 0,
+      "skipped_reason": "no_repair_needed",
+      "inserted_steps": []
+    },
+    {
+      "identifier": "85_2",
+      "changed": false,
+      "inserted_actions": 0,
+      "skipped_reason": "no_repair_needed",
+      "inserted_steps": []
+    },
+    {
+      "identifier": "874_2",
+      "changed": false,
+      "inserted_actions": 0,
+      "skipped_reason": "no_repair_needed",
+      "inserted_steps": []
+    },
+    {
+      "identifier": "491_2",
+      "changed": false,
+      "inserted_actions": 0,
+      "skipped_reason": "no_repair_needed",
+      "inserted_steps": []
+    },
+    {
+      "identifier": "696_1",
+      "changed": true,
+      "inserted_actions": 1,
+      "skipped_reason": null,
+      "inserted_steps": [
+        "{\"WALK\":[\"tooth_paste\",\"1000\"]}"
+      ]
+    },
+    {
+      "identifier": "1003_2",
+      "changed": false,
+      "inserted_actions": 0,
+      "skipped_reason": "unsafe_unknown_action",
+      "inserted_steps": []
+    },
+    {
+      "identifier": "115_2",
+      "changed": false,
+      "inserted_actions": 0,
+      "skipped_reason": "unsafe_unknown_action",
+      "inserted_steps": []
+    },
+    {
+      "identifier": "407_1",
+      "changed": false,
+      "inserted_actions": 0,
+      "skipped_reason": "unsafe_unknown_action",
+      "inserted_steps": []
+    },
+    {
+      "identifier": "430_1",
+      "changed": false,
+      "inserted_actions": 0,
+      "skipped_reason": "unsafe_unknown_action",
+      "inserted_steps": []
+    },
+    {
+      "identifier": "481_2",
+      "changed": false,
+      "inserted_actions": 0,
+      "skipped_reason": "unsafe_unknown_action",
+      "inserted_steps": []
+    },
+    {
+      "identifier": "622_1",
+      "changed": false,
+      "inserted_actions": 0,
+      "skipped_reason": "unsafe_unknown_action",
+      "inserted_steps": []
+    },
+    {
+      "identifier": "699_1",
+      "changed": false,
+      "inserted_actions": 0,
+      "skipped_reason": "unsafe_unknown_action",
+      "inserted_steps": []
+    },
+    {
+      "identifier": "824_1",
+      "changed": false,
+      "inserted_actions": 0,
+      "skipped_reason": "unsafe_unknown_action",
+      "inserted_steps": []
+    },
+    {
+      "identifier": "87_2",
+      "changed": false,
+      "inserted_actions": 0,
+      "skipped_reason": "unsafe_unknown_action",
+      "inserted_steps": []
+    },
+    {
+      "identifier": "986_2",
+      "changed": false,
+      "inserted_actions": 0,
+      "skipped_reason": "unsafe_unknown_action",
+      "inserted_steps": []
+    },
+    {
+      "identifier": "996_2",
+      "changed": false,
+      "inserted_actions": 0,
+      "skipped_reason": "unsafe_unknown_action",
+      "inserted_steps": []
+    },
+    {
+      "identifier": "1004_2",
+      "changed": false,
+      "inserted_actions": 0,
+      "skipped_reason": "no_repair_needed",
+      "inserted_steps": []
+    },
+    {
+      "identifier": "152_2",
+      "changed": true,
+      "inserted_actions": 1,
+      "skipped_reason": null,
+      "inserted_steps": [
+        "{\"WALK\":[\"food_food\",\"1000\"]}"
+      ]
+    },
+    {
+      "identifier": "298_2",
+      "changed": false,
+      "inserted_actions": 0,
+      "skipped_reason": "no_repair_needed",
+      "inserted_steps": []
+    },
+    {
+      "identifier": "609_2",
+      "changed": false,
+      "inserted_actions": 0,
+      "skipped_reason": "no_repair_needed",
+      "inserted_steps": []
+    },
+    {
+      "identifier": "703_2",
+      "changed": false,
+      "inserted_actions": 0,
+      "skipped_reason": "no_repair_needed",
+      "inserted_steps": []
+    },
+    {
+      "identifier": "772_1",
+      "changed": false,
+      "inserted_actions": 0,
+      "skipped_reason": "no_repair_needed",
+      "inserted_steps": []
+    },
+    {
+      "identifier": "837_2",
+      "changed": true,
+      "inserted_actions": 1,
+      "skipped_reason": null,
+      "inserted_steps": [
+        "{\"WALK\":[\"food_cheese\",\"1001\"]}"
+      ]
+    },
+    {
+      "identifier": "158_1",
+      "changed": false,
+      "inserted_actions": 0,
+      "skipped_reason": "no_repair_needed",
+      "inserted_steps": []
+    },
+    {
+      "identifier": "323_2",
+      "changed": false,
+      "inserted_actions": 0,
+      "skipped_reason": "no_repair_needed",
+      "inserted_steps": []
+    },
+    {
+      "identifier": "430_2",
+      "changed": false,
+      "inserted_actions": 0,
+      "skipped_reason": "no_repair_needed",
+      "inserted_steps": []
+    },
+    {
+      "identifier": "478_1",
+      "changed": false,
+      "inserted_actions": 0,
+      "skipped_reason": "no_repair_needed",
+      "inserted_steps": []
+    },
+    {
+      "identifier": "496_1",
+      "changed": false,
+      "inserted_actions": 0,
+      "skipped_reason": "no_repair_needed",
+      "inserted_steps": []
+    },
+    {
+      "identifier": "624_2",
+      "changed": false,
+      "inserted_actions": 0,
+      "skipped_reason": "no_repair_needed",
+      "inserted_steps": []
+    },
+    {
+      "identifier": "188_1",
+      "changed": false,
+      "inserted_actions": 0,
+      "skipped_reason": "unsafe_unknown_action",
+      "inserted_steps": []
+    },
+    {
+      "identifier": "803_2",
+      "changed": false,
+      "inserted_actions": 0,
+      "skipped_reason": "unsafe_unknown_action",
+      "inserted_steps": []
+    },
+    {
+      "identifier": "960_2",
+      "changed": false,
+      "inserted_actions": 0,
+      "skipped_reason": "unsafe_unknown_action",
+      "inserted_steps": []
+    },
+    {
+      "identifier": "101_2",
+      "changed": false,
+      "inserted_actions": 0,
+      "skipped_reason": "no_repair_needed",
+      "inserted_steps": []
+    },
+    {
+      "identifier": "1068_1",
+      "changed": false,
+      "inserted_actions": 0,
+      "skipped_reason": "no_repair_needed",
+      "inserted_steps": []
+    },
+    {
+      "identifier": "153_2",
+      "changed": false,
+      "inserted_actions": 0,
+      "skipped_reason": "no_repair_needed",
+      "inserted_steps": []
+    },
+    {
+      "identifier": "196_2",
+      "changed": false,
+      "inserted_actions": 0,
+      "skipped_reason": "no_repair_needed",
+      "inserted_steps": []
+    },
+    {
+      "identifier": "198_1",
+      "changed": false,
+      "inserted_actions": 0,
+      "skipped_reason": "no_repair_needed",
+      "inserted_steps": []
+    },
+    {
+      "identifier": "201_2",
+      "changed": false,
+      "inserted_actions": 0,
+      "skipped_reason": "no_repair_needed",
+      "inserted_steps": []
+    },
+    {
+      "identifier": "232_1",
+      "changed": false,
+      "inserted_actions": 0,
+      "skipped_reason": "no_repair_needed",
+      "inserted_steps": []
+    },
+    {
+      "identifier": "234_1",
+      "changed": false,
+      "inserted_actions": 0,
+      "skipped_reason": "no_repair_needed",
+      "inserted_steps": []
+    },
+    {
+      "identifier": "343_2",
+      "changed": false,
+      "inserted_actions": 0,
+      "skipped_reason": "no_repair_needed",
+      "inserted_steps": []
+    },
+    {
+      "identifier": "373_1",
+      "changed": true,
+      "inserted_actions": 1,
+      "skipped_reason": null,
+      "inserted_steps": [
+        "{\"WALK\":[\"computer\",\"417\"]}"
+      ]
+    },
+    {
+      "identifier": "406_2",
+      "changed": false,
+      "inserted_actions": 0,
+      "skipped_reason": "no_repair_needed",
+      "inserted_steps": []
+    },
+    {
+      "identifier": "409_2",
+      "changed": false,
+      "inserted_actions": 0,
+      "skipped_reason": "no_repair_needed",
+      "inserted_steps": []
+    },
+    {
+      "identifier": "419_1",
+      "changed": false,
+      "inserted_actions": 0,
+      "skipped_reason": "no_repair_needed",
+      "inserted_steps": []
+    },
+    {
+      "identifier": "433_1",
+      "changed": false,
+      "inserted_actions": 0,
+      "skipped_reason": "no_repair_needed",
+      "inserted_steps": []
+    },
+    {
+      "identifier": "437_2",
+      "changed": false,
+      "inserted_actions": 0,
+      "skipped_reason": "no_repair_needed",
+      "inserted_steps": []
+    },
+    {
+      "identifier": "440_1",
+      "changed": false,
+      "inserted_actions": 0,
+      "skipped_reason": "no_repair_needed",
+      "inserted_steps": []
+    },
+    {
+      "identifier": "453_2",
+      "changed": false,
+      "inserted_actions": 0,
+      "skipped_reason": "no_repair_needed",
+      "inserted_steps": []
+    },
+    {
+      "identifier": "46_1",
+      "changed": false,
+      "inserted_actions": 0,
+      "skipped_reason": "no_repair_needed",
+      "inserted_steps": []
+    },
+    {
+      "identifier": "475_2",
+      "changed": false,
+      "inserted_actions": 0,
+      "skipped_reason": "no_repair_needed",
+      "inserted_steps": []
+    },
+    {
+      "identifier": "503_1",
+      "changed": false,
+      "inserted_actions": 0,
+      "skipped_reason": "no_repair_needed",
+      "inserted_steps": []
+    },
+    {
+      "identifier": "670_2",
+      "changed": false,
+      "inserted_actions": 0,
+      "skipped_reason": "no_repair_needed",
+      "inserted_steps": []
+    },
+    {
+      "identifier": "719_2",
+      "changed": false,
+      "inserted_actions": 0,
+      "skipped_reason": "no_repair_needed",
+      "inserted_steps": []
+    },
+    {
+      "identifier": "757_2",
+      "changed": false,
+      "inserted_actions": 0,
+      "skipped_reason": "no_repair_needed",
+      "inserted_steps": []
+    },
+    {
+      "identifier": "787_2",
+      "changed": false,
+      "inserted_actions": 0,
+      "skipped_reason": "no_repair_needed",
+      "inserted_steps": []
+    },
+    {
+      "identifier": "795_1",
+      "changed": false,
+      "inserted_actions": 0,
+      "skipped_reason": "no_repair_needed",
+      "inserted_steps": []
+    },
+    {
+      "identifier": "819_1",
+      "changed": false,
+      "inserted_actions": 0,
+      "skipped_reason": "no_repair_needed",
+      "inserted_steps": []
+    },
+    {
+      "identifier": "874_1",
+      "changed": false,
+      "inserted_actions": 0,
+      "skipped_reason": "no_repair_needed",
+      "inserted_steps": []
+    },
+    {
+      "identifier": "910_1",
+      "changed": false,
+      "inserted_actions": 0,
+      "skipped_reason": "no_repair_needed",
+      "inserted_steps": []
+    },
+    {
+      "identifier": "91_2",
+      "changed": false,
+      "inserted_actions": 0,
+      "skipped_reason": "no_repair_needed",
+      "inserted_steps": []
+    },
+    {
+      "identifier": "93_2",
+      "changed": false,
+      "inserted_actions": 0,
+      "skipped_reason": "no_repair_needed",
+      "inserted_steps": []
+    },
+    {
+      "identifier": "962_1",
+      "changed": false,
+      "inserted_actions": 0,
+      "skipped_reason": "no_repair_needed",
+      "inserted_steps": []
+    },
+    {
+      "identifier": "190_1",
+      "changed": true,
+      "inserted_actions": 2,
+      "skipped_reason": null,
+      "inserted_steps": [
+        "{\"WALK\":[\"plate\",\"1002\"]}",
+        "{\"WALK\":[\"dish_soap\",\"1003\"]}"
+      ]
+    },
+    {
+      "identifier": "201_1",
+      "changed": true,
+      "inserted_actions": 2,
+      "skipped_reason": null,
+      "inserted_steps": [
+        "{\"WALK\":[\"plate\",\"1001\"]}",
+        "{\"WALK\":[\"dish_soap\",\"1002\"]}"
+      ]
+    },
+    {
+      "identifier": "223_2",
+      "changed": true,
+      "inserted_actions": 3,
+      "skipped_reason": null,
+      "inserted_steps": [
+        "{\"WALK\":[\"dish_soap\",\"1001\"]}",
+        "{\"WALK\":[\"plate\",\"1002\"]}",
+        "{\"WALK\":[\"plate\",\"1003\"]}"
+      ]
+    },
+    {
+      "identifier": "327_2",
+      "changed": true,
+      "inserted_actions": 1,
+      "skipped_reason": null,
+      "inserted_steps": [
+        "{\"WALK\":[\"dish_soap\",\"1002\"]}"
+      ]
+    },
+    {
+      "identifier": "383_1",
+      "changed": true,
+      "inserted_actions": 3,
+      "skipped_reason": null,
+      "inserted_steps": [
+        "{\"WALK\":[\"plate\",\"1001\"]}",
+        "{\"WALK\":[\"plate\",\"1002\"]}",
+        "{\"WALK\":[\"dish_soap\",\"1003\"]}"
+      ]
+    },
+    {
+      "identifier": "417_2",
+      "changed": false,
+      "inserted_actions": 0,
+      "skipped_reason": "max_insertions_exceeded",
+      "inserted_steps": []
+    },
+    {
+      "identifier": "487_1",
+      "changed": true,
+      "inserted_actions": 4,
+      "skipped_reason": null,
+      "inserted_steps": [
+        "{\"WALK\":[\"cup\",\"1003\"]}",
+        "{\"WALK\":[\"spoon\",\"1004\"]}",
+        "{\"WALK\":[\"fork\",\"1002\"]}",
+        "{\"WALK\":[\"dish_soap\",\"1005\"]}"
+      ]
+    },
+    {
+      "identifier": "650_2",
+      "changed": false,
+      "inserted_actions": 0,
+      "skipped_reason": "no_repair_needed",
+      "inserted_steps": []
+    },
+    {
+      "identifier": "783_1",
+      "changed": false,
+      "inserted_actions": 0,
+      "skipped_reason": "max_insertions_exceeded",
+      "inserted_steps": []
+    },
+    {
+      "identifier": "815_2",
+      "changed": true,
+      "inserted_actions": 2,
+      "skipped_reason": null,
+      "inserted_steps": [
+        "{\"WALK\":[\"dish_soap\",\"1002\"]}",
+        "{\"WALK\":[\"plate\",\"1000\"]}"
+      ]
+    },
+    {
+      "identifier": "826_1",
+      "changed": false,
+      "inserted_actions": 0,
+      "skipped_reason": "max_insertions_exceeded",
+      "inserted_steps": []
+    },
+    {
+      "identifier": "856_1",
+      "changed": true,
+      "inserted_actions": 2,
+      "skipped_reason": null,
+      "inserted_steps": [
+        "{\"WALK\":[\"plate\",\"1001\"]}",
+        "{\"WALK\":[\"dish_soap\",\"1002\"]}"
+      ]
+    },
+    {
+      "identifier": "911_1",
+      "changed": true,
+      "inserted_actions": 3,
+      "skipped_reason": null,
+      "inserted_steps": [
+        "{\"WALK\":[\"cup\",\"1001\"]}",
+        "{\"WALK\":[\"dish_soap\",\"1003\"]}",
+        "{\"WALK\":[\"plate\",\"1002\"]}"
+      ]
+    },
+    {
+      "identifier": "1027_2",
+      "changed": false,
+      "inserted_actions": 0,
+      "skipped_reason": "no_repair_needed",
+      "inserted_steps": []
+    },
+    {
+      "identifier": "181_1",
+      "changed": false,
+      "inserted_actions": 0,
+      "skipped_reason": "unsafe_arity_mismatch",
+      "inserted_steps": []
+    },
+    {
+      "identifier": "244_2",
+      "changed": false,
+      "inserted_actions": 0,
+      "skipped_reason": "no_repair_needed",
+      "inserted_steps": []
+    },
+    {
+      "identifier": "269_2",
+      "changed": false,
+      "inserted_actions": 0,
+      "skipped_reason": "unsafe_arity_mismatch",
+      "inserted_steps": []
+    },
+    {
+      "identifier": "509_2",
+      "changed": false,
+      "inserted_actions": 0,
+      "skipped_reason": "unsafe_arity_mismatch",
+      "inserted_steps": []
+    },
+    {
+      "identifier": "875_1",
+      "changed": false,
+      "inserted_actions": 0,
+      "skipped_reason": "no_repair_needed",
+      "inserted_steps": []
+    },
+    {
+      "identifier": "102_1",
+      "changed": false,
+      "inserted_actions": 0,
+      "skipped_reason": "unsafe_unknown_action",
+      "inserted_steps": []
+    },
+    {
+      "identifier": "154_2",
+      "changed": false,
+      "inserted_actions": 0,
+      "skipped_reason": "unsafe_unknown_action",
+      "inserted_steps": []
+    },
+    {
+      "identifier": "176_1",
+      "changed": false,
+      "inserted_actions": 0,
+      "skipped_reason": "unsafe_unknown_action",
+      "inserted_steps": []
+    },
+    {
+      "identifier": "214_1",
+      "changed": false,
+      "inserted_actions": 0,
+      "skipped_reason": "unsafe_unknown_action",
+      "inserted_steps": []
+    },
+    {
+      "identifier": "258_2",
+      "changed": false,
+      "inserted_actions": 0,
+      "skipped_reason": "unsafe_unknown_action",
+      "inserted_steps": []
+    },
+    {
+      "identifier": "499_1",
+      "changed": false,
+      "inserted_actions": 0,
+      "skipped_reason": "unsafe_unknown_action",
+      "inserted_steps": []
+    },
+    {
+      "identifier": "517_1",
+      "changed": false,
+      "inserted_actions": 0,
+      "skipped_reason": "unsafe_unknown_action",
+      "inserted_steps": []
+    },
+    {
+      "identifier": "549_2",
+      "changed": false,
+      "inserted_actions": 0,
+      "skipped_reason": "unsafe_unknown_action",
+      "inserted_steps": []
+    },
+    {
+      "identifier": "562_1",
+      "changed": false,
+      "inserted_actions": 0,
+      "skipped_reason": "empty_sequence",
+      "inserted_steps": []
+    },
+    {
+      "identifier": "580_1",
+      "changed": false,
+      "inserted_actions": 0,
+      "skipped_reason": "unsafe_unknown_action",
+      "inserted_steps": []
+    },
+    {
+      "identifier": "657_1",
+      "changed": false,
+      "inserted_actions": 0,
+      "skipped_reason": "unsafe_unknown_action",
+      "inserted_steps": []
+    },
+    {
+      "identifier": "660_1",
+      "changed": false,
+      "inserted_actions": 0,
+      "skipped_reason": "unsafe_unknown_action",
+      "inserted_steps": []
+    },
+    {
+      "identifier": "672_1",
+      "changed": false,
+      "inserted_actions": 0,
+      "skipped_reason": "unsafe_unknown_action",
+      "inserted_steps": []
+    },
+    {
+      "identifier": "710_1",
+      "changed": false,
+      "inserted_actions": 0,
+      "skipped_reason": "unsafe_unknown_action",
+      "inserted_steps": []
+    },
+    {
+      "identifier": "741_1",
+      "changed": false,
+      "inserted_actions": 0,
+      "skipped_reason": "unsafe_unknown_action",
+      "inserted_steps": []
+    },
+    {
+      "identifier": "750_2",
+      "changed": false,
+      "inserted_actions": 0,
+      "skipped_reason": "unsafe_unknown_action",
+      "inserted_steps": []
+    },
+    {
+      "identifier": "805_1",
+      "changed": false,
+      "inserted_actions": 0,
+      "skipped_reason": "unsafe_unknown_action",
+      "inserted_steps": []
+    },
+    {
+      "identifier": "80_1",
+      "changed": false,
+      "inserted_actions": 0,
+      "skipped_reason": "unsafe_unknown_action",
+      "inserted_steps": []
+    },
+    {
+      "identifier": "813_2",
+      "changed": false,
+      "inserted_actions": 0,
+      "skipped_reason": "unsafe_unknown_action",
+      "inserted_steps": []
+    },
+    {
+      "identifier": "928_2",
+      "changed": false,
+      "inserted_actions": 0,
+      "skipped_reason": "unsafe_unknown_action",
+      "inserted_steps": []
+    },
+    {
+      "identifier": "995_2",
+      "changed": false,
+      "inserted_actions": 0,
+      "skipped_reason": "unsafe_unknown_action",
+      "inserted_steps": []
+    },
+    {
+      "identifier": "1035_1",
+      "changed": false,
+      "inserted_actions": 0,
+      "skipped_reason": "unsafe_unknown_action",
+      "inserted_steps": []
+    },
+    {
+      "identifier": "113_2",
+      "changed": false,
+      "inserted_actions": 0,
+      "skipped_reason": "unsafe_unknown_action",
+      "inserted_steps": []
+    },
+    {
+      "identifier": "12_2",
+      "changed": false,
+      "inserted_actions": 0,
+      "skipped_reason": "unsafe_unknown_action",
+      "inserted_steps": []
+    },
+    {
+      "identifier": "137_2",
+      "changed": false,
+      "inserted_actions": 0,
+      "skipped_reason": "unsafe_unknown_action",
+      "inserted_steps": []
+    },
+    {
+      "identifier": "203_2",
+      "changed": false,
+      "inserted_actions": 0,
+      "skipped_reason": "unsafe_unknown_action",
+      "inserted_steps": []
+    },
+    {
+      "identifier": "220_2",
+      "changed": false,
+      "inserted_actions": 0,
+      "skipped_reason": "unsafe_unknown_action",
+      "inserted_steps": []
+    },
+    {
+      "identifier": "242_1",
+      "changed": false,
+      "inserted_actions": 0,
+      "skipped_reason": "unsafe_unknown_action",
+      "inserted_steps": []
+    },
+    {
+      "identifier": "279_2",
+      "changed": false,
+      "inserted_actions": 0,
+      "skipped_reason": "unsafe_unknown_action",
+      "inserted_steps": []
+    },
+    {
+      "identifier": "287_1",
+      "changed": false,
+      "inserted_actions": 0,
+      "skipped_reason": "unsafe_unknown_action",
+      "inserted_steps": []
+    },
+    {
+      "identifier": "292_1",
+      "changed": false,
+      "inserted_actions": 0,
+      "skipped_reason": "unsafe_unknown_action",
+      "inserted_steps": []
+    },
+    {
+      "identifier": "297_1",
+      "changed": false,
+      "inserted_actions": 0,
+      "skipped_reason": "unsafe_unknown_action",
+      "inserted_steps": []
+    },
+    {
+      "identifier": "381_1",
+      "changed": false,
+      "inserted_actions": 0,
+      "skipped_reason": "unsafe_unknown_action",
+      "inserted_steps": []
+    },
+    {
+      "identifier": "388_2",
+      "changed": false,
+      "inserted_actions": 0,
+      "skipped_reason": "unsafe_unknown_action",
+      "inserted_steps": []
+    },
+    {
+      "identifier": "38_1",
+      "changed": false,
+      "inserted_actions": 0,
+      "skipped_reason": "unsafe_unknown_action",
+      "inserted_steps": []
+    },
+    {
+      "identifier": "429_1",
+      "changed": false,
+      "inserted_actions": 0,
+      "skipped_reason": "unsafe_unknown_action",
+      "inserted_steps": []
+    },
+    {
+      "identifier": "437_1",
+      "changed": false,
+      "inserted_actions": 0,
+      "skipped_reason": "unsafe_unknown_action",
+      "inserted_steps": []
+    },
+    {
+      "identifier": "451_1",
+      "changed": false,
+      "inserted_actions": 0,
+      "skipped_reason": "unsafe_unknown_action",
+      "inserted_steps": []
+    },
+    {
+      "identifier": "469_2",
+      "changed": false,
+      "inserted_actions": 0,
+      "skipped_reason": "unsafe_unknown_action",
+      "inserted_steps": []
+    },
+    {
+      "identifier": "479_2",
+      "changed": false,
+      "inserted_actions": 0,
+      "skipped_reason": "unsafe_unknown_action",
+      "inserted_steps": []
+    },
+    {
+      "identifier": "502_1",
+      "changed": false,
+      "inserted_actions": 0,
+      "skipped_reason": "unsafe_unknown_action",
+      "inserted_steps": []
+    },
+    {
+      "identifier": "612_1",
+      "changed": false,
+      "inserted_actions": 0,
+      "skipped_reason": "unsafe_unknown_action",
+      "inserted_steps": []
+    },
+    {
+      "identifier": "856_2",
+      "changed": false,
+      "inserted_actions": 0,
+      "skipped_reason": "unsafe_unknown_action",
+      "inserted_steps": []
+    },
+    {
+      "identifier": "384_1",
+      "changed": false,
+      "inserted_actions": 0,
+      "skipped_reason": "unsafe_unknown_action",
+      "inserted_steps": []
+    },
+    {
+      "identifier": "540_1",
+      "changed": false,
+      "inserted_actions": 0,
+      "skipped_reason": "unsafe_unknown_action",
+      "inserted_steps": []
+    },
+    {
+      "identifier": "60_1",
+      "changed": false,
+      "inserted_actions": 0,
+      "skipped_reason": "unsafe_unknown_action",
+      "inserted_steps": []
+    },
+    {
+      "identifier": "71_2",
+      "changed": false,
+      "inserted_actions": 0,
+      "skipped_reason": "unsafe_unknown_action",
+      "inserted_steps": []
+    },
+    {
+      "identifier": "7_1",
+      "changed": false,
+      "inserted_actions": 0,
+      "skipped_reason": "unsafe_unknown_action",
+      "inserted_steps": []
+    },
+    {
+      "identifier": "1070_1",
+      "changed": false,
+      "inserted_actions": 0,
+      "skipped_reason": "no_repair_needed",
+      "inserted_steps": []
+    },
+    {
+      "identifier": "313_2",
+      "changed": false,
+      "inserted_actions": 0,
+      "skipped_reason": "no_repair_needed",
+      "inserted_steps": []
+    },
+    {
+      "identifier": "689_1",
+      "changed": false,
+      "inserted_actions": 0,
+      "skipped_reason": "no_repair_needed",
+      "inserted_steps": []
+    },
+    {
+      "identifier": "718_1",
+      "changed": false,
+      "inserted_actions": 0,
+      "skipped_reason": "no_repair_needed",
+      "inserted_steps": []
+    },
+    {
+      "identifier": "1049_1",
+      "changed": false,
+      "inserted_actions": 0,
+      "skipped_reason": "no_repair_needed",
+      "inserted_steps": []
+    },
+    {
+      "identifier": "113_1",
+      "changed": false,
+      "inserted_actions": 0,
+      "skipped_reason": "no_repair_needed",
+      "inserted_steps": []
+    },
+    {
+      "identifier": "161_1",
+      "changed": false,
+      "inserted_actions": 0,
+      "skipped_reason": "no_repair_needed",
+      "inserted_steps": []
+    },
+    {
+      "identifier": "173_1",
+      "changed": false,
+      "inserted_actions": 0,
+      "skipped_reason": "no_repair_needed",
+      "inserted_steps": []
+    },
+    {
+      "identifier": "23_1",
+      "changed": false,
+      "inserted_actions": 0,
+      "skipped_reason": "no_repair_needed",
+      "inserted_steps": []
+    },
+    {
+      "identifier": "263_1",
+      "changed": false,
+      "inserted_actions": 0,
+      "skipped_reason": "no_repair_needed",
+      "inserted_steps": []
+    },
+    {
+      "identifier": "305_2",
+      "changed": false,
+      "inserted_actions": 0,
+      "skipped_reason": "no_repair_needed",
+      "inserted_steps": []
+    },
+    {
+      "identifier": "363_2",
+      "changed": false,
+      "inserted_actions": 0,
+      "skipped_reason": "no_repair_needed",
+      "inserted_steps": []
+    },
+    {
+      "identifier": "385_2",
+      "changed": false,
+      "inserted_actions": 0,
+      "skipped_reason": "no_repair_needed",
+      "inserted_steps": []
+    },
+    {
+      "identifier": "403_1",
+      "changed": false,
+      "inserted_actions": 0,
+      "skipped_reason": "no_repair_needed",
+      "inserted_steps": []
+    },
+    {
+      "identifier": "415_1",
+      "changed": false,
+      "inserted_actions": 0,
+      "skipped_reason": "unsafe_unknown_action",
+      "inserted_steps": []
+    },
+    {
+      "identifier": "462_2",
+      "changed": false,
+      "inserted_actions": 0,
+      "skipped_reason": "no_repair_needed",
+      "inserted_steps": []
+    },
+    {
+      "identifier": "463_2",
+      "changed": false,
+      "inserted_actions": 0,
+      "skipped_reason": "no_repair_needed",
+      "inserted_steps": []
+    },
+    {
+      "identifier": "503_2",
+      "changed": false,
+      "inserted_actions": 0,
+      "skipped_reason": "no_repair_needed",
+      "inserted_steps": []
+    },
+    {
+      "identifier": "59_1",
+      "changed": false,
+      "inserted_actions": 0,
+      "skipped_reason": "unsafe_unknown_action",
+      "inserted_steps": []
+    },
+    {
+      "identifier": "737_1",
+      "changed": false,
+      "inserted_actions": 0,
+      "skipped_reason": "no_repair_needed",
+      "inserted_steps": []
+    },
+    {
+      "identifier": "773_1",
+      "changed": false,
+      "inserted_actions": 0,
+      "skipped_reason": "no_repair_needed",
+      "inserted_steps": []
+    },
+    {
+      "identifier": "910_2",
+      "changed": false,
+      "inserted_actions": 0,
+      "skipped_reason": "no_repair_needed",
+      "inserted_steps": []
+    },
+    {
+      "identifier": "953_1",
+      "changed": false,
+      "inserted_actions": 0,
+      "skipped_reason": "no_repair_needed",
+      "inserted_steps": []
+    },
+    {
+      "identifier": "1057_1",
+      "changed": false,
+      "inserted_actions": 0,
+      "skipped_reason": "unsafe_unknown_action",
+      "inserted_steps": []
+    },
+    {
+      "identifier": "117_1",
+      "changed": false,
+      "inserted_actions": 0,
+      "skipped_reason": "unsafe_unknown_action",
+      "inserted_steps": []
+    },
+    {
+      "identifier": "134_1",
+      "changed": false,
+      "inserted_actions": 0,
+      "skipped_reason": "unsafe_unknown_action",
+      "inserted_steps": []
+    },
+    {
+      "identifier": "170_1",
+      "changed": false,
+      "inserted_actions": 0,
+      "skipped_reason": "unsafe_unknown_action",
+      "inserted_steps": []
+    },
+    {
+      "identifier": "197_2",
+      "changed": false,
+      "inserted_actions": 0,
+      "skipped_reason": "unsafe_unknown_action",
+      "inserted_steps": []
+    },
+    {
+      "identifier": "21_2",
+      "changed": false,
+      "inserted_actions": 0,
+      "skipped_reason": "unsafe_unknown_action",
+      "inserted_steps": []
+    },
+    {
+      "identifier": "225_2",
+      "changed": false,
+      "inserted_actions": 0,
+      "skipped_reason": "unsafe_unknown_action",
+      "inserted_steps": []
+    },
+    {
+      "identifier": "259_1",
+      "changed": false,
+      "inserted_actions": 0,
+      "skipped_reason": "unsafe_unknown_action",
+      "inserted_steps": []
+    },
+    {
+      "identifier": "307_2",
+      "changed": false,
+      "inserted_actions": 0,
+      "skipped_reason": "unsafe_unknown_action",
+      "inserted_steps": []
+    },
+    {
+      "identifier": "329_1",
+      "changed": false,
+      "inserted_actions": 0,
+      "skipped_reason": "unsafe_unknown_action",
+      "inserted_steps": []
+    },
+    {
+      "identifier": "342_2",
+      "changed": false,
+      "inserted_actions": 0,
+      "skipped_reason": "unsafe_unknown_action",
+      "inserted_steps": []
+    },
+    {
+      "identifier": "377_2",
+      "changed": false,
+      "inserted_actions": 0,
+      "skipped_reason": "unsafe_unknown_action",
+      "inserted_steps": []
+    },
+    {
+      "identifier": "383_2",
+      "changed": false,
+      "inserted_actions": 0,
+      "skipped_reason": "unsafe_unknown_action",
+      "inserted_steps": []
+    }
+  ]
+}

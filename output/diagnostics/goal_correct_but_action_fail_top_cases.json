@@ -1,0 +1,35 @@
+[
+  {
+    "model": "gpt-4o-2024-05-13",
+    "task": "Turn on light",
+    "file_id": "125_2",
+    "goal_f1": 1.0,
+    "task_success": null,
+    "goal_success": null,
+    "execution_success": null,
+    "failure_type": "relation_grounding",
+    "raw_failure_text": ", file 125_2 has hallucination error"
+  },
+  {
+    "model": "gpt-4o-2024-05-13",
+    "task": "Drink",
+    "file_id": "510_1",
+    "goal_f1": 0.8,
+    "task_success": null,
+    "goal_success": null,
+    "execution_success": null,
+    "failure_type": "relation_grounding",
+    "raw_failure_text": "2026-04-22 14:40:29 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - Encounter error: MISSING_STEP | 2026-04-22 14:40:29 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - failed_error_code=1 | 2026-04-22 14:40:29 - virtualhome_eval.simulation.evolving_graph.eval_utils - GOAL FAIL! Not found: {'from_id': 65, 'relation_type': 'HOLDS_RH', 'to_id': 1001}"
+  },
+  {
+    "model": "gpt-4o-2024-05-13",
+    "task": "Read book",
+    "file_id": "163_1",
+    "goal_f1": 0.8,
+    "task_success": null,
+    "goal_success": null,
+    "execution_success": null,
+    "failure_type": "relation_grounding",
+    "raw_failure_text": "2026-04-22 14:40:32 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - Encounter error: MISSING_STEP | 2026-04-22 14:40:32 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - failed_error_code=1 | 2026-04-22 14:40:32 - virtualhome_eval.simulation.evolving_graph.eval_utils - GOAL FAIL! Not found: {'from_id': 65, 'relation_type': 'HOLDS_RH', 'to_id': 1000}"
+  }
+]

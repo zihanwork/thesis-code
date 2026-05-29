@@ -1,0 +1,7 @@
+stage,prompt_or_method,hypothesis,measure
+baseline,现有 EAI prompt + temperature=0,建立与已有结果可比的直接生成基线。,"task_success_rate, execution_success_rate, parsing, missing_step, wrong_order"
+format_constraints,强化 JSON 拼接格式、动作大写、name/id 成对、禁止 Markdown,主要降低 parsing 和 predicate_argument_number 错误。,"grammar_error.parsing, grammar_error.predicate_argument_number"
+few_shot_valid_actions,加入 1-3 个合法 VirtualHome action sequence 示例,改善动作选择和参数数量，减少 hallucination。,"hallucination, task_success_rate"
+self_check_rewrite,生成后执行一次自检，检查动作合法性、对象 id、前置条件和顺序，再输出修正版,降低 wrong_order、missing_step 和 additional_step。,"runtime_error.wrong_order, runtime_error.missing_step, runtime_error.additional_step"
+plan_then_ground,先生成 high-level plan，再映射到 VirtualHome name/id action sequence,改善长程动作顺序和 relation grounding。,"relation_goal, action_goal, execution_success_rate"
+failure_driven_prompt,根据 diagnostics 中 relation_grounding、planning_order、format_or_parsing 的高频失败定向改 prompt,针对当前错误分布提升总体 task_success_rate。,failure-type distribution before/after

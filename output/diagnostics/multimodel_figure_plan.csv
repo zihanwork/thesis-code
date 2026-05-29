@@ -1,0 +1,6 @@
+figure,claim,data
+fig_action_task_success.svg,动作序列任务中不同模型的可执行成功率差异明显。,action_sequencing goal_evaluation.task_success_rate
+fig_goal_interpretation_f1.svg,目标理解能力与动作执行能力不是同一个指标，应分开讨论。,goal_interpretation all_f1
+fig_action_execution_success.svg,执行成功率能揭示格式合法但任务目标仍未完成的情况。,action_sequencing trajectory_evaluation.execution_success_rate
+fig_failure_profile.svg,失败主要来自 missing_step、additional_step、hallucination 等细粒度错误，而不只是最终失败。,action_sequencing grammar_error and runtime_error metrics
+fig_family_average.svg,模型家族层面的平均表现可辅助解释闭源、开源和推理模型差异。,family average of rank metrics

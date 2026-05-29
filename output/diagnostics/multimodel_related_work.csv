@@ -1,0 +1,8 @@
+topic,citation,url,use
+Embodied Agent Interface,"Embodied Agent Interface: Benchmarking LLMs for Embodied Decision Making, NeurIPS Datasets and Benchmarks 2024",https://arxiv.org/abs/2410.07166,作为本实验的核心基准来源，说明 EAI 如何统一 goal interpretation、subgoal decomposition、action sequencing、transition modeling，并提供细粒度错误指标。
+VirtualHome,VirtualHome: Simulating Household Activities via Programs,http://virtual-home.org/,作为家庭活动动作序列环境背景，用来解释对象、状态、关系、动作可执行性和长程 household task 的难点。
+Long-horizon planning,Plan-and-Act: Improving Planning of Agents for Long-Horizon Tasks,https://arxiv.org/html/2503.09572,支撑“先规划再执行”和 dynamic replanning 的实验动机，强调复杂任务不能只依赖简单 prompt engineering。
+Embodied multimodal benchmarks,EmbodiedBench: Comprehensive Benchmarking Multi-modal Large Language Models for Vision-Driven Embodied Agents,https://arxiv.org/abs/2502.09560,补充具身智能评测背景，尤其是长程规划、低层执行和环境反馈对模型成功率的影响。
+Self-refinement for planning,Self-Refine: Iterative Refinement with Self-Feedback,https://arxiv.org/abs/2303.17651,为生成后自检、修复和 self-consistency 提供方法依据；重点关注动作前置条件、状态更新和错误路径纠正。
+Verbal feedback for agents,Reflexion: Language Agents with Verbal Reinforcement Learning,https://arxiv.org/abs/2303.11366,用于说明失败轨迹可转化为语言反馈，支持下一轮 action sequence 生成或 prompt 修复。
+Reasoning-action prompting,ReAct: Synergizing Reasoning and Acting in Language Models,https://arxiv.org/abs/2210.03629,可作为 plan-then-ground 或 thought/action 分离实验的背景，但最终输出仍需压回 EAI 的合法动作格式。

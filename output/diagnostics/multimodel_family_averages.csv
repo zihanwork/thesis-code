@@ -1,0 +1,15 @@
+eval_type,family,n_models,average_rank_value
+action_sequencing,Anthropic,4,62.0492
+action_sequencing,Cohere,2,43.1148
+action_sequencing,Google,3,32.1312
+action_sequencing,Meta,2,30.9836
+action_sequencing,Mistral,2,38.1967
+action_sequencing,OpenAI,5,52.9836
+action_sequencing,Other,11,77.0085
+goal_interpretation,Anthropic,4,22.2411
+goal_interpretation,Cohere,2,29.5225
+goal_interpretation,Google,3,28.9627
+goal_interpretation,Meta,2,24.7144
+goal_interpretation,Mistral,2,26.6686
+goal_interpretation,OpenAI,5,33.2731
+goal_interpretation,Other,4,39.3849

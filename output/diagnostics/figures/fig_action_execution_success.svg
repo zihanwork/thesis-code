@@ -1,0 +1,62 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="980" height="540" viewBox="0 0 980 540">
+<rect width="100%" height="100%" fill="white"/>
+<text x="490" y="32" text-anchor="middle" font-family="Arial" font-size="20" font-weight="700">Action Sequencing Execution Success</text>
+<text x="590" y="522" text-anchor="middle" font-family="Arial" font-size="12">execution_success_rate (%)</text>
+<line x1="240.0" y1="60" x2="240.0" y2="492" stroke="#ddd"/>
+<text x="240.0" y="508" text-anchor="middle" font-family="Arial" font-size="10">0</text>
+<line x1="380.0" y1="60" x2="380.0" y2="492" stroke="#ddd"/>
+<text x="380.0" y="508" text-anchor="middle" font-family="Arial" font-size="10">19</text>
+<line x1="520.0" y1="60" x2="520.0" y2="492" stroke="#ddd"/>
+<text x="520.0" y="508" text-anchor="middle" font-family="Arial" font-size="10">37</text>
+<line x1="660.0" y1="60" x2="660.0" y2="492" stroke="#ddd"/>
+<text x="660.0" y="508" text-anchor="middle" font-family="Arial" font-size="10">56</text>
+<line x1="800.0" y1="60" x2="800.0" y2="492" stroke="#ddd"/>
+<text x="800.0" y="508" text-anchor="middle" font-family="Arial" font-size="10">74</text>
+<line x1="940.0" y1="60" x2="940.0" y2="492" stroke="#ddd"/>
+<text x="940.0" y="508" text-anchor="middle" font-family="Arial" font-size="10">93</text>
+<text x="232" y="86" text-anchor="end" font-family="Arial" font-size="11">glm-5-turbo</text>
+<rect x="240" y="70" width="700.0" height="18" fill="#4C78A8"/>
+<text x="945.0" y="84" font-family="Arial" font-size="11">93.0</text>
+<text x="232" y="112" text-anchor="end" font-family="Arial" font-size="11">minimax-m2-stable</text>
+<rect x="240" y="96" width="682.7" height="18" fill="#F58518"/>
+<text x="927.7" y="110" font-family="Arial" font-size="11">90.7</text>
+<text x="232" y="138" text-anchor="end" font-family="Arial" font-size="11">glm-5-turbo_sg_rag</text>
+<rect x="240" y="122" width="673.7" height="18" fill="#54A24B"/>
+<text x="918.7" y="136" font-family="Arial" font-size="11">89.5</text>
+<text x="232" y="164" text-anchor="end" font-family="Arial" font-size="11">deepseek-v4-flash_sg_rag</text>
+<rect x="240" y="148" width="656.3" height="18" fill="#E45756"/>
+<text x="901.3" y="162" font-family="Arial" font-size="11">87.2</text>
+<text x="232" y="190" text-anchor="end" font-family="Arial" font-size="11">deepseek-v4-flash_plan_then_ground</text>
+<rect x="240" y="174" width="651.8" height="18" fill="#72B7B2"/>
+<text x="896.8" y="188" font-family="Arial" font-size="11">86.6</text>
+<text x="232" y="216" text-anchor="end" font-family="Arial" font-size="11">deepseek-v4-flash_format_constraints</text>
+<rect x="240" y="200" width="647.3" height="18" fill="#B279A2"/>
+<text x="892.3" y="214" font-family="Arial" font-size="11">86.0</text>
+<text x="232" y="242" text-anchor="end" font-family="Arial" font-size="11">minimax-m2-stable_sg_rag</text>
+<rect x="240" y="226" width="647.3" height="18" fill="#FF9DA6"/>
+<text x="892.3" y="240" font-family="Arial" font-size="11">86.0</text>
+<text x="232" y="268" text-anchor="end" font-family="Arial" font-size="11">deepseek-v4-flash_few_shot</text>
+<rect x="240" y="252" width="639.0" height="18" fill="#9D755D"/>
+<text x="884.0" y="266" font-family="Arial" font-size="11">84.9</text>
+<text x="232" y="294" text-anchor="end" font-family="Arial" font-size="11">mistral-large-2402</text>
+<rect x="240" y="278" width="629.2" height="18" fill="#4C78A8"/>
+<text x="874.2" y="292" font-family="Arial" font-size="11">83.6</text>
+<text x="232" y="320" text-anchor="end" font-family="Arial" font-size="11">deepseek-v4-flash</text>
+<rect x="240" y="304" width="621.7" height="18" fill="#F58518"/>
+<text x="866.7" y="318" font-family="Arial" font-size="11">82.6</text>
+<text x="232" y="346" text-anchor="end" font-family="Arial" font-size="11">deepseek-v4-flash_sg_rag_pc_kg</text>
+<rect x="240" y="330" width="599.9" height="18" fill="#54A24B"/>
+<text x="844.9" y="344" font-family="Arial" font-size="11">79.7</text>
+<text x="232" y="372" text-anchor="end" font-family="Arial" font-size="11">claude-3-5-sonnet-20240620</text>
+<rect x="240" y="356" width="569.8" height="18" fill="#E45756"/>
+<text x="814.8" y="370" font-family="Arial" font-size="11">75.7</text>
+<text x="232" y="398" text-anchor="end" font-family="Arial" font-size="11">gpt-4o-2024-05-13</text>
+<rect x="240" y="382" width="535.2" height="18" fill="#72B7B2"/>
+<text x="780.2" y="396" font-family="Arial" font-size="11">71.1</text>
+<text x="232" y="424" text-anchor="end" font-family="Arial" font-size="11">claude-3-opus-20240229</text>
+<rect x="240" y="408" width="532.9" height="18" fill="#B279A2"/>
+<text x="777.9" y="422" font-family="Arial" font-size="11">70.8</text>
+<text x="232" y="450" text-anchor="end" font-family="Arial" font-size="11">cohere-command-r-plus</text>
+<rect x="240" y="434" width="528.4" height="18" fill="#FF9DA6"/>
+<text x="773.4" y="448" font-family="Arial" font-size="11">70.2</text>
+</svg>

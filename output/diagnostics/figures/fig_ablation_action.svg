@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="980" height="540" viewBox="0 0 980 540">
+<rect width="100%" height="100%" fill="white"/>
+<text x="490" y="32" text-anchor="middle" font-family="Arial" font-size="20" font-weight="700">Action Sequencing Ablation (task_success_rate)</text>
+<text x="590" y="522" text-anchor="middle" font-family="Arial" font-size="12">task_success_rate (%)</text>
+<line x1="240.0" y1="60" x2="240.0" y2="492" stroke="#ddd"/>
+<text x="240.0" y="508" text-anchor="middle" font-family="Arial" font-size="10">0</text>
+<line x1="380.0" y1="60" x2="380.0" y2="492" stroke="#ddd"/>
+<text x="380.0" y="508" text-anchor="middle" font-family="Arial" font-size="10">18</text>
+<line x1="520.0" y1="60" x2="520.0" y2="492" stroke="#ddd"/>
+<text x="520.0" y="508" text-anchor="middle" font-family="Arial" font-size="10">35</text>
+<line x1="660.0" y1="60" x2="660.0" y2="492" stroke="#ddd"/>
+<text x="660.0" y="508" text-anchor="middle" font-family="Arial" font-size="10">53</text>
+<line x1="800.0" y1="60" x2="800.0" y2="492" stroke="#ddd"/>
+<text x="800.0" y="508" text-anchor="middle" font-family="Arial" font-size="10">71</text>
+<line x1="940.0" y1="60" x2="940.0" y2="492" stroke="#ddd"/>
+<text x="940.0" y="508" text-anchor="middle" font-family="Arial" font-size="10">88</text>
+<text x="232" y="86" text-anchor="end" font-family="Arial" font-size="11">glm-5-turbo / baseline</text>
+<rect x="240" y="70" width="700.0" height="18" fill="#4C78A8"/>
+<text x="945.0" y="84" font-family="Arial" font-size="11">88.4</text>
+<text x="232" y="112" text-anchor="end" font-family="Arial" font-size="11">glm-5-turbo / sg_rag</text>
+<rect x="240" y="96" width="690.8" height="18" fill="#F58518"/>
+<text x="935.8" y="110" font-family="Arial" font-size="11">87.2</text>
+<text x="232" y="138" text-anchor="end" font-family="Arial" font-size="11">minimax-m2-stable / baseline</text>
+<rect x="240" y="122" width="681.6" height="18" fill="#54A24B"/>
+<text x="926.6" y="136" font-family="Arial" font-size="11">86.0</text>
+<text x="232" y="164" text-anchor="end" font-family="Arial" font-size="11">deepseek-v4-flash / plan_then_ground</text>
+<rect x="240" y="148" width="635.5" height="18" fill="#E45756"/>
+<text x="880.5" y="162" font-family="Arial" font-size="11">80.2</text>
+<text x="232" y="190" text-anchor="end" font-family="Arial" font-size="11">deepseek-v4-flash / few_shot</text>
+<rect x="240" y="174" width="630.9" height="18" fill="#72B7B2"/>
+<text x="875.9" y="188" font-family="Arial" font-size="11">79.7</text>
+<text x="232" y="216" text-anchor="end" font-family="Arial" font-size="11">deepseek-v4-flash / format_constraints</text>
+<rect x="240" y="200" width="626.3" height="18" fill="#B279A2"/>
+<text x="871.3" y="214" font-family="Arial" font-size="11">79.1</text>
+<text x="232" y="242" text-anchor="end" font-family="Arial" font-size="11">deepseek-v4-flash / sg_rag</text>
+<rect x="240" y="226" width="626.3" height="18" fill="#FF9DA6"/>
+<text x="871.3" y="240" font-family="Arial" font-size="11">79.1</text>
+<text x="232" y="268" text-anchor="end" font-family="Arial" font-size="11">minimax-m2-stable / sg_rag</text>
+<rect x="240" y="252" width="626.3" height="18" fill="#9D755D"/>
+<text x="871.3" y="266" font-family="Arial" font-size="11">79.1</text>
+<text x="232" y="294" text-anchor="end" font-family="Arial" font-size="11">deepseek-v4-flash / baseline</text>
+<rect x="240" y="278" width="598.7" height="18" fill="#4C78A8"/>
+<text x="843.7" y="292" font-family="Arial" font-size="11">75.6</text>
+<text x="232" y="320" text-anchor="end" font-family="Arial" font-size="11">deepseek-v4-flash / sg_rag_pc_kg</text>
+<rect x="240" y="304" width="478.9" height="18" fill="#F58518"/>
+<text x="723.9" y="318" font-family="Arial" font-size="11">60.5</text>
+<text x="232" y="346" text-anchor="end" font-family="Arial" font-size="11">deepseek-v4-flash_pc_kg / self_check</text>
+<rect x="240" y="330" width="414.5" height="18" fill="#54A24B"/>
+<text x="659.5" y="344" font-family="Arial" font-size="11">52.3</text>
+<text x="232" y="372" text-anchor="end" font-family="Arial" font-size="11">gold_oracle / baseline</text>
+<rect x="240" y="356" width="20.8" height="18" fill="#E45756"/>
+<text x="265.8" y="370" font-family="Arial" font-size="11">2.6</text>
+</svg>

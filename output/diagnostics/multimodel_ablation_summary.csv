@@ -1,0 +1,17 @@
+eval_type,base_model,variant,intervention_family,task_success_rate,execution_success_rate,all_f1,node_f1,edge_f1,action_f1,missing_step,wrong_order,additional_step,hallucination,parsing,summary_path
+action_sequencing,glm-5-turbo,baseline,baseline,88.3721,93.0,,,,,2.3256,0.0,5.814,2.3256,2.3256,output/improvement_run/virtualhome/evaluate_results/action_sequencing/glm-5-turbo/summary.json
+action_sequencing,glm-5-turbo,sg_rag,sg_rag,87.2093,89.5,,,,,5.814,2.3256,4.6512,2.3256,0.0,output/improvement_run/virtualhome/evaluate_results/action_sequencing/glm-5-turbo_sg_rag/summary.json
+action_sequencing,minimax-m2-stable,baseline,baseline,86.0465,90.7,,,,,3.4884,1.1628,4.6512,2.3256,1.1628,output/improvement_run/virtualhome/evaluate_results/action_sequencing/minimax-m2-stable/summary.json
+action_sequencing,deepseek-v4-flash,plan_then_ground,prompt,80.2326,86.6,,,,,8.1395,0.0,5.2326,2.3256,1.1628,output/improvement_run/virtualhome/evaluate_results/action_sequencing/deepseek-v4-flash_plan_then_ground/summary.json
+action_sequencing,deepseek-v4-flash,few_shot,prompt,79.6512,84.9,,,,,10.4651,0.0,4.0698,2.3256,0.0,output/improvement_run/virtualhome/evaluate_results/action_sequencing/deepseek-v4-flash_few_shot/summary.json
+action_sequencing,deepseek-v4-flash,format_constraints,prompt,79.0698,86.0,,,,,7.5581,0.0,5.2326,4.0698,0.5814,output/improvement_run/virtualhome/evaluate_results/action_sequencing/deepseek-v4-flash_format_constraints/summary.json
+action_sequencing,deepseek-v4-flash,sg_rag,sg_rag,79.0698,87.2,,,,,8.7209,0.0,5.814,2.3256,0.5814,output/improvement_run/virtualhome/evaluate_results/action_sequencing/deepseek-v4-flash_sg_rag/summary.json
+action_sequencing,minimax-m2-stable,sg_rag,sg_rag,79.0698,86.0,,,,,6.9767,2.3256,5.814,2.3256,1.1628,output/improvement_run/virtualhome/evaluate_results/action_sequencing/minimax-m2-stable_sg_rag/summary.json
+action_sequencing,deepseek-v4-flash,baseline,baseline,75.5814,82.6,,,,,12.7907,0.0,4.0698,2.3256,0.5814,output/improvement_run/virtualhome/evaluate_results/action_sequencing/deepseek-v4-flash/summary.json
+action_sequencing,deepseek-v4-flash,sg_rag_pc_kg,sg_rag_pc_kg,60.4651,79.7,,,,,16.8605,0.0,8.7209,2.3256,0.5814,output/improvement_run/virtualhome/evaluate_results/action_sequencing/deepseek-v4-flash_sg_rag_pc_kg/summary.json
+action_sequencing,deepseek-v4-flash_pc_kg,self_check,prompt,52.3256,69.8,,,,,23.8372,0.0,8.1395,2.3256,5.814,output/improvement_run/virtualhome/evaluate_results/action_sequencing/deepseek-v4-flash_pc_kg_self_check/summary.json
+action_sequencing,gold_oracle,baseline,baseline,2.623,89.2,,,,,1.6393,0.3279,0.0,8.8525,0.0,output/virtualhome/evaluate_results/action_sequencing/gold_oracle/summary.json
+goal_interpretation,deepseek-v4-flash,schema_constrained,prompt,,,40.6015,50.1684,35.8543,30.0792,,,,,,output/improvement_run/virtualhome/evaluate_results/goal_interpretation/deepseek-v4-flash_schema_constrained/summary.json
+goal_interpretation,deepseek-v4-flash,decompose_then_merge,prompt,,,39.0023,49.0501,35.2273,27.551,,,,,,output/improvement_run/virtualhome/evaluate_results/goal_interpretation/deepseek-v4-flash_decompose_then_merge/summary.json
+goal_interpretation,deepseek-v4-flash,few_shot,prompt,,,38.9706,51.049,35.5556,25.7009,,,,,,output/improvement_run/virtualhome/evaluate_results/goal_interpretation/deepseek-v4-flash_few_shot/summary.json
+goal_interpretation,deepseek-v4-flash,baseline,baseline,,,38.965,49.7445,33.0579,27.4725,,,,,,output/improvement_run/virtualhome/evaluate_results/goal_interpretation/deepseek-v4-flash/summary.json

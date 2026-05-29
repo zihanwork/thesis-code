@@ -1,0 +1,59 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="980" height="540" viewBox="0 0 980 540">
+<rect width="100%" height="100%" fill="white"/>
+<text x="490" y="32" text-anchor="middle" font-family="Arial" font-size="20" font-weight="700">Family-level Average Metric</text>
+<text x="590" y="522" text-anchor="middle" font-family="Arial" font-size="12">average rank metric (%)</text>
+<line x1="240.0" y1="60" x2="240.0" y2="492" stroke="#ddd"/>
+<text x="240.0" y="508" text-anchor="middle" font-family="Arial" font-size="10">0</text>
+<line x1="380.0" y1="60" x2="380.0" y2="492" stroke="#ddd"/>
+<text x="380.0" y="508" text-anchor="middle" font-family="Arial" font-size="10">15</text>
+<line x1="520.0" y1="60" x2="520.0" y2="492" stroke="#ddd"/>
+<text x="520.0" y="508" text-anchor="middle" font-family="Arial" font-size="10">31</text>
+<line x1="660.0" y1="60" x2="660.0" y2="492" stroke="#ddd"/>
+<text x="660.0" y="508" text-anchor="middle" font-family="Arial" font-size="10">46</text>
+<line x1="800.0" y1="60" x2="800.0" y2="492" stroke="#ddd"/>
+<text x="800.0" y="508" text-anchor="middle" font-family="Arial" font-size="10">62</text>
+<line x1="940.0" y1="60" x2="940.0" y2="492" stroke="#ddd"/>
+<text x="940.0" y="508" text-anchor="middle" font-family="Arial" font-size="10">77</text>
+<text x="232" y="86" text-anchor="end" font-family="Arial" font-size="11">Other / action sequencing</text>
+<rect x="240" y="70" width="700.0" height="18" fill="#4C78A8"/>
+<text x="945.0" y="84" font-family="Arial" font-size="11">77.0</text>
+<text x="232" y="112" text-anchor="end" font-family="Arial" font-size="11">Anthropic / action sequencing</text>
+<rect x="240" y="96" width="564.0" height="18" fill="#F58518"/>
+<text x="809.0" y="110" font-family="Arial" font-size="11">62.0</text>
+<text x="232" y="138" text-anchor="end" font-family="Arial" font-size="11">OpenAI / action sequencing</text>
+<rect x="240" y="122" width="481.6" height="18" fill="#54A24B"/>
+<text x="726.6" y="136" font-family="Arial" font-size="11">53.0</text>
+<text x="232" y="164" text-anchor="end" font-family="Arial" font-size="11">Cohere / action sequencing</text>
+<rect x="240" y="148" width="391.9" height="18" fill="#E45756"/>
+<text x="636.9" y="162" font-family="Arial" font-size="11">43.1</text>
+<text x="232" y="190" text-anchor="end" font-family="Arial" font-size="11">Other / goal interpretation</text>
+<rect x="240" y="174" width="358.0" height="18" fill="#72B7B2"/>
+<text x="603.0" y="188" font-family="Arial" font-size="11">39.4</text>
+<text x="232" y="216" text-anchor="end" font-family="Arial" font-size="11">Mistral / action sequencing</text>
+<rect x="240" y="200" width="347.2" height="18" fill="#B279A2"/>
+<text x="592.2" y="214" font-family="Arial" font-size="11">38.2</text>
+<text x="232" y="242" text-anchor="end" font-family="Arial" font-size="11">OpenAI / goal interpretation</text>
+<rect x="240" y="226" width="302.4" height="18" fill="#FF9DA6"/>
+<text x="547.4" y="240" font-family="Arial" font-size="11">33.3</text>
+<text x="232" y="268" text-anchor="end" font-family="Arial" font-size="11">Google / action sequencing</text>
+<rect x="240" y="252" width="292.1" height="18" fill="#9D755D"/>
+<text x="537.1" y="266" font-family="Arial" font-size="11">32.1</text>
+<text x="232" y="294" text-anchor="end" font-family="Arial" font-size="11">Meta / action sequencing</text>
+<rect x="240" y="278" width="281.6" height="18" fill="#4C78A8"/>
+<text x="526.6" y="292" font-family="Arial" font-size="11">31.0</text>
+<text x="232" y="320" text-anchor="end" font-family="Arial" font-size="11">Cohere / goal interpretation</text>
+<rect x="240" y="304" width="268.4" height="18" fill="#F58518"/>
+<text x="513.4" y="318" font-family="Arial" font-size="11">29.5</text>
+<text x="232" y="346" text-anchor="end" font-family="Arial" font-size="11">Google / goal interpretation</text>
+<rect x="240" y="330" width="263.3" height="18" fill="#54A24B"/>
+<text x="508.3" y="344" font-family="Arial" font-size="11">29.0</text>
+<text x="232" y="372" text-anchor="end" font-family="Arial" font-size="11">Mistral / goal interpretation</text>
+<rect x="240" y="356" width="242.4" height="18" fill="#E45756"/>
+<text x="487.4" y="370" font-family="Arial" font-size="11">26.7</text>
+<text x="232" y="398" text-anchor="end" font-family="Arial" font-size="11">Meta / goal interpretation</text>
+<rect x="240" y="382" width="224.7" height="18" fill="#72B7B2"/>
+<text x="469.7" y="396" font-family="Arial" font-size="11">24.7</text>
+<text x="232" y="424" text-anchor="end" font-family="Arial" font-size="11">Anthropic / goal interpretation</text>
+<rect x="240" y="408" width="202.2" height="18" fill="#B279A2"/>
+<text x="447.2" y="422" font-family="Arial" font-size="11">22.2</text>
+</svg>

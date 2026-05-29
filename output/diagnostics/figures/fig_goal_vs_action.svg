@@ -1,0 +1,83 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="760" height="540" viewBox="0 0 760 540">
+<rect width="100%" height="100%" fill="white"/>
+<text x="380" y="32" text-anchor="middle" font-family="Arial" font-size="20" font-weight="700">Goal F1 vs Action Task Success</text>
+<text x="405" y="520" text-anchor="middle" font-family="Arial" font-size="12">Goal interpretation all_f1 (%)</text>
+<text x="20" y="265" text-anchor="middle" font-family="Arial" font-size="12" transform="rotate(-90 20 265)">Action task_success_rate (%)</text>
+<line x1="90.0" y1="70" x2="90.0" y2="460" stroke="#eee"/>
+<line x1="90" y1="70.0" x2="720" y2="70.0" stroke="#eee"/>
+<text x="90.0" y="476" text-anchor="middle" font-family="Arial" font-size="10">0</text>
+<text x="82" y="464.0" text-anchor="end" font-family="Arial" font-size="10">0</text>
+<line x1="216.0" y1="70" x2="216.0" y2="460" stroke="#eee"/>
+<line x1="90" y1="148.0" x2="720" y2="148.0" stroke="#eee"/>
+<text x="216.0" y="476" text-anchor="middle" font-family="Arial" font-size="10">20</text>
+<text x="82" y="386.0" text-anchor="end" font-family="Arial" font-size="10">20</text>
+<line x1="342.0" y1="70" x2="342.0" y2="460" stroke="#eee"/>
+<line x1="90" y1="226.0" x2="720" y2="226.0" stroke="#eee"/>
+<text x="342.0" y="476" text-anchor="middle" font-family="Arial" font-size="10">40</text>
+<text x="82" y="308.0" text-anchor="end" font-family="Arial" font-size="10">40</text>
+<line x1="468.0" y1="70" x2="468.0" y2="460" stroke="#eee"/>
+<line x1="90" y1="304.0" x2="720" y2="304.0" stroke="#eee"/>
+<text x="468.0" y="476" text-anchor="middle" font-family="Arial" font-size="10">60</text>
+<text x="82" y="230.0" text-anchor="end" font-family="Arial" font-size="10">60</text>
+<line x1="594.0" y1="70" x2="594.0" y2="460" stroke="#eee"/>
+<line x1="90" y1="382.0" x2="720" y2="382.0" stroke="#eee"/>
+<text x="594.0" y="476" text-anchor="middle" font-family="Arial" font-size="10">80</text>
+<text x="82" y="152.0" text-anchor="end" font-family="Arial" font-size="10">80</text>
+<line x1="720.0" y1="70" x2="720.0" y2="460" stroke="#eee"/>
+<line x1="90" y1="460.0" x2="720" y2="460.0" stroke="#eee"/>
+<text x="720.0" y="476" text-anchor="middle" font-family="Arial" font-size="10">100</text>
+<text x="82" y="74.0" text-anchor="end" font-family="Arial" font-size="10">100</text>
+<line x1="90" y1="460" x2="720" y2="70" stroke="#999" stroke-dasharray="4 4"/>
+<rect x="90" y="44" width="10" height="10" fill="#4C78A8"/>
+<text x="104" y="54" font-family="Arial" font-size="11">Anthropic</text>
+<rect x="200" y="44" width="10" height="10" fill="#F58518"/>
+<text x="214" y="54" font-family="Arial" font-size="11">Cohere</text>
+<rect x="310" y="44" width="10" height="10" fill="#54A24B"/>
+<text x="324" y="54" font-family="Arial" font-size="11">Google</text>
+<rect x="420" y="44" width="10" height="10" fill="#E45756"/>
+<text x="434" y="54" font-family="Arial" font-size="11">Meta</text>
+<rect x="530" y="44" width="10" height="10" fill="#72B7B2"/>
+<text x="544" y="54" font-family="Arial" font-size="11">Mistral</text>
+<rect x="640" y="44" width="10" height="10" fill="#B279A2"/>
+<text x="654" y="54" font-family="Arial" font-size="11">OpenAI</text>
+<rect x="750" y="44" width="10" height="10" fill="#FF9DA6"/>
+<text x="764" y="54" font-family="Arial" font-size="11">Other</text>
+<circle cx="90.0" cy="176.1" r="6" fill="#4C78A8" stroke="white" stroke-width="1"/>
+<text x="98.0" y="180.1" font-family="Arial" font-size="10">claude-3-5-sonnet-20240620</text>
+<circle cx="266.9" cy="289.9" r="6" fill="#4C78A8" stroke="white" stroke-width="1"/>
+<text x="274.9" y="293.9" font-family="Arial" font-size="10">claude-3-haiku-20240307</text>
+<circle cx="288.3" cy="192.8" r="6" fill="#4C78A8" stroke="white" stroke-width="1"/>
+<text x="296.3" y="196.8" font-family="Arial" font-size="10">claude-3-opus-20240229</text>
+<circle cx="275.3" cy="213.2" r="6" fill="#4C78A8" stroke="white" stroke-width="1"/>
+<text x="283.3" y="217.2" font-family="Arial" font-size="10">claude-3-sonnet-2024022</text>
+<circle cx="321.1" cy="374.3" r="6" fill="#F58518" stroke="white" stroke-width="1"/>
+<text x="329.1" y="378.3" font-family="Arial" font-size="10">cohere-command-r</text>
+<circle cx="230.8" cy="209.4" r="6" fill="#F58518" stroke="white" stroke-width="1"/>
+<text x="238.8" y="213.4" font-family="Arial" font-size="10">cohere-command-r-plus</text>
+<circle cx="335.5" cy="165.2" r="6" fill="#FF9DA6" stroke="white" stroke-width="1"/>
+<text x="343.5" y="169.2" font-family="Arial" font-size="10">deepseek-v4-flash</text>
+<circle cx="240.7" cy="425.5" r="6" fill="#54A24B" stroke="white" stroke-width="1"/>
+<text x="248.7" y="429.5" font-family="Arial" font-size="10">gemini-1.0-pro</text>
+<circle cx="258.5" cy="215.8" r="6" fill="#54A24B" stroke="white" stroke-width="1"/>
+<text x="266.5" y="219.8" font-family="Arial" font-size="10">gemini-1.5-flash-preview-0514</text>
+<circle cx="318.2" cy="362.8" r="6" fill="#54A24B" stroke="white" stroke-width="1"/>
+<text x="326.2" y="366.8" font-family="Arial" font-size="10">gemini-1.5-pro-preview-0409</text>
+<circle cx="232.8" cy="393.5" r="6" fill="#B279A2" stroke="white" stroke-width="1"/>
+<text x="240.8" y="397.5" font-family="Arial" font-size="10">gpt-3.5-turbo-0125</text>
+<circle cx="299.4" cy="232.4" r="6" fill="#B279A2" stroke="white" stroke-width="1"/>
+<text x="307.4" y="236.4" font-family="Arial" font-size="10">gpt-4-turbo-2024-04-09</text>
+<circle cx="320.2" cy="210.7" r="6" fill="#B279A2" stroke="white" stroke-width="1"/>
+<text x="328.2" y="214.7" font-family="Arial" font-size="10">gpt-4o-2024-05-13</text>
+<circle cx="259.1" cy="309.1" r="6" fill="#E45756" stroke="white" stroke-width="1"/>
+<text x="267.1" y="313.1" font-family="Arial" font-size="10">llama-3-70b-chat</text>
+<circle cx="232.3" cy="369.2" r="6" fill="#E45756" stroke="white" stroke-width="1"/>
+<text x="240.3" y="373.2" font-family="Arial" font-size="10">llama-3-8b-chat</text>
+<circle cx="258.7" cy="162.1" r="6" fill="#72B7B2" stroke="white" stroke-width="1"/>
+<text x="266.7" y="166.1" font-family="Arial" font-size="10">mistral-large-2402</text>
+<circle cx="257.3" cy="460.0" r="6" fill="#72B7B2" stroke="white" stroke-width="1"/>
+<text x="265.3" y="464.0" font-family="Arial" font-size="10">mixtral-8x22b-instruct-v0.1</text>
+<circle cx="286.4" cy="204.3" r="6" fill="#B279A2" stroke="white" stroke-width="1"/>
+<text x="294.4" y="208.3" font-family="Arial" font-size="10">o1-mini-2024-09-12</text>
+<circle cx="359.3" cy="226.0" r="6" fill="#B279A2" stroke="white" stroke-width="1"/>
+<text x="367.3" y="230.0" font-family="Arial" font-size="10">o1-preview-2024-09-12</text>
+</svg>

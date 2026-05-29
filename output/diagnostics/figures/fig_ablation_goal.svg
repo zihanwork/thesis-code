@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="980" height="540" viewBox="0 0 980 540">
+<rect width="100%" height="100%" fill="white"/>
+<text x="490" y="32" text-anchor="middle" font-family="Arial" font-size="20" font-weight="700">Goal Interpretation Ablation (all_f1)</text>
+<text x="590" y="522" text-anchor="middle" font-family="Arial" font-size="12">all_f1 (%)</text>
+<line x1="240.0" y1="60" x2="240.0" y2="492" stroke="#ddd"/>
+<text x="240.0" y="508" text-anchor="middle" font-family="Arial" font-size="10">0</text>
+<line x1="380.0" y1="60" x2="380.0" y2="492" stroke="#ddd"/>
+<text x="380.0" y="508" text-anchor="middle" font-family="Arial" font-size="10">8</text>
+<line x1="520.0" y1="60" x2="520.0" y2="492" stroke="#ddd"/>
+<text x="520.0" y="508" text-anchor="middle" font-family="Arial" font-size="10">16</text>
+<line x1="660.0" y1="60" x2="660.0" y2="492" stroke="#ddd"/>
+<text x="660.0" y="508" text-anchor="middle" font-family="Arial" font-size="10">24</text>
+<line x1="800.0" y1="60" x2="800.0" y2="492" stroke="#ddd"/>
+<text x="800.0" y="508" text-anchor="middle" font-family="Arial" font-size="10">32</text>
+<line x1="940.0" y1="60" x2="940.0" y2="492" stroke="#ddd"/>
+<text x="940.0" y="508" text-anchor="middle" font-family="Arial" font-size="10">41</text>
+<text x="232" y="86" text-anchor="end" font-family="Arial" font-size="11">deepseek-v4-flash / schema_constrained</text>
+<rect x="240" y="70" width="700.0" height="18" fill="#4C78A8"/>
+<text x="945.0" y="84" font-family="Arial" font-size="11">40.6</text>
+<text x="232" y="112" text-anchor="end" font-family="Arial" font-size="11">deepseek-v4-flash / decompose_then_merge</text>
+<rect x="240" y="96" width="672.4" height="18" fill="#F58518"/>
+<text x="917.4" y="110" font-family="Arial" font-size="11">39.0</text>
+<text x="232" y="138" text-anchor="end" font-family="Arial" font-size="11">deepseek-v4-flash / few_shot</text>
+<rect x="240" y="122" width="671.9" height="18" fill="#54A24B"/>
+<text x="916.9" y="136" font-family="Arial" font-size="11">39.0</text>
+<text x="232" y="164" text-anchor="end" font-family="Arial" font-size="11">deepseek-v4-flash / baseline</text>
+<rect x="240" y="148" width="671.8" height="18" fill="#E45756"/>
+<text x="916.8" y="162" font-family="Arial" font-size="11">39.0</text>
+</svg>

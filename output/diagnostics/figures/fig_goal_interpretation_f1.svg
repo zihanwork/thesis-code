@@ -1,0 +1,62 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="980" height="540" viewBox="0 0 980 540">
+<rect width="100%" height="100%" fill="white"/>
+<text x="490" y="32" text-anchor="middle" font-family="Arial" font-size="20" font-weight="700">Goal Interpretation F1</text>
+<text x="590" y="522" text-anchor="middle" font-family="Arial" font-size="12">all_f1 (%)</text>
+<line x1="240.0" y1="60" x2="240.0" y2="492" stroke="#ddd"/>
+<text x="240.0" y="508" text-anchor="middle" font-family="Arial" font-size="10">0</text>
+<line x1="380.0" y1="60" x2="380.0" y2="492" stroke="#ddd"/>
+<text x="380.0" y="508" text-anchor="middle" font-family="Arial" font-size="10">9</text>
+<line x1="520.0" y1="60" x2="520.0" y2="492" stroke="#ddd"/>
+<text x="520.0" y="508" text-anchor="middle" font-family="Arial" font-size="10">17</text>
+<line x1="660.0" y1="60" x2="660.0" y2="492" stroke="#ddd"/>
+<text x="660.0" y="508" text-anchor="middle" font-family="Arial" font-size="10">26</text>
+<line x1="800.0" y1="60" x2="800.0" y2="492" stroke="#ddd"/>
+<text x="800.0" y="508" text-anchor="middle" font-family="Arial" font-size="10">34</text>
+<line x1="940.0" y1="60" x2="940.0" y2="492" stroke="#ddd"/>
+<text x="940.0" y="508" text-anchor="middle" font-family="Arial" font-size="10">43</text>
+<text x="232" y="86" text-anchor="end" font-family="Arial" font-size="11">o1-preview-2024-09-12</text>
+<rect x="240" y="70" width="700.0" height="18" fill="#4C78A8"/>
+<text x="945.0" y="84" font-family="Arial" font-size="11">42.7</text>
+<text x="232" y="112" text-anchor="end" font-family="Arial" font-size="11">deepseek-v4-flash_schema_constrained</text>
+<rect x="240" y="96" width="664.9" height="18" fill="#F58518"/>
+<text x="909.9" y="110" font-family="Arial" font-size="11">40.6</text>
+<text x="232" y="138" text-anchor="end" font-family="Arial" font-size="11">deepseek-v4-flash_decompose_then_merge</text>
+<rect x="240" y="122" width="638.7" height="18" fill="#54A24B"/>
+<text x="883.7" y="136" font-family="Arial" font-size="11">39.0</text>
+<text x="232" y="164" text-anchor="end" font-family="Arial" font-size="11">deepseek-v4-flash_few_shot</text>
+<rect x="240" y="148" width="638.2" height="18" fill="#E45756"/>
+<text x="883.2" y="162" font-family="Arial" font-size="11">39.0</text>
+<text x="232" y="190" text-anchor="end" font-family="Arial" font-size="11">deepseek-v4-flash</text>
+<rect x="240" y="174" width="638.1" height="18" fill="#72B7B2"/>
+<text x="883.1" y="188" font-family="Arial" font-size="11">39.0</text>
+<text x="232" y="216" text-anchor="end" font-family="Arial" font-size="11">cohere-command-r</text>
+<rect x="240" y="200" width="600.8" height="18" fill="#B279A2"/>
+<text x="845.8" y="214" font-family="Arial" font-size="11">36.7</text>
+<text x="232" y="242" text-anchor="end" font-family="Arial" font-size="11">gpt-4o-2024-05-13</text>
+<rect x="240" y="226" width="598.2" height="18" fill="#FF9DA6"/>
+<text x="843.2" y="240" font-family="Arial" font-size="11">36.5</text>
+<text x="232" y="268" text-anchor="end" font-family="Arial" font-size="11">gemini-1.5-pro-preview-0409</text>
+<rect x="240" y="252" width="593.2" height="18" fill="#9D755D"/>
+<text x="838.2" y="266" font-family="Arial" font-size="11">36.2</text>
+<text x="232" y="294" text-anchor="end" font-family="Arial" font-size="11">gpt-4-turbo-2024-04-09</text>
+<rect x="240" y="278" width="544.4" height="18" fill="#4C78A8"/>
+<text x="789.4" y="292" font-family="Arial" font-size="11">33.2</text>
+<text x="232" y="320" text-anchor="end" font-family="Arial" font-size="11">claude-3-opus-20240229</text>
+<rect x="240" y="304" width="515.3" height="18" fill="#F58518"/>
+<text x="760.3" y="318" font-family="Arial" font-size="11">31.5</text>
+<text x="232" y="346" text-anchor="end" font-family="Arial" font-size="11">o1-mini-2024-09-12</text>
+<rect x="240" y="330" width="510.6" height="18" fill="#54A24B"/>
+<text x="755.6" y="344" font-family="Arial" font-size="11">31.2</text>
+<text x="232" y="372" text-anchor="end" font-family="Arial" font-size="11">claude-3-sonnet-2024022</text>
+<rect x="240" y="356" width="481.7" height="18" fill="#E45756"/>
+<text x="726.7" y="370" font-family="Arial" font-size="11">29.4</text>
+<text x="232" y="398" text-anchor="end" font-family="Arial" font-size="11">claude-3-haiku-20240307</text>
+<rect x="240" y="382" width="459.8" height="18" fill="#72B7B2"/>
+<text x="704.8" y="396" font-family="Arial" font-size="11">28.1</text>
+<text x="232" y="424" text-anchor="end" font-family="Arial" font-size="11">llama-3-70b-chat</text>
+<rect x="240" y="408" width="439.6" height="18" fill="#B279A2"/>
+<text x="684.6" y="422" font-family="Arial" font-size="11">26.8</text>
+<text x="232" y="450" text-anchor="end" font-family="Arial" font-size="11">mistral-large-2402</text>
+<rect x="240" y="434" width="438.5" height="18" fill="#FF9DA6"/>
+<text x="683.5" y="448" font-family="Arial" font-size="11">26.8</text>
+</svg>

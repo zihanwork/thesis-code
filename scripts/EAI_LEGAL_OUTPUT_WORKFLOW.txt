@@ -1,0 +1,74 @@
+EAI：版本对齐 + 自生成合法 action 输出（主结果路径）
+================================================
+
+一、步骤 1：对齐版本
+--------------------
+1) 运行（在项目根目录）：
+   CONDA_ENV=eai-eval ./scripts/check_eai_version.sh
+
+2) 目标：
+   - pip 里的 eai-eval 版本应与官方仓库 setup.py 一致（当前仓库为 1.0.5）。
+   - 若不一致：在 eai-eval 环境中执行其一
+     pip install "eai-eval==1.0.5"
+     或进入你解压的源码目录：
+     pip install -e ./embodied-agent-interface-main
+
+3) 数据包：
+   conda run -n eai-eval python -m eai_eval.utils.download_utils
+   确保 helm_output 与当前 eai-eval 来自同一时期说明（见 GitHub README）。
+
+
+二、步骤 2：自己跑一版「合法格式」输出作为主结果
+----------------------------------------------
+官方评测器要求：每个动作是 JSON 列表里若干 dict；
+每个 dict 的值是 **偶数个** 字符串：[name1, id1, name2, id2, ...]（name_id 对）。
+说明见源码：virtualhome_eval/simulation/evolving_graph/eval_utils.py 的 check_name_id_format
+以及 prompt：virtualhome_eval/evaluation/action_sequencing/prompts/one_shot.py
+
+A) 生成全部 prompt
+   ./scripts/run_action_sequencing_generate_prompts.sh virtualhome output/helm_prompts_action_sequencing
+
+B) 用你的模型对每个条目的 "llm_prompt" 生成回答，写入字段 "llm_output"
+   - llm_output 必须是 **可被评测脚本解析的 JSON 字符串**（与 evaluate_results.py 中 load_json_preserving_order 一致）
+   - 列表元素形如：{"WALK":["character","65","floor_lamp","1000"]}  （示例：键为动作名，值为 name/id 交替）
+
+C) 合并为评测目录结构（与官方 HELM 一致）：
+   <你的响应根目录>/helm_output/virtualhome/action_sequencing/<model_name>_outputs.json
+   文件内容为 JSON 数组，每项至少包含：
+   {"identifier": "<file_id>", "llm_output": "<JSON 字符串或已符合解析器的文本>"}
+
+D) 评测（指向你自己的响应根目录的上一级 helm_output）：
+   LLM_RESPONSE_PATH="<你的响应根目录>/helm_output" \
+   NUM_WORKERS=1 \
+   ./scripts/run_action_sequencing_eval.sh virtualhome eai-eval output
+
+
+三、为何这比「只用自带 HELM zip」更可靠
+--------------------------------------
+自带 HELM 结果若与当前解析器假设不一致，会在 name_id / JSON 解析处全部记为 parsing 失败，
+Task Success 会长期为 0。自生成输出可在 prompt 约束下直接满足格式，主结果可写进论文。
+
+四、已在本仓库落地的两条路径（可直接跑）
+--------------------------------------
+A) Oracle 合法格式（上界 / 管线自检，非「模型预测」）
+   一键脚本（推荐）：
+     chmod +x scripts/run_legal_action_pipeline.sh
+     ./scripts/run_legal_action_pipeline.sh
+   产出：
+     - output/legal_helm_output/helm_output/virtualhome/action_sequencing/gold_oracle_outputs.json
+     - output/virtualhome/evaluate_results/action_sequencing/gold_oracle/summary.json
+   说明：由官方脚本轨迹转成与 load_json_preserving_order 兼容的 llm_output；汇报中请标注为
+   gold oracle / upper bound，与 HELM 预置结果对照。
+
+B) 真模型生成（需 OPENAI_API_KEY，默认只跑前 10 条便于调试）
+   1) 先执行 A 中的步骤 1 生成 helm_prompt.json（路径形如）：
+      output/virtualhome/generate_prompts/action_sequencing/helm_prompt.json
+   2) 运行：
+      export OPENAI_API_KEY=...
+      conda run -n eai-eval python analysis/generate_action_outputs_openai.py \
+        --helm-prompt output/virtualhome/generate_prompts/action_sequencing/helm_prompt.json \
+        --out-dir output/my_api_helm/helm_output/virtualhome/action_sequencing \
+        --max-prompts 10
+   3) 评测：
+      LLM_RESPONSE_PATH="$PWD/output/my_api_helm/helm_output" NUM_WORKERS=1 \
+        ./scripts/run_action_sequencing_eval.sh virtualhome eai-eval output

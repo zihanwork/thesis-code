@@ -1,0 +1,6 @@
+# Persistent knowledge base dependencies (Chroma RAG + Neo4j KG).
+# Install on top of the base requirements:
+#   pip install -r requirements-kb.txt
+chromadb>=0.5
+sentence-transformers>=2.7
+neo4j>=5.20

@@ -1,0 +1,343 @@
+model,task,file_id,goal_f1,task_success,goal_success,execution_success,failure_type,raw_failure_text
+gpt-4o-2024-05-13,Turn on light,125_2,1.0,,,,relation_grounding,", file 125_2 has hallucination error"
+gpt-4o-2024-05-13,Turn on light,311_1,1.0,,,,none,
+gpt-4o-2024-05-13,Turn on light,443_2,1.0,,,,none,
+gpt-4o-2024-05-13,Relax on sofa,332_2,1.0,,,,none,
+gpt-4o-2024-05-13,Pick up phone,99_2,1.0,,,,none,
+gpt-4o-2024-05-13,Write an email,115_2,0.8,,,,none,
+gpt-4o-2024-05-13,Pet cat,137_2,0.8,,,,none,
+gpt-4o-2024-05-13,Pet cat,203_2,0.8,,,,none,
+gpt-4o-2024-05-13,Drink,156_1,0.8,,,,none,
+gpt-4o-2024-05-13,Drink,510_1,0.8,,,,relation_grounding,"2026-04-22 14:40:29 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - Encounter error: MISSING_STEP | 2026-04-22 14:40:29 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - failed_error_code=1 | 2026-04-22 14:40:29 - virtualhome_eval.simulation.evolving_graph.eval_utils - GOAL FAIL! Not found: {'from_id': 65, 'relation_type': 'HOLDS_RH', 'to_id': 1001}"
+gpt-4o-2024-05-13,Read book,163_1,0.8,,,,relation_grounding,"2026-04-22 14:40:32 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - Encounter error: MISSING_STEP | 2026-04-22 14:40:32 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - failed_error_code=1 | 2026-04-22 14:40:32 - virtualhome_eval.simulation.evolving_graph.eval_utils - GOAL FAIL! Not found: {'from_id': 65, 'relation_type': 'HOLDS_RH', 'to_id': 1000}"
+gpt-4o-2024-05-13,Read book,221_2,0.8,,,,none,
+gpt-4o-2024-05-13,Read book,544_1,0.8,,,,none,
+gpt-4o-2024-05-13,Relax on sofa,137_1,0.8,,,,none,
+gpt-4o-2024-05-13,Relax on sofa,300_1,0.8,,,,none,
+gpt-4o-2024-05-13,Relax on sofa,379_2,0.8,,,,none,
+gpt-4o-2024-05-13,Relax on sofa,3_1,0.8,,,,none,
+gpt-4o-2024-05-13,Relax on sofa,416_1,0.8,,,,none,
+gpt-4o-2024-05-13,Relax on sofa,442_1,0.8,,,,none,
+gpt-4o-2024-05-13,Relax on sofa,563_1,0.8,,,,none,
+gpt-4o-2024-05-13,Relax on sofa,570_1,0.8,,,,none,
+gpt-4o-2024-05-13,Relax on sofa,793_2,0.8,,,,none,
+gpt-4o-2024-05-13,Relax on sofa,798_2,0.8,,,,none,
+gpt-4o-2024-05-13,Relax on sofa,96_1,0.8,,,,none,
+gpt-4o-2024-05-13,Wash dishes by hand,397_1,0.8,,,,none,
+gpt-4o-2024-05-13,Watch TV,548_2,0.75,,,,relation_grounding,"2026-04-22 14:40:26 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - Encounter error: MISSING_STEP | 2026-04-22 14:40:26 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - failed_error_code=1 | 2026-04-22 14:40:26 - virtualhome_eval.simulation.evolving_graph.eval_utils - GOAL FAIL! Not found: {'from_id': 65, 'relation_type': 'FACING', 'to_id': 248}"
+gpt-4o-2024-05-13,Turn on light,150_2,0.6667,,,,none,
+gpt-4o-2024-05-13,Turn on light,331_2,0.6667,,,,none,
+gpt-4o-2024-05-13,Write an email,699_1,0.6667,,,,none,
+gpt-4o-2024-05-13,Write an email,996_2,0.6667,,,,other,"2026-04-22 14:40:07 - virtualhome_eval.simulation.evolving_graph.eval_utils - GOAL FAIL! Not matched: {'id': 1001, 'class_name': 'computer', 'state': 'ON'}"
+gpt-4o-2024-05-13,Change TV channel,960_2,0.6667,,,,other,2026-04-22 14:40:09 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - Program 960_2 did not pass gold test
+gpt-4o-2024-05-13,Work,153_2,0.6667,,,,planning_order,"2026-04-22 14:40:09 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - Encounter error: MISSING_STEP | 2026-04-22 14:40:09 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - failed_error_code=1 | 2026-04-22 14:40:09 - virtualhome_eval.simulation.evolving_graph.eval_utils - GOAL FAIL! Not matched: {'id': 417, 'class_name': 'computer', 'state': 'ON'}"
+gpt-4o-2024-05-13,Pet cat,220_2,0.6667,,,,none,
+gpt-4o-2024-05-13,Pet cat,469_2,0.6667,,,,none,
+gpt-4o-2024-05-13,Browse internet,71_2,0.6667,,,,other,2026-04-22 14:40:21 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - Program 71_2 did not pass gold test
+gpt-4o-2024-05-13,Listen to music,173_1,0.6667,,,,relation_grounding,", file 173_1 has hallucination error"
+gpt-4o-2024-05-13,Watch TV,134_1,0.6667,,,,relation_grounding,", file 134_1 has hallucination error"
+gpt-4o-2024-05-13,Watch TV,342_2,0.6667,,,,relation_grounding,"2026-04-22 14:40:25 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - Encounter error: MISSING_STEP | 2026-04-22 14:40:25 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - failed_error_code=1 | 2026-04-22 14:40:25 - virtualhome_eval.simulation.evolving_graph.eval_utils - GOAL FAIL! Not found: {'from_id': 65, 'relation_type': 'FACING', 'to_id': 410}"
+gpt-4o-2024-05-13,Drink,589_1,0.6667,,,,none,
+gpt-4o-2024-05-13,Read book,241_2,0.6667,,,,relation_grounding,"2026-04-22 14:40:33 - virtualhome_eval.simulation.evolving_graph.execution - Check walk failed: <home_office> (319) | 2026-04-22 14:40:33 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - Encounter error: MISSING_STEP | 2026-04-22 14:40:33 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - failed_error_code=1 | 2026-04-22 14:40:33 - virtualhome_eval.simulation.evolving_graph.eval_utils - GOAL FAIL! Not found: {'from_id': 65, 'relation_type': 'HOLDS_RH', 'to_id': 1000}"
+gpt-4o-2024-05-13,Read book,86_1,0.6667,,,,relation_grounding,"2026-04-22 14:40:34 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - Encounter error: MISSING_STEP | 2026-04-22 14:40:34 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - failed_error_code=1 | 2026-04-22 14:40:34 - virtualhome_eval.simulation.evolving_graph.eval_utils - GOAL FAIL! Not found: {'from_id': 65, 'relation_type': 'HOLDS_RH', 'to_id': 1000}"
+gpt-4o-2024-05-13,Relax on sofa,456_2,0.6667,,,,none,
+gpt-4o-2024-05-13,Relax on sofa,490_1,0.6667,,,,none,
+gpt-4o-2024-05-13,Relax on sofa,762_2,0.6667,,,,none,
+gpt-4o-2024-05-13,Change TV channel,188_1,0.6,,,,other,2026-04-22 14:40:09 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - Program 188_1 did not pass gold test
+gpt-4o-2024-05-13,Watch TV,197_2,0.6,,,,relation_grounding,"2026-04-22 14:40:24 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - Encounter error: MISSING_STEP | 2026-04-22 14:40:24 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - failed_error_code=1 | 2026-04-22 14:40:24 - virtualhome_eval.simulation.evolving_graph.eval_utils - GOAL FAIL! Not found: {'from_id': 65, 'relation_type': 'FACING', 'to_id': 410}"
+gpt-4o-2024-05-13,Watch TV,74_1,0.6,,,,relation_grounding,"2026-04-22 14:40:26 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - Encounter error: MISSING_STEP | 2026-04-22 14:40:26 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - failed_error_code=1 | 2026-04-22 14:40:26 - virtualhome_eval.simulation.evolving_graph.eval_utils - GOAL FAIL! Not found: {'from_id': 65, 'relation_type': 'FACING', 'to_id': 410}"
+gpt-4o-2024-05-13,Write an email,430_1,0.5714,,,,none,
+gpt-4o-2024-05-13,Write an email,824_1,0.5714,,,,none,
+gpt-4o-2024-05-13,Go to toilet,158_1,0.5714,,,,other,2026-04-22 14:40:08 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - Program 158_1 did not pass gold test
+gpt-4o-2024-05-13,Go to sleep,269_2,0.5714,,,,none,
+gpt-4o-2024-05-13,Drink,181_2,0.5714,,,,none,
+gpt-4o-2024-05-13,Drink,850_2,0.5714,,,,none,
+gpt-4o-2024-05-13,Read book,208_2,0.5714,,,,none,
+gpt-4o-2024-05-13,Read book,484_1,0.5714,,,,none,
+gpt-4o-2024-05-13,Read book,628_1,0.5714,,,,none,
+gpt-4o-2024-05-13,Relax on sofa,268_1,0.5714,,,,none,
+gpt-4o-2024-05-13,Relax on sofa,387_1,0.5714,,,,none,
+gpt-4o-2024-05-13,Relax on sofa,390_2,0.5714,,,,none,
+gpt-4o-2024-05-13,Relax on sofa,674_2,0.5714,,,,none,
+gpt-4o-2024-05-13,Relax on sofa,932_2,0.5714,,,,none,
+gpt-4o-2024-05-13,Wash dishes by hand,349_1,0.5714,,,,none,
+gpt-4o-2024-05-13,Wash dishes by hand,429_2,0.5714,,,,planning_order,2026-04-22 14:40:45 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - Encounter error: MISSING_STEP | 2026-04-22 14:40:45 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - failed_error_code=1
+gpt-4o-2024-05-13,Browse internet,7_1,0.5455,,,,other,2026-04-22 14:40:21 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - Program 7_1 did not pass gold test
+gpt-4o-2024-05-13,Watch TV,1057_1,0.5455,,,,relation_grounding,"2026-04-22 14:40:24 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - Encounter error: MISSING_STEP | 2026-04-22 14:40:24 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - failed_error_code=1 | 2026-04-22 14:40:24 - virtualhome_eval.simulation.evolving_graph.eval_utils - GOAL FAIL! Not found: {'from_id': 65, 'relation_type': 'FACING', 'to_id': 410}"
+gpt-4o-2024-05-13,Watch TV,21_2,0.5455,,,,relation_grounding,"2026-04-22 14:40:24 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - Encounter error: MISSING_STEP | 2026-04-22 14:40:24 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - failed_error_code=1 | 2026-04-22 14:40:24 - virtualhome_eval.simulation.evolving_graph.eval_utils - GOAL FAIL! Not found: {'from_id': 65, 'relation_type': 'FACING', 'to_id': 410}"
+gpt-4o-2024-05-13,Watch TV,307_2,0.5455,,,,relation_grounding,"2026-04-22 14:40:25 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - Encounter error: MISSING_STEP | 2026-04-22 14:40:25 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - failed_error_code=1 | 2026-04-22 14:40:25 - virtualhome_eval.simulation.evolving_graph.eval_utils - GOAL FAIL! Not found: {'from_id': 65, 'relation_type': 'FACING', 'to_id': 410}"
+gpt-4o-2024-05-13,Watch TV,329_1,0.5455,,,,relation_grounding,"2026-04-22 14:40:25 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - Encounter error: MISSING_STEP | 2026-04-22 14:40:25 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - failed_error_code=1 | 2026-04-22 14:40:25 - virtualhome_eval.simulation.evolving_graph.eval_utils - GOAL FAIL! Not found: {'from_id': 65, 'relation_type': 'FACING', 'to_id': 410}"
+gpt-4o-2024-05-13,Set up table,419_2,0.5263,,,,other,2026-04-22 14:40:43 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - Program 419_2 did not pass gold test
+gpt-4o-2024-05-13,Turn on light,11_1,0.5,,,,none,
+gpt-4o-2024-05-13,Turn on light,180_2,0.5,,,,relation_grounding,"2026-04-22 14:40:01 - virtualhome_eval.simulation.evolving_graph.execution - Check walk failed: <dining_room> (201) | 2026-04-22 14:40:01 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - Encounter error: MISSING_STEP | 2026-04-22 14:40:01 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - failed_error_code=1 | 2026-04-22 14:40:01 - virtualhome_eval.simulation.evolving_graph.eval_utils - GOAL FAIL! Not matched: {'id': 245, 'class_name': 'light', 'state': 'ON'}"
+gpt-4o-2024-05-13,Turn on light,432_1,0.5,,,,none,
+gpt-4o-2024-05-13,Turn on light,616_1,0.5,,,,none,
+gpt-4o-2024-05-13,Turn on light,705_1,0.5,,,,none,
+gpt-4o-2024-05-13,Turn on light,835_2,0.5,,,,none,
+gpt-4o-2024-05-13,Brush teeth,491_2,0.5,,,,other,2026-04-22 14:40:05 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - Program 491_2 did not pass gold test
+gpt-4o-2024-05-13,Put groceries in Fridge,298_2,0.5,,,,none,
+gpt-4o-2024-05-13,Work,373_1,0.5,,,,planning_order,"2026-04-22 14:40:10 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - Encounter error: MISSING_STEP | 2026-04-22 14:40:10 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - failed_error_code=1 | 2026-04-22 14:40:10 - virtualhome_eval.simulation.evolving_graph.eval_utils - GOAL FAIL! Not matched: {'id': 417, 'class_name': 'computer', 'state': 'ON'}"
+gpt-4o-2024-05-13,Work,503_1,0.5,,,,none,
+gpt-4o-2024-05-13,Work,670_2,0.5,,,,none,
+gpt-4o-2024-05-13,Work,819_1,0.5,,,,none,
+gpt-4o-2024-05-13,Wash dishes with dishwasher,201_1,0.5,,,,other,2026-04-22 14:40:13 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - Program 201_1 did not pass gold test
+gpt-4o-2024-05-13,Go to sleep,1027_2,0.5,,,,relation_grounding,"2026-04-22 14:40:13 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - Encounter error: MISSING_STEP | 2026-04-22 14:40:13 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - failed_error_code=1 | 2026-04-22 14:40:13 - virtualhome_eval.simulation.evolving_graph.eval_utils - GOAL FAIL! Not matched: {'id': 65, 'class_name': 'character', 'state': 'LYING'} | 2026-04-22 14:40:13 - virtualhome_eval.simulation.evolving_graph.eval_utils - GOAL FAIL! Not found: {'from_id': 65, 'relation_type': 'ON', 'to_id': 105}"
+gpt-4o-2024-05-13,Pet cat,1035_1,0.5,,,,none,
+gpt-4o-2024-05-13,Pet cat,113_2,0.5,,,,none,
+gpt-4o-2024-05-13,Pet cat,381_1,0.5,,,,none,
+gpt-4o-2024-05-13,Browse internet,384_1,0.5,,,,other,2026-04-22 14:40:21 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - Program 384_1 did not pass gold test
+gpt-4o-2024-05-13,Listen to music,161_1,0.5,,,,none,
+gpt-4o-2024-05-13,Listen to music,385_2,0.5,,,,none,
+gpt-4o-2024-05-13,Listen to music,737_1,0.5,,,,none,
+gpt-4o-2024-05-13,Listen to music,910_2,0.5,,,,none,
+gpt-4o-2024-05-13,Watch TV,170_1,0.5,,,,relation_grounding,"2026-04-22 14:40:24 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - Encounter error: MISSING_STEP | 2026-04-22 14:40:24 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - failed_error_code=1 | 2026-04-22 14:40:24 - virtualhome_eval.simulation.evolving_graph.eval_utils - GOAL FAIL! Not found: {'from_id': 65, 'relation_type': 'FACING', 'to_id': 410}"
+gpt-4o-2024-05-13,Watch TV,459_1,0.5,,,,relation_grounding,"2026-04-22 14:40:26 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - Encounter error: MISSING_STEP | 2026-04-22 14:40:26 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - failed_error_code=1 | 2026-04-22 14:40:26 - virtualhome_eval.simulation.evolving_graph.eval_utils - GOAL FAIL! Not found: {'from_id': 65, 'relation_type': 'FACING', 'to_id': 410}"
+gpt-4o-2024-05-13,Watch TV,684_2,0.5,,,,relation_grounding,"2026-04-22 14:40:26 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - Encounter error: MISSING_STEP | 2026-04-22 14:40:26 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - failed_error_code=1 | 2026-04-22 14:40:26 - virtualhome_eval.simulation.evolving_graph.eval_utils - GOAL FAIL! Not found: {'from_id': 65, 'relation_type': 'FACING', 'to_id': 410}"
+gpt-4o-2024-05-13,Watch TV,98_1,0.5,,,,relation_grounding,"2026-04-22 14:40:27 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - Encounter error: MISSING_STEP | 2026-04-22 14:40:27 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - failed_error_code=1 | 2026-04-22 14:40:27 - virtualhome_eval.simulation.evolving_graph.eval_utils - GOAL FAIL! Not found: {'from_id': 65, 'relation_type': 'FACING', 'to_id': 410}"
+gpt-4o-2024-05-13,Drink,1064_1,0.5,,,,none,
+gpt-4o-2024-05-13,Drink,26_1,0.5,,,,relation_grounding,"2026-04-22 14:40:28 - virtualhome_eval.simulation.evolving_graph.execution - Check walk failed: <cup> (1000) | 2026-04-22 14:40:28 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - Encounter error: MISSING_STEP | 2026-04-22 14:40:28 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - failed_error_code=1 | 2026-04-22 14:40:28 - virtualhome_eval.simulation.evolving_graph.eval_utils - GOAL FAIL! Not found: {'from_id': 65, 'relation_type': 'HOLDS_RH', 'to_id': 1000}"
+gpt-4o-2024-05-13,Drink,600_1,0.5,,,,none,
+gpt-4o-2024-05-13,Drink,688_1,0.5,,,,other,2026-04-22 14:40:30 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - Program 688_1 did not pass gold test
+gpt-4o-2024-05-13,Drink,788_1,0.5,,,,none,
+gpt-4o-2024-05-13,Read book,1073_1,0.5,,,,none,
+gpt-4o-2024-05-13,Read book,57_1,0.5,,,,none,
+gpt-4o-2024-05-13,Relax on sofa,449_1,0.5,,,,none,
+gpt-4o-2024-05-13,Pick up phone,287_2,0.5,,,,none,
+gpt-4o-2024-05-13,Pick up phone,360_1,0.5,,,,none,
+gpt-4o-2024-05-13,Pick up phone,431_1,0.5,,,,relation_grounding,"2026-04-22 14:40:41 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - Encounter error: MISSING_STEP | 2026-04-22 14:40:41 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - failed_error_code=1 | 2026-04-22 14:40:41 - virtualhome_eval.simulation.evolving_graph.eval_utils - GOAL FAIL! Not found: {'from_id': 65, 'relation_type': 'HOLDS_RH', 'to_id': 1000}"
+gpt-4o-2024-05-13,Pick up phone,482_2,0.5,,,,none,
+gpt-4o-2024-05-13,Make coffee,721_2,0.5,,,,other,2026-04-22 14:40:43 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - Program 721_2 did not pass gold test
+gpt-4o-2024-05-13,Wash dishes by hand,594_2,0.5,,,,planning_order,2026-04-22 14:40:46 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - Encounter error: MISSING_STEP | 2026-04-22 14:40:46 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - failed_error_code=1
+gpt-4o-2024-05-13,Wash clothes,27_2,0.4615,,,,other,2026-04-22 14:40:00 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - Program 27_2 did not pass gold test
+gpt-4o-2024-05-13,Write an email,407_1,0.4444,,,,none,
+gpt-4o-2024-05-13,Write an email,481_2,0.4444,,,,planning_order,2026-04-22 14:40:06 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - Encounter error: ADDITIONAL_STEP | 2026-04-22 14:40:06 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - Encounter error: ADDITIONAL_STEP
+gpt-4o-2024-05-13,Write an email,622_1,0.4444,,,,none,
+gpt-4o-2024-05-13,Write an email,87_2,0.4444,,,,none,
+gpt-4o-2024-05-13,Go to toilet,496_1,0.4444,,,,other,2026-04-22 14:40:09 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - Program 496_1 did not pass gold test
+gpt-4o-2024-05-13,Wash dishes with dishwasher,650_2,0.4444,,,,other,2026-04-22 14:40:13 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - Program 650_2 did not pass gold test
+gpt-4o-2024-05-13,Go to sleep,244_2,0.4444,,,,relation_grounding,"2026-04-22 14:40:13 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - Encounter error: MISSING_STEP | 2026-04-22 14:40:13 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - failed_error_code=1 | 2026-04-22 14:40:14 - virtualhome_eval.simulation.evolving_graph.eval_utils - GOAL FAIL! Not matched: {'id': 65, 'class_name': 'character', 'state': 'LYING'} | 2026-04-22 14:40:14 - virtualhome_eval.simulation.evolving_graph.eval_utils - GOAL FAIL! Not found: {'from_id': 65, 'relation_type': 'ON', 'to_id': 105}"
+gpt-4o-2024-05-13,Browse internet,540_1,0.4444,,,,other,2026-04-22 14:40:21 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - Program 540_1 did not pass gold test
+gpt-4o-2024-05-13,Drink,286_2,0.4444,,,,none,
+gpt-4o-2024-05-13,Read book,821_1,0.4444,,,,none,
+gpt-4o-2024-05-13,Wash clothes,417_1,0.4,,,,other,2026-04-22 14:40:00 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - Program 417_1 did not pass gold test
+gpt-4o-2024-05-13,Turn on light,205_1,0.4,,,,none,
+gpt-4o-2024-05-13,Turn on light,222_1,0.4,,,,none,
+gpt-4o-2024-05-13,Turn on light,310_1,0.4,,,,none,
+gpt-4o-2024-05-13,Turn on light,345_1,0.4,,,,none,
+gpt-4o-2024-05-13,Turn on light,394_2,0.4,,,,none,
+gpt-4o-2024-05-13,Turn on light,511_1,0.4,,,,none,
+gpt-4o-2024-05-13,Turn on light,604_2,0.4,,,,planning_order,"2026-04-22 14:40:03 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - Encounter error: ADDITIONAL_STEP | 2026-04-22 14:40:03 - virtualhome_eval.simulation.evolving_graph.eval_utils - GOAL FAIL! Not matched: {'id': 1000, 'class_name': 'light', 'state': 'ON'}"
+gpt-4o-2024-05-13,Turn on light,737_2,0.4,,,,none,
+gpt-4o-2024-05-13,Work,198_1,0.4,,,,none,
+gpt-4o-2024-05-13,Work,232_1,0.4,,,,none,
+gpt-4o-2024-05-13,Work,453_2,0.4,,,,planning_order,"2026-04-22 14:40:11 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - Encounter error: MISSING_STEP | 2026-04-22 14:40:11 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - failed_error_code=1 | 2026-04-22 14:40:11 - virtualhome_eval.simulation.evolving_graph.eval_utils - GOAL FAIL! Not matched: {'id': 417, 'class_name': 'computer', 'state': 'ON'}"
+gpt-4o-2024-05-13,Work,910_1,0.4,,,,planning_order,"2026-04-22 14:40:12 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - Encounter error: MISSING_STEP | 2026-04-22 14:40:12 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - failed_error_code=1 | 2026-04-22 14:40:12 - virtualhome_eval.simulation.evolving_graph.eval_utils - GOAL FAIL! Not matched: {'id': 417, 'class_name': 'computer', 'state': 'ON'}"
+gpt-4o-2024-05-13,Work,962_1,0.4,,,,planning_order,"2026-04-22 14:40:13 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - Encounter error: MISSING_STEP | 2026-04-22 14:40:13 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - failed_error_code=1 | 2026-04-22 14:40:13 - virtualhome_eval.simulation.evolving_graph.eval_utils - GOAL FAIL! Not matched: {'id': 417, 'class_name': 'computer', 'state': 'ON'}"
+gpt-4o-2024-05-13,Wash dishes with dishwasher,190_1,0.4,,,,other,2026-04-22 14:40:13 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - Program 190_1 did not pass gold test
+gpt-4o-2024-05-13,Wash hands,813_2,0.4,,,,planning_order,2026-04-22 14:40:17 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - Encounter error: MISSING_STEP | 2026-04-22 14:40:17 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - failed_error_code=1
+gpt-4o-2024-05-13,Wash hands,928_2,0.4,,,,planning_order,2026-04-22 14:40:17 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - Encounter error: MISSING_STEP | 2026-04-22 14:40:17 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - failed_error_code=1
+gpt-4o-2024-05-13,Pet cat,12_2,0.4,,,,none,
+gpt-4o-2024-05-13,Pet cat,242_1,0.4,,,,none,
+gpt-4o-2024-05-13,Pet cat,279_2,0.4,,,,none,
+gpt-4o-2024-05-13,Pet cat,287_1,0.4,,,,none,
+gpt-4o-2024-05-13,Pet cat,292_1,0.4,,,,none,
+gpt-4o-2024-05-13,Pet cat,38_1,0.4,,,,none,
+gpt-4o-2024-05-13,Pet cat,479_2,0.4,,,,none,
+gpt-4o-2024-05-13,Pet cat,612_1,0.4,,,,none,
+gpt-4o-2024-05-13,Browse internet,60_1,0.4,,,,relation_grounding,"2026-04-22 14:40:21 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - Encounter error: MISSING_STEP | 2026-04-22 14:40:21 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - failed_error_code=1 | 2026-04-22 14:40:21 - virtualhome_eval.simulation.evolving_graph.eval_utils - GOAL FAIL! Not found: {'from_id': 65, 'relation_type': 'FACING', 'to_id': 1000}"
+gpt-4o-2024-05-13,Listen to music,263_1,0.4,,,,none,
+gpt-4o-2024-05-13,Listen to music,403_1,0.4,,,,none,
+gpt-4o-2024-05-13,Watch TV,377_2,0.4,,,,relation_grounding,"2026-04-22 14:40:25 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - Encounter error: MISSING_STEP | 2026-04-22 14:40:25 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - failed_error_code=1 | 2026-04-22 14:40:25 - virtualhome_eval.simulation.evolving_graph.eval_utils - GOAL FAIL! Not found: {'from_id': 65, 'relation_type': 'FACING', 'to_id': 410}"
+gpt-4o-2024-05-13,Read book,192_1,0.4,,,,none,
+gpt-4o-2024-05-13,Cook some food,755_2,0.4,,,,relation_grounding,"2026-04-22 14:40:35 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - Encounter error: AFFORDANCE_ERROR | 2026-04-22 14:40:35 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - failed_error_code=2 | 2026-04-22 14:40:35 - virtualhome_eval.simulation.evolving_graph.eval_utils - GOAL FAIL! Not matched: {'id': 295, 'class_name': 'oven', 'state': 'ON'} | 2026-04-22 14:40:35 - virtualhome_eval.simulation.evolving_graph.eval_utils - GOAL FAIL! Not found: {'from_id': 1003, 'relation_type': 'ON', 'to_id': 295}"
+gpt-4o-2024-05-13,Relax on sofa,438_1,0.4,,,,none,
+gpt-4o-2024-05-13,Pick up phone,553_1,0.4,,,,relation_grounding,"2026-04-22 14:40:42 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - Encounter error: MISSING_STEP | 2026-04-22 14:40:42 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - failed_error_code=1 | 2026-04-22 14:40:42 - virtualhome_eval.simulation.evolving_graph.eval_utils - GOAL FAIL! Not found: {'from_id': 65, 'relation_type': 'HOLDS_RH', 'to_id': 1000}"
+gpt-4o-2024-05-13,Pick up phone,963_2,0.4,,,,relation_grounding,"2026-04-22 14:40:42 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - Encounter error: MISSING_STEP | 2026-04-22 14:40:42 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - failed_error_code=1 | 2026-04-22 14:40:42 - virtualhome_eval.simulation.evolving_graph.eval_utils - GOAL FAIL! Not found: {'from_id': 65, 'relation_type': 'HOLDS_RH', 'to_id': 1000}"
+gpt-4o-2024-05-13,Set up table,446_2,0.4,,,,other,2026-04-22 14:40:43 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - Program 446_2 did not pass gold test
+gpt-4o-2024-05-13,Watch TV,411_1,0.375,,,,relation_grounding,"2026-04-22 14:40:26 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - Encounter error: MISSING_STEP | 2026-04-22 14:40:26 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - failed_error_code=1 | 2026-04-22 14:40:26 - virtualhome_eval.simulation.evolving_graph.eval_utils - GOAL FAIL! Not found: {'from_id': 65, 'relation_type': 'FACING', 'to_id': 410}"
+gpt-4o-2024-05-13,Watch TV,117_1,0.3636,,,,relation_grounding,"2026-04-22 14:40:24 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - Encounter error: MISSING_STEP | 2026-04-22 14:40:24 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - failed_error_code=1 | 2026-04-22 14:40:24 - virtualhome_eval.simulation.evolving_graph.eval_utils - GOAL FAIL! Not found: {'from_id': 65, 'relation_type': 'FACING', 'to_id': 410}"
+gpt-4o-2024-05-13,Watch TV,454_2,0.3636,,,,relation_grounding,"2026-04-22 14:40:26 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - Encounter error: MISSING_STEP | 2026-04-22 14:40:26 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - failed_error_code=1 | 2026-04-22 14:40:26 - virtualhome_eval.simulation.evolving_graph.eval_utils - GOAL FAIL! Not found: {'from_id': 65, 'relation_type': 'FACING', 'to_id': 410}"
+gpt-4o-2024-05-13,Watch TV,595_1,0.3636,,,,relation_grounding,"2026-04-22 14:40:26 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - Encounter error: MISSING_STEP | 2026-04-22 14:40:26 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - failed_error_code=1 | 2026-04-22 14:40:26 - virtualhome_eval.simulation.evolving_graph.eval_utils - GOAL FAIL! Not found: {'from_id': 65, 'relation_type': 'FACING', 'to_id': 410}"
+gpt-4o-2024-05-13,Drink,488_2,0.3636,,,,planning_order,2026-04-22 14:40:29 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - Encounter error: MISSING_STEP | 2026-04-22 14:40:29 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - failed_error_code=1
+gpt-4o-2024-05-13,Drink,662_1,0.3636,,,,relation_grounding,"2026-04-22 14:40:30 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - Encounter error: MISSING_STEP | 2026-04-22 14:40:30 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - failed_error_code=1 | 2026-04-22 14:40:30 - virtualhome_eval.simulation.evolving_graph.eval_utils - GOAL FAIL! Not found: {'from_id': 65, 'relation_type': 'HOLDS_RH', 'to_id': 1000}"
+gpt-4o-2024-05-13,Drink,787_1,0.3636,,,,relation_grounding,"2026-04-22 14:40:30 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - Encounter error: MISSING_STEP | 2026-04-22 14:40:30 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - failed_error_code=1 | 2026-04-22 14:40:30 - virtualhome_eval.simulation.evolving_graph.eval_utils - GOAL FAIL! Not found: {'from_id': 65, 'relation_type': 'HOLDS_RH', 'to_id': 1000}"
+gpt-4o-2024-05-13,Turn on light,392_1,0.3333,,,,none,
+gpt-4o-2024-05-13,Turn on light,715_2,0.3333,,,,relation_grounding,", file 715_2 has hallucination error"
+gpt-4o-2024-05-13,Turn on light,874_2,0.3333,,,,planning_order,"2026-04-22 14:40:04 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - Encounter error: MISSING_STEP | 2026-04-22 14:40:04 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - failed_error_code=1 | 2026-04-22 14:40:04 - virtualhome_eval.simulation.evolving_graph.eval_utils - GOAL FAIL! Not matched: {'id': 169, 'class_name': 'light', 'state': 'ON'}"
+gpt-4o-2024-05-13,Put groceries in Fridge,152_2,0.3333,,,,relation_grounding,"2026-04-22 14:40:07 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - Encounter error: MISSING_STEP | 2026-04-22 14:40:07 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - failed_error_code=1 | 2026-04-22 14:40:07 - virtualhome_eval.simulation.evolving_graph.eval_utils - GOAL FAIL! Not matched: {'id': 289, 'class_name': 'freezer', 'state': 'OPEN'} | 2026-04-22 14:40:07 - virtualhome_eval.simulation.evolving_graph.eval_utils - GOAL FAIL! Not found: {'from_id': 1000, 'relation_type': 'INSIDE', 'to_id': 289}"
+gpt-4o-2024-05-13,Work,101_2,0.3333,,,,none,
+gpt-4o-2024-05-13,Work,201_2,0.3333,,,,planning_order,"2026-04-22 14:40:10 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - Encounter error: MISSING_STEP | 2026-04-22 14:40:10 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - failed_error_code=1 | 2026-04-22 14:40:10 - virtualhome_eval.simulation.evolving_graph.eval_utils - GOAL FAIL! Not matched: {'id': 417, 'class_name': 'computer', 'state': 'ON'}"
+gpt-4o-2024-05-13,Work,406_2,0.3333,,,,none,
+gpt-4o-2024-05-13,Work,409_2,0.3333,,,,none,
+gpt-4o-2024-05-13,Work,46_1,0.3333,,,,none,
+gpt-4o-2024-05-13,Work,475_2,0.3333,,,,none,
+gpt-4o-2024-05-13,Work,757_2,0.3333,,,,none,
+gpt-4o-2024-05-13,Wash dishes with dishwasher,327_2,0.3333,,,,other,2026-04-22 14:40:13 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - Program 327_2 did not pass gold test
+gpt-4o-2024-05-13,Wash dishes with dishwasher,383_1,0.3333,,,,other,2026-04-22 14:40:13 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - Program 383_1 did not pass gold test
+gpt-4o-2024-05-13,Wash dishes with dishwasher,815_2,0.3333,,,,other,2026-04-22 14:40:13 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - Program 815_2 did not pass gold test
+gpt-4o-2024-05-13,Go to sleep,181_1,0.3333,,,,none,
+gpt-4o-2024-05-13,Wash hands,102_1,0.3333,,,,none,
+gpt-4o-2024-05-13,Wash hands,176_1,0.3333,,,,none,
+gpt-4o-2024-05-13,Wash hands,549_2,0.3333,,,,none,
+gpt-4o-2024-05-13,Pet cat,451_1,0.3333,,,,none,
+gpt-4o-2024-05-13,Pet cat,502_1,0.3333,,,,none,
+gpt-4o-2024-05-13,Pet cat,856_2,0.3333,,,,none,
+gpt-4o-2024-05-13,Listen to music,113_1,0.3333,,,,none,
+gpt-4o-2024-05-13,Listen to music,23_1,0.3333,,,,none,
+gpt-4o-2024-05-13,Listen to music,463_2,0.3333,,,,planning_order,"2026-04-22 14:40:23 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - Encounter error: MISSING_STEP | 2026-04-22 14:40:23 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - failed_error_code=1 | 2026-04-22 14:40:23 - virtualhome_eval.simulation.evolving_graph.eval_utils - GOAL FAIL! Not matched: {'id': 1000, 'class_name': 'stereo', 'state': 'ON'}"
+gpt-4o-2024-05-13,Listen to music,773_1,0.3333,,,,none,
+gpt-4o-2024-05-13,Listen to music,953_1,0.3333,,,,none,
+gpt-4o-2024-05-13,Watch TV,806_1,0.3333,,,,relation_grounding,"2026-04-22 14:40:27 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - Encounter error: MISSING_STEP | 2026-04-22 14:40:27 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - failed_error_code=1 | 2026-04-22 14:40:27 - virtualhome_eval.simulation.evolving_graph.eval_utils - GOAL FAIL! Not matched: {'id': 410, 'class_name': 'television', 'state': 'ON'} | 2026-04-22 14:40:27 - virtualhome_eval.simulation.evolving_graph.eval_utils - GOAL FAIL! Not found: {'from_id': 65, 'relation_type': 'FACING', 'to_id': 410}"
+gpt-4o-2024-05-13,Drink,175_2,0.3333,,,,relation_grounding,"2026-04-22 14:40:28 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - Encounter error: MISSING_STEP | 2026-04-22 14:40:28 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - failed_error_code=1 | 2026-04-22 14:40:28 - virtualhome_eval.simulation.evolving_graph.eval_utils - GOAL FAIL! Not found: {'from_id': 65, 'relation_type': 'HOLDS_RH', 'to_id': 1000}"
+gpt-4o-2024-05-13,Drink,291_1,0.3333,,,,relation_grounding,"2026-04-22 14:40:28 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - Encounter error: MISSING_STEP | 2026-04-22 14:40:28 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - failed_error_code=1 | 2026-04-22 14:40:28 - virtualhome_eval.simulation.evolving_graph.eval_utils - GOAL FAIL! Not found: {'from_id': 65, 'relation_type': 'HOLDS_RH', 'to_id': 1001}"
+gpt-4o-2024-05-13,Drink,532_1,0.3333,,,,none,
+gpt-4o-2024-05-13,Drink,878_2,0.3333,,,,none,
+gpt-4o-2024-05-13,Read book,504_2,0.3333,,,,none,
+gpt-4o-2024-05-13,Read book,688_2,0.3333,,,,none,
+gpt-4o-2024-05-13,Relax on sofa,124_1,0.3333,,,,none,
+gpt-4o-2024-05-13,Relax on sofa,447_2,0.3333,,,,none,
+gpt-4o-2024-05-13,Relax on sofa,455_1,0.3333,,,,none,
+gpt-4o-2024-05-13,Relax on sofa,742_1,0.3333,,,,none,
+gpt-4o-2024-05-13,Relax on sofa,976_1,0.3333,,,,none,
+gpt-4o-2024-05-13,Pick up phone,388_1,0.3333,,,,none,
+gpt-4o-2024-05-13,Set up table,710_2,0.3333,,,,none,
+gpt-4o-2024-05-13,Wash dishes by hand,231_2,0.3333,,,,none,
+gpt-4o-2024-05-13,Watch TV,259_1,0.3158,,,,relation_grounding,"2026-04-22 14:40:25 - virtualhome_eval.simulation.evolving_graph.execution - Check walk failed: <television> (410) | 2026-04-22 14:40:25 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - Encounter error: MISSING_STEP | 2026-04-22 14:40:25 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - failed_error_code=1 | 2026-04-22 14:40:25 - virtualhome_eval.simulation.evolving_graph.eval_utils - GOAL FAIL! Not matched: {'id': 410, 'class_name': 'television', 'state': 'ON'} | 2026-04-22 14:40:25 - virtualhome_eval.simulation.evolving_graph.eval_utils - GOAL FAIL! Not found: {'from_id': 65, 'relation_type': 'FACING', 'to_id': 410}"
+gpt-4o-2024-05-13,Change TV channel,803_2,0.3077,,,,other,2026-04-22 14:40:09 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - Program 803_2 did not pass gold test
+gpt-4o-2024-05-13,Wash dishes with dishwasher,223_2,0.3077,,,,other,2026-04-22 14:40:13 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - Program 223_2 did not pass gold test
+gpt-4o-2024-05-13,Wash dishes with dishwasher,417_2,0.3077,,,,other,2026-04-22 14:40:13 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - Program 417_2 did not pass gold test
+gpt-4o-2024-05-13,Wash dishes with dishwasher,911_1,0.3077,,,,other,2026-04-22 14:40:13 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - Program 911_1 did not pass gold test
+gpt-4o-2024-05-13,Make coffee,183_2,0.3077,,,,other,2026-04-22 14:40:43 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - Program 183_2 did not pass gold test
+gpt-4o-2024-05-13,Turn on light,120_1,0.2857,,,,planning_order,"2026-04-22 14:40:01 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - Encounter error: ADDITIONAL_STEP | 2026-04-22 14:40:01 - virtualhome_eval.simulation.evolving_graph.eval_utils - GOAL FAIL! Not matched: {'id': 411, 'class_name': 'light', 'state': 'ON'}"
+gpt-4o-2024-05-13,Turn on light,160_1,0.2857,,,,planning_order,"2026-04-22 14:40:01 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - Encounter error: ADDITIONAL_STEP | 2026-04-22 14:40:01 - virtualhome_eval.simulation.evolving_graph.eval_utils - GOAL FAIL! Not matched: {'id': 1002, 'class_name': 'light', 'state': 'ON'}"
+gpt-4o-2024-05-13,Turn on light,232_2,0.2857,,,,planning_order,"2026-04-22 14:40:01 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - Encounter error: ADDITIONAL_STEP | 2026-04-22 14:40:01 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - Encounter error: ADDITIONAL_STEP | 2026-04-22 14:40:01 - virtualhome_eval.simulation.evolving_graph.eval_utils - GOAL FAIL! Not matched: {'id': 1001, 'class_name': 'light', 'state': 'ON'} | 2026-04-22 14:40:01 - virtualhome_eval.simulation.evolving_graph.eval_utils - GOAL FAIL! Not matched: {'id': 1000, 'class_name': 'light', 'state': 'ON'}"
+gpt-4o-2024-05-13,Turn on light,445_1,0.2857,,,,planning_order,"2026-04-22 14:40:03 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - Encounter error: ADDITIONAL_STEP | 2026-04-22 14:40:03 - virtualhome_eval.simulation.evolving_graph.eval_utils - GOAL FAIL! Not matched: {'id': 1000, 'class_name': 'light', 'state': 'ON'}"
+gpt-4o-2024-05-13,Turn on light,708_1,0.2857,,,,planning_order,"2026-04-22 14:40:04 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - Encounter error: ADDITIONAL_STEP | 2026-04-22 14:40:04 - virtualhome_eval.simulation.evolving_graph.eval_utils - GOAL FAIL! Not matched: {'id': 411, 'class_name': 'light', 'state': 'ON'}"
+gpt-4o-2024-05-13,Turn on light,780_1,0.2857,,,,planning_order,"2026-04-22 14:40:04 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - Encounter error: ADDITIONAL_STEP | 2026-04-22 14:40:04 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - Encounter error: ADDITIONAL_STEP | 2026-04-22 14:40:04 - virtualhome_eval.simulation.evolving_graph.eval_utils - GOAL FAIL! Not matched: {'id': 1000, 'class_name': 'light', 'state': 'ON'} | 2026-04-22 14:40:04 - virtualhome_eval.simulation.evolving_graph.eval_utils - GOAL FAIL! Not matched: {'id': 411, 'class_name': 'light', 'state': 'ON'}"
+gpt-4o-2024-05-13,Turn on light,85_2,0.2857,,,,none,
+gpt-4o-2024-05-13,Put groceries in Fridge,1004_2,0.2857,,,,relation_grounding,"2026-04-22 14:40:07 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - Encounter error: MISSING_STEP | 2026-04-22 14:40:07 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - failed_error_code=1 | 2026-04-22 14:40:07 - virtualhome_eval.simulation.evolving_graph.eval_utils - GOAL FAIL! Not matched: {'id': 289, 'class_name': 'freezer', 'state': 'OPEN'} | 2026-04-22 14:40:07 - virtualhome_eval.simulation.evolving_graph.eval_utils - GOAL FAIL! Not found: {'from_id': 1000, 'relation_type': 'INSIDE', 'to_id': 289}"
+gpt-4o-2024-05-13,Put groceries in Fridge,703_2,0.2857,,,,relation_grounding,"2026-04-22 14:40:08 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - Encounter error: MISSING_STEP | 2026-04-22 14:40:08 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - failed_error_code=1 | 2026-04-22 14:40:08 - virtualhome_eval.simulation.evolving_graph.eval_utils - GOAL FAIL! Not matched: {'id': 289, 'class_name': 'freezer', 'state': 'OPEN'} | 2026-04-22 14:40:08 - virtualhome_eval.simulation.evolving_graph.eval_utils - GOAL FAIL! Not found: {'from_id': 1000, 'relation_type': 'INSIDE', 'to_id': 289}"
+gpt-4o-2024-05-13,Go to toilet,323_2,0.2857,,,,none,
+gpt-4o-2024-05-13,Work,1068_1,0.2857,,,,none,
+gpt-4o-2024-05-13,Work,234_1,0.2857,,,,none,
+gpt-4o-2024-05-13,Work,440_1,0.2857,,,,none,
+gpt-4o-2024-05-13,Work,719_2,0.2857,,,,planning_order,"2026-04-22 14:40:12 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - Encounter error: MISSING_STEP | 2026-04-22 14:40:12 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - failed_error_code=1 | 2026-04-22 14:40:12 - virtualhome_eval.simulation.evolving_graph.eval_utils - GOAL FAIL! Not matched: {'id': 417, 'class_name': 'computer', 'state': 'ON'}"
+gpt-4o-2024-05-13,Work,93_2,0.2857,,,,planning_order,"2026-04-22 14:40:12 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - Encounter error: MISSING_STEP | 2026-04-22 14:40:12 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - failed_error_code=1 | 2026-04-22 14:40:12 - virtualhome_eval.simulation.evolving_graph.eval_utils - GOAL FAIL! Not matched: {'id': 417, 'class_name': 'computer', 'state': 'ON'}"
+gpt-4o-2024-05-13,Wash dishes with dishwasher,487_1,0.2857,,,,other,2026-04-22 14:40:13 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - Program 487_1 did not pass gold test
+gpt-4o-2024-05-13,Wash hands,214_1,0.2857,,,,planning_order,2026-04-22 14:40:14 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - Encounter error: MISSING_STEP | 2026-04-22 14:40:14 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - failed_error_code=1
+gpt-4o-2024-05-13,Wash hands,258_2,0.2857,,,,none,
+gpt-4o-2024-05-13,Wash hands,657_1,0.2857,,,,none,
+gpt-4o-2024-05-13,Pet cat,437_1,0.2857,,,,none,
+gpt-4o-2024-05-13,Listen to music,305_2,0.2857,,,,none,
+gpt-4o-2024-05-13,Listen to music,462_2,0.2857,,,,none,
+gpt-4o-2024-05-13,Watch TV,383_2,0.2857,,,,relation_grounding,"2026-04-22 14:40:25 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - Encounter error: MISSING_STEP | 2026-04-22 14:40:25 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - failed_error_code=1 | 2026-04-22 14:40:25 - virtualhome_eval.simulation.evolving_graph.eval_utils - GOAL FAIL! Not found: {'from_id': 65, 'relation_type': 'FACING', 'to_id': 410}"
+gpt-4o-2024-05-13,Drink,814_1,0.2857,,,,planning_order,2026-04-22 14:40:31 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - Encounter error: MISSING_STEP | 2026-04-22 14:40:31 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - failed_error_code=1
+gpt-4o-2024-05-13,Read book,1088_1,0.2857,,,,none,
+gpt-4o-2024-05-13,Read book,16_2,0.2857,,,,none,
+gpt-4o-2024-05-13,Read book,341_1,0.2857,,,,other,2026-04-22 14:40:33 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - Program 341_1 did not pass gold test
+gpt-4o-2024-05-13,Relax on sofa,299_1,0.2857,,,,none,
+gpt-4o-2024-05-13,Relax on sofa,321_1,0.2857,,,,none,
+gpt-4o-2024-05-13,Relax on sofa,567_2,0.2857,,,,none,
+gpt-4o-2024-05-13,Pick up phone,154_1,0.2857,,,,none,
+gpt-4o-2024-05-13,Wash clothes,954_2,0.25,,,,other,2026-04-22 14:40:00 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - Program 954_2 did not pass gold test
+gpt-4o-2024-05-13,Write an email,1003_2,0.25,,,,planning_order,2026-04-22 14:40:05 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - Encounter error: ADDITIONAL_STEP | 2026-04-22 14:40:05 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - Encounter error: AFFORDANCE_ERROR | 2026-04-22 14:40:05 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - failed_error_code=2
+gpt-4o-2024-05-13,Work,433_1,0.25,,,,none,
+gpt-4o-2024-05-13,Work,437_2,0.25,,,,none,
+gpt-4o-2024-05-13,Work,787_2,0.25,,,,none,
+gpt-4o-2024-05-13,Work,874_1,0.25,,,,planning_order,"2026-04-22 14:40:12 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - Encounter error: MISSING_STEP | 2026-04-22 14:40:12 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - failed_error_code=1 | 2026-04-22 14:40:12 - virtualhome_eval.simulation.evolving_graph.eval_utils - GOAL FAIL! Not matched: {'id': 417, 'class_name': 'computer', 'state': 'ON'}"
+gpt-4o-2024-05-13,Work,91_2,0.25,,,,none,
+gpt-4o-2024-05-13,Wash hands,499_1,0.25,,,,planning_order,2026-04-22 14:40:15 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - Encounter error: MISSING_STEP | 2026-04-22 14:40:15 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - failed_error_code=1
+gpt-4o-2024-05-13,Wash hands,710_1,0.25,,,,planning_order,2026-04-22 14:40:16 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - Encounter error: MISSING_STEP | 2026-04-22 14:40:16 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - failed_error_code=1
+gpt-4o-2024-05-13,Wash hands,805_1,0.25,,,,none,
+gpt-4o-2024-05-13,Pet cat,297_1,0.25,,,,none,
+gpt-4o-2024-05-13,Pet cat,429_1,0.25,,,,none,
+gpt-4o-2024-05-13,Listen to music,363_2,0.25,,,,none,
+gpt-4o-2024-05-13,Listen to music,503_2,0.25,,,,none,
+gpt-4o-2024-05-13,Drink,861_2,0.25,,,,relation_grounding,"2026-04-22 14:40:31 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - Encounter error: MISSING_STEP | 2026-04-22 14:40:31 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - failed_error_code=1 | 2026-04-22 14:40:31 - virtualhome_eval.simulation.evolving_graph.eval_utils - GOAL FAIL! Not found: {'from_id': 65, 'relation_type': 'HOLDS_RH', 'to_id': 1000}"
+gpt-4o-2024-05-13,Read book,508_2,0.25,,,,none,
+gpt-4o-2024-05-13,Relax on sofa,297_2,0.25,,,,none,
+gpt-4o-2024-05-13,Relax on sofa,6_1,0.25,,,,none,
+gpt-4o-2024-05-13,Pick up phone,149_1,0.25,,,,relation_grounding,"2026-04-22 14:40:39 - virtualhome_eval.simulation.evolving_graph.execution - Check walk failed: <table> (355) | 2026-04-22 14:40:39 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - Encounter error: MISSING_STEP | 2026-04-22 14:40:39 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - failed_error_code=1 | 2026-04-22 14:40:40 - virtualhome_eval.simulation.evolving_graph.eval_utils - GOAL FAIL! Not found: {'from_id': 65, 'relation_type': 'HOLDS_RH', 'to_id': 1000}"
+gpt-4o-2024-05-13,Wash dishes by hand,746_1,0.25,,,,planning_order,2026-04-22 14:40:46 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - Encounter error: MISSING_STEP | 2026-04-22 14:40:46 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - failed_error_code=1
+gpt-4o-2024-05-13,Wash dishes with dishwasher,856_1,0.2353,,,,other,2026-04-22 14:40:13 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - Program 856_1 did not pass gold test
+gpt-4o-2024-05-13,Make coffee,310_2,0.2353,,,,other,2026-04-22 14:40:43 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - Program 310_2 did not pass gold test
+gpt-4o-2024-05-13,Write an email,986_2,0.2222,,,,planning_order,2026-04-22 14:40:07 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - Encounter error: ADDITIONAL_STEP | 2026-04-22 14:40:07 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - Encounter error: AFFORDANCE_ERROR | 2026-04-22 14:40:07 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - failed_error_code=2
+gpt-4o-2024-05-13,Work,196_2,0.2222,,,,none,
+gpt-4o-2024-05-13,Wash dishes with dishwasher,783_1,0.2222,,,,other,2026-04-22 14:40:13 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - Program 783_1 did not pass gold test
+gpt-4o-2024-05-13,Watch TV,225_2,0.2222,,,,relation_grounding,"2026-04-22 14:40:25 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - Encounter error: MISSING_STEP | 2026-04-22 14:40:25 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - failed_error_code=1 | 2026-04-22 14:40:25 - virtualhome_eval.simulation.evolving_graph.eval_utils - GOAL FAIL! Not found: {'from_id': 65, 'relation_type': 'FACING', 'to_id': 410}"
+gpt-4o-2024-05-13,Drink,171_2,0.2222,,,,planning_order,2026-04-22 14:40:27 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - Encounter error: MISSING_STEP | 2026-04-22 14:40:27 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - failed_error_code=1
+gpt-4o-2024-05-13,Drink,317_2,0.2222,,,,none,
+gpt-4o-2024-05-13,Read book,617_2,0.2222,,,,none,
+gpt-4o-2024-05-13,Read book,693_2,0.2222,,,,none,
+gpt-4o-2024-05-13,Relax on sofa,204_2,0.2222,,,,none,
+gpt-4o-2024-05-13,Relax on sofa,473_1,0.2222,,,,none,
+gpt-4o-2024-05-13,Work,343_2,0.2,,,,none,
+gpt-4o-2024-05-13,Work,419_1,0.2,,,,none,
+gpt-4o-2024-05-13,Work,795_1,0.2,,,,none,
+gpt-4o-2024-05-13,Go to sleep,875_1,0.2,,,,none,
+gpt-4o-2024-05-13,Wash teeth,1070_1,0.2,,,,relation_grounding,"2026-04-22 14:40:21 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - Encounter error: MISSING_STEP | 2026-04-22 14:40:21 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - failed_error_code=1 | 2026-04-22 14:40:21 - virtualhome_eval.simulation.evolving_graph.eval_utils - GOAL FAIL! Not found: {'from_id': 65, 'relation_type': 'HOLDS_RH', 'to_id': 1001}"
+gpt-4o-2024-05-13,Listen to music,1049_1,0.2,,,,none,
+gpt-4o-2024-05-13,Read book,896_2,0.2,,,,relation_grounding,"2026-04-22 14:40:35 - virtualhome_eval.simulation.evolving_graph.eval_utils - GOAL FAIL! Not found: {'from_id': 65, 'relation_type': 'HOLDS_LH', 'to_id': 1000}"
+gpt-4o-2024-05-13,Cook some food,1083_2,0.2,,,,other,", file 1083_2 has arguments number error"
+gpt-4o-2024-05-13,Cook some food,392_2,0.1905,,,,relation_grounding,"2026-04-22 14:40:35 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - Encounter error: AFFORDANCE_ERROR | 2026-04-22 14:40:35 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - failed_error_code=2 | 2026-04-22 14:40:35 - virtualhome_eval.simulation.evolving_graph.eval_utils - GOAL FAIL! Not matched: {'id': 295, 'class_name': 'oven', 'state': 'ON'} | 2026-04-22 14:40:35 - virtualhome_eval.simulation.evolving_graph.eval_utils - GOAL FAIL! Not found: {'from_id': 1001, 'relation_type': 'ON', 'to_id': 295}"
+gpt-4o-2024-05-13,Wash dishes by hand,988_1,0.1818,,,,other,"2026-04-22 14:40:46 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - Affordance error: 4, rate = 1.31% | 2026-04-22 14:40:46 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - Error info of gpt-4o-2024-05-13 saved to /Users/hanson/Documents/Newcastle/thesis/code/output_single_norm/virtualhome/evaluate_results/action_sequencing/gpt-4o-2024-05-13"
+gpt-4o-2024-05-13,Put groceries in Fridge,837_2,0.1667,,,,relation_grounding,"2026-04-22 14:40:08 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - Encounter error: WRONG_TEMPORAL_ORDER | 2026-04-22 14:40:08 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - Current action [PUTIN] <food_cheese> (1001) <freezer> (289) has wrong order error on task 837_2. | 2026-04-22 14:40:08 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - failed_error_code=0 | 2026-04-22 14:40:08 - virtualhome_eval.simulation.evolving_graph.eval_utils - GOAL FAIL! Not found: {'from_id': 1001, 'relation_type': 'INSIDE', 'to_id': 289}"
+gpt-4o-2024-05-13,Wash clothes,850_1,0.1538,,,,other,2026-04-22 14:40:00 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - Program 850_1 did not pass gold test
+gpt-4o-2024-05-13,Wash dishes with dishwasher,826_1,0.1429,,,,other,2026-04-22 14:40:13 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - Program 826_1 did not pass gold test
+gpt-4o-2024-05-13,Go to sleep,509_2,0.1429,,,,none,
+gpt-4o-2024-05-13,Make coffee,229_1,0.1429,,,,other,2026-04-22 14:40:43 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - Program 229_1 did not pass gold test
+gpt-4o-2024-05-13,Make coffee,764_2,0.1429,,,,other,2026-04-22 14:40:43 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - Program 764_2 did not pass gold test
+gpt-4o-2024-05-13,Turn on light,585_1,0.1333,,,,planning_order,"2026-04-22 14:40:03 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - Encounter error: ADDITIONAL_STEP | 2026-04-22 14:40:03 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - Encounter error: ADDITIONAL_STEP | 2026-04-22 14:40:03 - virtualhome_eval.simulation.evolving_graph.eval_utils - GOAL FAIL! Not matched: {'id': 1000, 'class_name': 'light', 'state': 'ON'} | 2026-04-22 14:40:03 - virtualhome_eval.simulation.evolving_graph.eval_utils - GOAL FAIL! Not matched: {'id': 411, 'class_name': 'light', 'state': 'ON'}"
+gpt-4o-2024-05-13,Put groceries in Fridge,772_1,0.1333,,,,none,
+gpt-4o-2024-05-13,Turn on light,339_1,0.0,,,,format_or_parsing,", file 339_1 prediction has no prediction"
+gpt-4o-2024-05-13,Turn on light,627_1,0.0,,,,none,
+gpt-4o-2024-05-13,Turn on light,812_1,0.0,,,,none,
+gpt-4o-2024-05-13,Brush teeth,696_1,0.0,,,,other,2026-04-22 14:40:05 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - Program 696_1 did not pass gold test
+gpt-4o-2024-05-13,Put groceries in Fridge,609_2,0.0,,,,none,
+gpt-4o-2024-05-13,Go to toilet,430_2,0.0,,,,none,
+gpt-4o-2024-05-13,Go to toilet,478_1,0.0,,,,none,
+gpt-4o-2024-05-13,Go to toilet,624_2,0.0,,,,none,
+gpt-4o-2024-05-13,Wash hands,154_2,0.0,,,,planning_order,2026-04-22 14:40:14 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - Encounter error: MISSING_STEP | 2026-04-22 14:40:14 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - failed_error_code=1
+gpt-4o-2024-05-13,Wash hands,517_1,0.0,,,,planning_order,2026-04-22 14:40:15 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - Encounter error: MISSING_STEP | 2026-04-22 14:40:15 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - failed_error_code=1
+gpt-4o-2024-05-13,Wash hands,562_1,0.0,,,,relation_grounding,"2026-04-22 14:40:15 - virtualhome_eval.simulation.evolving_graph.eval_utils - GOAL FAIL! Not found: {'from_id': 1000, 'relation_type': 'INSIDE', 'to_id': 1001}"
+gpt-4o-2024-05-13,Wash hands,580_1,0.0,,,,planning_order,2026-04-22 14:40:15 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - Encounter error: MISSING_STEP | 2026-04-22 14:40:15 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - failed_error_code=1
+gpt-4o-2024-05-13,Wash hands,660_1,0.0,,,,none,
+gpt-4o-2024-05-13,Wash hands,672_1,0.0,,,,planning_order,2026-04-22 14:40:16 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - Encounter error: MISSING_STEP | 2026-04-22 14:40:16 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - failed_error_code=1
+gpt-4o-2024-05-13,Wash hands,741_1,0.0,,,,none,
+gpt-4o-2024-05-13,Wash hands,750_2,0.0,,,,none,
+gpt-4o-2024-05-13,Wash hands,80_1,0.0,,,,planning_order,2026-04-22 14:40:16 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - Encounter error: MISSING_STEP | 2026-04-22 14:40:16 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - failed_error_code=1
+gpt-4o-2024-05-13,Wash hands,995_2,0.0,,,,planning_order,2026-04-22 14:40:17 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - Encounter error: MISSING_STEP | 2026-04-22 14:40:17 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - failed_error_code=1
+gpt-4o-2024-05-13,Pet cat,388_2,0.0,,,,none,
+gpt-4o-2024-05-13,Wash teeth,313_2,0.0,,,,relation_grounding,"2026-04-22 14:40:21 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - Encounter error: MISSING_STEP | 2026-04-22 14:40:21 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - failed_error_code=1 | 2026-04-22 14:40:21 - virtualhome_eval.simulation.evolving_graph.eval_utils - GOAL FAIL! Not found: {'from_id': 65, 'relation_type': 'HOLDS_LH', 'to_id': 1001}"
+gpt-4o-2024-05-13,Wash teeth,689_1,0.0,,,,relation_grounding,"2026-04-22 14:40:21 - virtualhome_eval.simulation.evolving_graph.eval_utils - GOAL FAIL! Not found: {'from_id': 65, 'relation_type': 'HOLDS_LH', 'to_id': 1002}"
+gpt-4o-2024-05-13,Wash teeth,718_1,0.0,,,,relation_grounding,"2026-04-22 14:40:21 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - Encounter error: MISSING_STEP | 2026-04-22 14:40:21 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - failed_error_code=1 | 2026-04-22 14:40:21 - virtualhome_eval.simulation.evolving_graph.eval_utils - GOAL FAIL! Not found: {'from_id': 65, 'relation_type': 'HOLDS_LH', 'to_id': 1001}"
+gpt-4o-2024-05-13,Listen to music,415_1,0.0,,,,none,
+gpt-4o-2024-05-13,Listen to music,59_1,0.0,,,,relation_grounding,"2026-04-22 14:40:23 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - Encounter error: MISSING_STEP | 2026-04-22 14:40:23 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - failed_error_code=1 | 2026-04-22 14:40:23 - virtualhome_eval.simulation.evolving_graph.eval_utils - GOAL FAIL! Not found: {'from_id': 1001, 'relation_type': 'ON', 'to_id': 65}"
+gpt-4o-2024-05-13,Drink,528_1,0.0,,,,none,
+gpt-4o-2024-05-13,Read book,15_2,0.0,,,,none,
+gpt-4o-2024-05-13,Read book,897_2,0.0,,,,none,
+gpt-4o-2024-05-13,Relax on sofa,941_2,0.0,,,,none,
+gpt-4o-2024-05-13,Pick up phone,180_1,0.0,,,,relation_grounding,"2026-04-22 14:40:40 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - Encounter error: MISSING_STEP | 2026-04-22 14:40:40 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - failed_error_code=1 | 2026-04-22 14:40:40 - virtualhome_eval.simulation.evolving_graph.eval_utils - GOAL FAIL! Not found: {'from_id': 65, 'relation_type': 'HOLDS_RH', 'to_id': 247}"
+gpt-4o-2024-05-13,Pick up phone,195_1,0.0,,,,none,
+gpt-4o-2024-05-13,Pick up phone,211_1,0.0,,,,none,
+gpt-4o-2024-05-13,Pick up phone,241_1,0.0,,,,none,
+gpt-4o-2024-05-13,Pick up phone,264_1,0.0,,,,relation_grounding,"2026-04-22 14:40:40 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - Encounter error: MISSING_STEP | 2026-04-22 14:40:40 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - failed_error_code=1 | 2026-04-22 14:40:40 - virtualhome_eval.simulation.evolving_graph.eval_utils - GOAL FAIL! Not found: {'from_id': 65, 'relation_type': 'HOLDS_RH', 'to_id': 1000}"
+gpt-4o-2024-05-13,Pick up phone,265_2,0.0,,,,none,
+gpt-4o-2024-05-13,Pick up phone,352_1,0.0,,,,none,
+gpt-4o-2024-05-13,Pick up phone,436_1,0.0,,,,none,
+gpt-4o-2024-05-13,Pick up phone,442_2,0.0,,,,none,
+gpt-4o-2024-05-13,Pick up phone,474_2,0.0,,,,none,
+gpt-4o-2024-05-13,Pick up phone,497_1,0.0,,,,none,
+gpt-4o-2024-05-13,Pick up phone,601_2,0.0,,,,none,
+gpt-4o-2024-05-13,Pick up phone,70_1,0.0,,,,none,
+gpt-4o-2024-05-13,Pick up phone,864_2,0.0,,,,none,
+gpt-4o-2024-05-13,Pick up phone,974_1,0.0,,,,relation_grounding,"2026-04-22 14:40:42 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - Encounter error: MISSING_STEP | 2026-04-22 14:40:42 - virtualhome_eval.evaluation.action_sequencing.scripts.evaluate_results - failed_error_code=1 | 2026-04-22 14:40:42 - virtualhome_eval.simulation.evolving_graph.eval_utils - GOAL FAIL! Not found: {'from_id': 65, 'relation_type': 'HOLDS_RH', 'to_id': 1000}"
+gpt-4o-2024-05-13,Pick up phone,976_2,0.0,,,,none,
+gpt-4o-2024-05-13,Set up table,84_1,0.0,,,,none,
+gpt-4o-2024-05-13,Set up table,93_1,0.0,,,,none,
+gpt-4o-2024-05-13,Get some water,368_1,0.0,,,,none,
+gpt-4o-2024-05-13,Take shower,729_2,0.0,,,,none,
+gpt-4o-2024-05-13,Take shower,975_2,0.0,,,,none,
+gpt-4o-2024-05-13,Wash dishes by hand,31_1,0.0,,,,none,
+gpt-4o-2024-05-13,Wash dishes by hand,553_2,0.0,,,,none,
+gpt-4o-2024-05-13,Wash dishes by hand,961_1,0.0,,,,none,
