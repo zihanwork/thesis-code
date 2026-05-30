@@ -22,7 +22,10 @@ import re
 from functools import lru_cache
 from typing import Any, Dict, List, Optional, Set, Tuple
 
-from analysis.scene_graph_rag import _Edge, _Node, _serialise
+try:
+    from analysis.scene_graph_rag import _Edge, _Node, _serialise
+except ModuleNotFoundError:
+    from scene_graph_rag import _Edge, _Node, _serialise  # type: ignore[no-redef]
 
 from .config import (
     CHROMA_DIR,
@@ -142,8 +145,12 @@ class PersistentSceneGraphRetriever:
 
     def _embedder_instance(self):
         if self._embedder is None:
+            import os
             from sentence_transformers import SentenceTransformer
 
+            # Use cached model; avoid HuggingFace network calls at query time.
+            os.environ.setdefault("HF_HUB_OFFLINE", "1")
+            os.environ.setdefault("TRANSFORMERS_OFFLINE", "1")
             self._embedder = SentenceTransformer(
                 EMBEDDING_MODEL, cache_folder=str(MODELS_CACHE)
             )

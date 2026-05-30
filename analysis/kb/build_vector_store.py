@@ -144,9 +144,15 @@ def _iter_failure_docs(diag_dir: Path) -> Iterable[Tuple[str, Dict, str]]:
 
 
 def _load_embedder():
-    # Lazy import: avoids importing heavy deps when this module is just
-    # introspected by the test runner.
+    import os
+
     from sentence_transformers import SentenceTransformer
+
+    # If model is already cached, work offline to avoid slow HF retries.
+    model_cache = MODELS_CACHE / "models--BAAI--bge-small-en-v1.5"
+    if model_cache.exists():
+        os.environ.setdefault("HF_HUB_OFFLINE", "1")
+        os.environ.setdefault("TRANSFORMERS_OFFLINE", "1")
 
     log.info("loading embedding model %s (cache=%s)", EMBEDDING_MODEL, MODELS_CACHE)
     model = SentenceTransformer(EMBEDDING_MODEL, cache_folder=str(MODELS_CACHE))

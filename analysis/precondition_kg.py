@@ -245,7 +245,10 @@ class PreconditionKG:
             backend = os.environ.get("KB_BACKEND", "default").lower()
             if backend == "persistent":
                 try:
-                    from analysis.kb.persistent_kg import PersistentPreconditionKG
+                    try:
+                        from analysis.kb.persistent_kg import PersistentPreconditionKG
+                    except ModuleNotFoundError:
+                        from kb.persistent_kg import PersistentPreconditionKG  # type: ignore[no-redef]
                     cls._SHARED = PersistentPreconditionKG.shared()  # type: ignore[assignment]
                 except Exception as exc:
                     log.warning(

@@ -18,9 +18,9 @@ echo "[kb] starting Neo4j..."
 bash scripts/start_neo4j.sh
 
 echo "[kb] building Chroma vector store..."
-python -m analysis.kb.build_vector_store "$@"
+python3 -m analysis.kb.build_vector_store "$@"
 
 echo "[kb] populating Neo4j graph database..."
-python -m analysis.kb.build_graph_db "$@"
+python3 -m analysis.kb.build_graph_db "$@"
 
 echo "[kb] done. set KB_BACKEND=persistent to use it."

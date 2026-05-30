@@ -81,9 +81,14 @@ class SceneGraphRetriever:
             backend = os.environ.get("KB_BACKEND", "default").lower()
             if backend == "persistent":
                 try:
-                    from analysis.kb.persistent_retriever import (
-                        PersistentSceneGraphRetriever,
-                    )
+                    try:
+                        from analysis.kb.persistent_retriever import (
+                            PersistentSceneGraphRetriever,
+                        )
+                    except ModuleNotFoundError:
+                        from kb.persistent_retriever import (  # type: ignore[no-redef]
+                            PersistentSceneGraphRetriever,
+                        )
                     cls._SHARED = PersistentSceneGraphRetriever.shared()  # type: ignore[assignment]
                 except Exception as exc:
                     log.warning(

@@ -153,7 +153,10 @@ def load_all_scenes(session, root: Path, limit: Optional[int] = None) -> int:
 # ------------------------------------------------------------------ rule layer
 def load_rules(session) -> None:
     # Import here to avoid pulling analysis deps when only running scene-load.
-    from analysis.precondition_kg import RULES
+    try:
+        from analysis.precondition_kg import RULES
+    except ModuleNotFoundError:
+        from precondition_kg import RULES  # type: ignore[no-redef]
 
     rule_rows: List[Dict] = []
     prop_edges: List[Dict] = []
@@ -309,17 +312,95 @@ def load_failures(session, diag_dir: Path) -> int:
     return count
 
 
-# ------------------------------------------------------------------ entry point
+# ------------------------------------------------------------------ task templates
+def load_task_templates(session) -> int:
+    """Load TaskTemplate nodes + STEP_OF edges into Neo4j (idempotent)."""
+    try:
+        from analysis.kb.task_templates import TASK_TEMPLATES
+    except ModuleNotFoundError:
+        from kb.task_templates import TASK_TEMPLATES  # type: ignore[no-redef]
+
+    template_rows = []
+    step_rows = []
+    for tmpl in TASK_TEMPLATES.values():
+        template_rows.append({
+            "name": tmpl.name,
+            "category": tmpl.category,
+            "description": tmpl.description,
+            "key_objects": tmpl.key_objects,
+        })
+        for i, step in enumerate(tmpl.steps):
+            step_rows.append({
+                "template": tmpl.name,
+                "step_index": i,
+                "action": step.action,
+                "arg1_class": step.arg1_class or "",
+                "arg2_class": step.arg2_class or "",
+                "note": step.note,
+            })
+
+    session.run(
+        """
+        UNWIND $rows AS r
+        MERGE (t:TaskTemplate {name: r.name})
+        SET t.category = r.category,
+            t.description = r.description,
+            t.key_objects = r.key_objects
+        """,
+        rows=template_rows,
+    )
+    if step_rows:
+        session.run(
+            """
+            UNWIND $rows AS r
+            MATCH (t:TaskTemplate {name: r.template})
+            MERGE (a:Action {name: r.action})
+            MERGE (t)-[rel:STEP_OF]->(a)
+            SET rel.step_index = r.step_index,
+                rel.arg1_class = r.arg1_class,
+                rel.arg2_class = r.arg2_class,
+                rel.note = r.note
+            """,
+            rows=step_rows,
+        )
+    log.info("task templates loaded: %d (%d steps)", len(template_rows), len(step_rows))
+    return len(template_rows)
+def load_sim_rules(
+    driver,
+    output_dir: Optional[str] = None,
+    min_count: int = 3,
+) -> int:
+    """Extract rules from error_info.json files and write them to Neo4j."""
+    try:
+        from .simulation_rule_extraction import extract_rules_from_logs, persist_sim_rules
+    except ImportError:
+        from simulation_rule_extraction import extract_rules_from_logs, persist_sim_rules
+
+    out_dir = output_dir or str(REPO_ROOT / "output")
+    rules = extract_rules_from_logs(out_dir, min_count=min_count)
+    if not rules:
+        log.warning("load_sim_rules: no rules extracted (min_count=%d)", min_count)
+        return 0
+    n = persist_sim_rules(rules, driver, database=NEO4J_DATABASE)
+    return n
+
+
 def main(argv: Optional[List[str]] = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--scene-root", default=str(SCENE_GRAPH_ROOT))
     parser.add_argument("--diagnostics", default=str(DIAGNOSTICS_DIR))
+    parser.add_argument("--output-dir", default=None,
+                        help="root output dir for sim log extraction (default: output/)")
     parser.add_argument("--limit-scenes", type=int, default=None,
                         help="cap scene count (debug)")
     parser.add_argument("--skip-scenes", action="store_true")
     parser.add_argument("--skip-rules", action="store_true")
     parser.add_argument("--skip-failures", action="store_true")
+    parser.add_argument("--skip-templates", action="store_true")
+    parser.add_argument("--skip-sim-rules", action="store_true")
     parser.add_argument("--skip-schema", action="store_true")
+    parser.add_argument("--sim-min-count", type=int, default=3,
+                        help="min occurrences for simulation log rule")
     parser.add_argument("-v", "--verbose", action="store_true")
     args = parser.parse_args(argv)
 
@@ -341,6 +422,10 @@ def main(argv: Optional[List[str]] = None) -> int:
                 load_rules(session)
             if not args.skip_failures:
                 load_failures(session, Path(args.diagnostics))
+            if not args.skip_templates:
+                load_task_templates(session)
+        if not args.skip_sim_rules:
+            load_sim_rules(driver, output_dir=args.output_dir, min_count=args.sim_min_count)
     finally:
         driver.close()
     return 0

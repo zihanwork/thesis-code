@@ -505,9 +505,20 @@ def run_loop(
     *,
     max_iterations: int = 5,
     task_ids: Optional[Sequence[str]] = None,
+    llm_client: Any = None,
+    neo4j_driver: Any = None,
 ) -> List[RunReport]:
-    """Drive the full evaluate -> ingest -> evaluate cycle until convergence."""
+    """Drive the full evaluate -> ingest -> rule-induction -> evaluate cycle.
+
+    Each iteration:
+    1. run_iteration (generate + eval)
+    2. collect_bad_cases → ingest to Neo4j + Chroma
+    3. If llm_client provided → induce new DerivedRule nodes from bad cases
+    4. If neo4j_driver provided → re-extract simulation log rules from new output
+    5. Check convergence
+    """
     history: List[RunReport] = []
+
     for n in range(1, max_iterations + 1):
         report = run_iteration(model, variant, iteration_id=n, task_ids=task_ids)
         history.append(report)
@@ -517,6 +528,39 @@ def run_loop(
             "[harness] iter=%d success=%.4f failed=%d",
             n, report.task_success_rate, report.num_failed,
         )
+
+        # Direction 2: LLM-based rule induction from bad cases
+        if llm_client is not None and bad and neo4j_driver is not None:
+            try:
+                from .rule_induction import induce_rules_from_bad_cases, persist_derived_rules
+            except ImportError:
+                from rule_induction import induce_rules_from_bad_cases, persist_derived_rules
+            bad_dicts = [
+                {
+                    "task_id": bc.file_id,
+                    "failure_detail": f"{bc.failure_type}: {bc.raw_text}",
+                    "failed_action": bc.violated_action,
+                    "uid": bc.uid(n),
+                }
+                for bc in bad
+            ]
+            new_rules = induce_rules_from_bad_cases(bad_dicts, llm_client, iteration_id=n)
+            if new_rules:
+                persist_derived_rules(new_rules, neo4j_driver)
+                log.info("[harness] iter=%d inducted %d new rules", n, len(new_rules))
+
+        # Direction 3: re-extract simulation log rules (picks up new error_info.json)
+        if neo4j_driver is not None:
+            try:
+                from .simulation_rule_extraction import extract_rules_from_logs, persist_sim_rules
+            except ImportError:
+                from simulation_rule_extraction import extract_rules_from_logs, persist_sim_rules
+            output_dir = str(REPO_ROOT / "output" / "harness" / f"iter{n}")
+            sim_rules = extract_rules_from_logs(output_dir, min_count=1)
+            if sim_rules:
+                persist_sim_rules(sim_rules, neo4j_driver)
+                log.info("[harness] iter=%d added %d sim rules", n, len(sim_rules))
+
         if has_converged(history):
             log.info("[harness] converged at iter=%d", n)
             break

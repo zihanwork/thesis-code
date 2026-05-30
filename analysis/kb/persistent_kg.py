@@ -10,11 +10,10 @@ from __future__ import annotations
 import logging
 from typing import Any, Dict, List, Optional, Sequence, Tuple
 
-from analysis.precondition_kg import (
-    ActionRule,
-    PreconditionKG,
-    Violation,
-)
+try:
+    from analysis.precondition_kg import ActionRule, PreconditionKG, Violation
+except ModuleNotFoundError:
+    from precondition_kg import ActionRule, PreconditionKG, Violation  # type: ignore[no-redef]
 
 from .config import (
     NEO4J_DATABASE,
@@ -99,7 +98,10 @@ class PersistentPreconditionKG(PreconditionKG):
                             "falling back to in-code rules", exc)
                 rules = None
         if not rules:
-            from analysis.precondition_kg import RULES as _DEFAULT_RULES
+            try:
+                from analysis.precondition_kg import RULES as _DEFAULT_RULES
+            except ModuleNotFoundError:
+                from precondition_kg import RULES as _DEFAULT_RULES  # type: ignore[no-redef]
 
             rules = dict(_DEFAULT_RULES)
         super().__init__(rules)

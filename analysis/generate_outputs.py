@@ -20,9 +20,16 @@ The variant logic lives in :mod:`analysis.prompt_variants`.
 """
 from __future__ import annotations
 
+import os
+
+# Set HF offline mode before any huggingface imports (when KB_BACKEND=persistent,
+# the BGE model is already cached locally and needs no network access).
+if os.environ.get("KB_BACKEND", "").lower() == "persistent":
+    os.environ.setdefault("HF_HUB_OFFLINE", "1")
+    os.environ.setdefault("TRANSFORMERS_OFFLINE", "1")
+
 import argparse
 import json
-import os
 import os.path as osp
 import re
 import sys
