@@ -17,11 +17,11 @@ The original benchmark gold sequences are never modified; only LLM
 drafts and their violation codes flow into the knowledge base. This
 keeps the EAI evaluator's ground truth clean.
 
-Status: skeleton only. ``run_iteration()`` currently invokes the
-existing ``scripts/run_action_sequencing_eval.sh`` pipeline and parses
-its output; replace with a direct Python call once Agent v2 is in
-place. ``ingest_bad_cases()`` is fully wired to Neo4j + Chroma and is
-safe to run in isolation.
+Status: runnable orchestration layer. ``run_iteration()`` drives
+generation, optional persistent-KB repair, evaluation, and summary
+parsing; ``run_loop()`` repeats this process while ingesting failures
+and optionally inducing or extracting derived rules. Live runs still
+require the EAI evaluator and configured KB/LLM services.
 """
 from __future__ import annotations
 
@@ -196,12 +196,17 @@ def _generate_drafts(
         --helm-prompt HELM_PROMPT    (path to helm_prompt.json)
         --out-dir OUT_DIR            (writes <model-name>_<variant>_outputs.json here)
 
-    Environment variables KB_PROVIDER, KB_API_MODEL, KB_API_KEY_ENV override
-    the provider defaults so callers don't need to change this function.
+    Environment variables KB_PROVIDER, KB_API_MODEL, KB_API_KEY_ENV, and
+    KB_BASE_URL override the provider defaults so callers don't need to
+    change this function.
     """
     import os
     provider = os.environ.get("KB_PROVIDER", provider)
     api_model = os.environ.get("KB_API_MODEL", api_model)
+    base_url = os.environ.get("KB_BASE_URL")
+    if provider == "openai_compatible" and not base_url:
+        log.warning("[harness] KB_BASE_URL is required when KB_PROVIDER=openai_compatible")
+        return None
 
     script = REPO_ROOT / "analysis" / "generate_outputs.py"
     helm_prompt = (
@@ -228,6 +233,8 @@ def _generate_drafts(
     ]
     if "KB_API_KEY_ENV" in os.environ:
         cmd.extend(["--api-key-env", os.environ["KB_API_KEY_ENV"]])
+    if base_url:
+        cmd.extend(["--base-url", base_url])
     if task_ids:
         cmd.extend(["--max-prompts", str(len(task_ids))])
 
@@ -277,7 +284,39 @@ def _run_eai_eval(
         log.warning("[harness] eval script not found: %s", script)
         return
     import os
-    env = {**os.environ, "LLM_RESPONSE_PATH": str(llm_response_path or "")}
+    import shutil
+
+    response_root = output_dir / "llm_response"
+    if llm_response_path and llm_response_path.is_file():
+        raw_root = output_dir / "llm_response_raw"
+        raw_dir = raw_root / "virtualhome" / "action_sequencing"
+        raw_dir.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(llm_response_path, raw_dir / llm_response_path.name)
+
+        norm_root = response_root
+        norm_dir = norm_root / "virtualhome" / "action_sequencing"
+        norm_dir.mkdir(parents=True, exist_ok=True)
+        normalizer = REPO_ROOT / "analysis" / "normalize_action_outputs.py"
+        if normalizer.is_file():
+            try:
+                subprocess.run(
+                    ["python3", str(normalizer),
+                     "--input-dir", str(raw_dir),
+                     "--output-dir", str(norm_dir)],
+                    check=True,
+                    cwd=str(REPO_ROOT),
+                )
+                llm_response_arg = norm_root
+            except (FileNotFoundError, subprocess.CalledProcessError) as exc:
+                log.warning("[harness] normalise outputs failed: %s; using raw outputs", exc)
+                llm_response_arg = raw_root
+        else:
+            log.warning("[harness] normaliser not found: %s; using raw outputs", normalizer)
+            llm_response_arg = raw_root
+    else:
+        llm_response_arg = llm_response_path
+
+    env = {**os.environ, "LLM_RESPONSE_PATH": str(llm_response_arg or "")}
     try:
         subprocess.run(
             ["bash", str(script), "virtualhome", "none", str(output_dir)],
@@ -318,6 +357,44 @@ def parse_summary(summary_path: Path) -> List[Dict[str, Any]]:
             if isinstance(v, list):
                 rows = [r for r in v if isinstance(r, dict)]
                 break
+    if rows:
+        return rows
+
+    error_info_path = summary_path.parent / "error_info.json"
+    if not error_info_path.is_file():
+        return []
+    try:
+        error_info = json.loads(error_info_path.read_text(encoding="utf-8"))
+    except json.JSONDecodeError as exc:
+        log.warning("[harness] failed to parse error_info.json at %s: %s", error_info_path, exc)
+        return []
+    if not isinstance(error_info, dict):
+        return []
+
+    for file_id, info in sorted(error_info.items()):
+        if not isinstance(info, dict):
+            continue
+        error_type = info.get("error_type")
+        executable = bool(info.get("executable"))
+        actions = info.get("actions", [])
+        if isinstance(actions, str):
+            draft = actions
+        else:
+            draft = json.dumps(actions, ensure_ascii=False)
+        raw = json.dumps(info, ensure_ascii=False)
+        rows.append({
+            "file_id": str(file_id),
+            "identifier": str(file_id),
+            "task_success": executable and error_type is None,
+            "executable": executable,
+            "failure_type": str(error_type or ""),
+            "error_action": str(info.get("error_action") or ""),
+            "violated_action": str(info.get("error_action") or ""),
+            "actions": actions,
+            "draft": draft,
+            "raw_failure_text": raw,
+            "detail": raw,
+        })
     return rows
 
 
