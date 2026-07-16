@@ -1,0 +1,40 @@
+{
+  "by_dataset": {
+    "virtualhome": 119
+  },
+  "by_difficulty": {
+    "easy": 77,
+    "hard": 3,
+    "medium": 39
+  },
+  "development_task_count": 202,
+  "files": {
+    "ids": "data/processed/tasksets/heldout_virtualhome_119_ids.json",
+    "tasks": "data/processed/tasksets/heldout_virtualhome_119.jsonl"
+  },
+  "frozen": true,
+  "heldout_task_count": 119,
+  "inputs": {
+    "development": {
+      "bytes": 698595,
+      "path": "data/processed/tasksets/balanced_eval.jsonl",
+      "sha256": "f6923a7661f9c4c6545233b65ca202678ee4106b6792b2865a5982b037fa9069"
+    },
+    "executable": {
+      "bytes": 1059753,
+      "path": "data/processed/tasksets/executable_eval.jsonl",
+      "sha256": "a6325333436922534daacc9f94f1d12d25016669f4b131b974abd3c702e15fa7"
+    }
+  },
+  "limitations": [
+    "All locally held-out tasks are VirtualHome.",
+    "No untouched local BEHAVIOR final split remains."
+  ],
+  "name": "heldout_virtualhome_119",
+  "overlap_count": 0,
+  "policy": "executable inventory minus development; never tune on held-out failures",
+  "schema_version": 1,
+  "scope": "local held-out only; official hidden test remains the primary final benchmark",
+  "task_ids_sha256": "036ed8d9c943477bdc704d4d1e4fd3e84541352f8a132984b68c3b6c51f22eac",
+  "tasks_sha256": "4a01bdb4ce499fdc20fc2d11ad4b4139296bf5a9b936525bc730d214776b3bb9"
+}

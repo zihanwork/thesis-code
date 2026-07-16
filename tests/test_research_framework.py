@@ -18,6 +18,7 @@ from embodied_gap.datasets.eai_adapter import (
 )
 from embodied_gap.datasets.taskset_builder import TaskSetBuilder, classify_difficulty
 from embodied_gap.datasets.resource_paths import resolve_domain_path, resolve_problem_path
+from embodied_gap.datasets.split_freezer import freeze_heldout_split
 from embodied_gap.experiments.model_matrix import ModelMatrixConfig, ModelSpec, MultiModelExperimentRunner
 from embodied_gap.knowledge.corpus_builder import KnowledgeCorpusBuilder
 from embodied_gap.knowledge.failure_memory import classify_failure_patterns
@@ -847,6 +848,53 @@ class ResearchFrameworkTests(unittest.TestCase):
             self.assertGreaterEqual(manifest["files"]["full_eval"]["rows"], 1)
             difficulty = classify_difficulty(self.eval_tasks["eval_clean_plate"])
             self.assertIn(difficulty.label, {"easy", "medium", "hard"})
+
+    def test_heldout_split_is_frozen_disjoint_and_virtualhome_only(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            manifest = freeze_heldout_split(
+                executable_path="data/processed/tasksets/executable_eval.jsonl",
+                development_path="data/processed/tasksets/balanced_eval.jsonl",
+                output_dir=tmpdir,
+                name="heldout_virtualhome_119",
+                expected_count=119,
+                expected_dataset="virtualhome",
+            )
+            repeated = freeze_heldout_split(
+                executable_path="data/processed/tasksets/executable_eval.jsonl",
+                development_path="data/processed/tasksets/balanced_eval.jsonl",
+                output_dir=tmpdir,
+                name="heldout_virtualhome_119",
+                expected_count=119,
+                expected_dataset="virtualhome",
+            )
+            heldout = load_tasks(Path(tmpdir) / "heldout_virtualhome_119.jsonl")
+            development_ids = {
+                task.id for task in load_tasks("data/processed/tasksets/balanced_eval.jsonl")
+            }
+
+            self.assertEqual(manifest, repeated)
+            self.assertEqual(manifest["heldout_task_count"], 119)
+            self.assertEqual(manifest["overlap_count"], 0)
+            self.assertEqual(manifest["by_dataset"], {"virtualhome": 119})
+            self.assertFalse({task.id for task in heldout} & development_ids)
+            self.assertEqual(
+                manifest["task_ids_sha256"],
+                json.loads(
+                    (Path(tmpdir) / "heldout_virtualhome_119_ids.json").read_text(
+                        encoding="utf-8"
+                    )
+                )["task_ids_sha256"],
+            )
+
+            with self.assertRaises(ValueError):
+                freeze_heldout_split(
+                    executable_path="data/processed/tasksets/executable_eval.jsonl",
+                    development_path="data/processed/tasksets/balanced_eval.jsonl",
+                    output_dir=Path(tmpdir) / "wrong",
+                    name="heldout_virtualhome_118",
+                    expected_count=118,
+                    expected_dataset="virtualhome",
+                )
 
     def test_pddl_prompt_includes_action_signatures_without_gold_plan(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:

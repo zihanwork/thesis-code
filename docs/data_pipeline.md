@@ -123,6 +123,7 @@ Generated task sets:
 | `balanced_eval_20.jsonl` | 20 | Cost-controlled pilot sampled by dataset and difficulty |
 | `balanced_eval_50.jsonl` | 50 | Medium pilot sampled by dataset and difficulty |
 | `eai_smoke_eval.jsonl` | 10 | Eight BEHAVIOR RAG examples plus one BEHAVIOR and one VirtualHome evaluation task |
+| `heldout_virtualhome_119.jsonl` | 119 | Frozen local VirtualHome-only held-out; never used for tuning |
 
 These tasksets are version-controlled because committed experiment configs use
 them directly. All stored resource references are relative to the project-local
@@ -134,6 +135,10 @@ label based on gold-plan length, goal count, and object count. Current
 `balanced_eval_20` contains 8 BEHAVIOR and 12 VirtualHome tasks, with 7 easy,
 6 medium, and 7 hard tasks. `balanced_eval_50` contains 20 BEHAVIOR and 30
 VirtualHome tasks, with 16 easy, 16 medium, and 18 hard tasks.
+
+The frozen held-out split is managed separately from the regenerable taskset
+builder. It is executable-minus-development, contains no BEHAVIOR tasks, and is
+governed by `docs/data_split_protocol.md`.
 
 ## PDDL Gold-Plan Validation
 

@@ -76,6 +76,11 @@ LLM-derived memory corpus and teacher-source ablation.
 The 202-task `balanced_eval.jsonl` set is development-only. Its results must not
 be described as held-out or official benchmark performance.
 
+The local held-out split is frozen at 119 VirtualHome-only tasks with task-ID
+hash `036ed8d9c943477bdc704d4d1e4fd3e84541352f8a132984b68c3b6c51f22eac`.
+See `docs/data_split_protocol.md`. It must not be executed until final methods
+and reporting rules are frozen.
+
 ## One API Model Policy
 
 The account model directory and smoke results are recorded in

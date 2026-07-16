@@ -6,6 +6,7 @@ import json
 from embodied_gap.analysis.make_tables import summary_to_markdown
 from embodied_gap.datasets.eai_adapter import EmbodiedAgentInterfaceAdapter
 from embodied_gap.datasets.taskset_builder import TaskSetBuilder
+from embodied_gap.datasets.split_freezer import freeze_heldout_split
 from embodied_gap.experiments.config import ExperimentConfig
 from embodied_gap.experiments.model_matrix import ModelMatrixConfig, MultiModelExperimentRunner
 from embodied_gap.experiments.runner import ExperimentRunner
@@ -133,6 +134,19 @@ def build_failure_memory(args: argparse.Namespace) -> int:
     return 0
 
 
+def freeze_heldout(args: argparse.Namespace) -> int:
+    manifest = freeze_heldout_split(
+        executable_path=args.executable,
+        development_path=args.development,
+        output_dir=args.out_dir,
+        name=args.name,
+        expected_count=args.expected_count,
+        expected_dataset=args.expected_dataset,
+    )
+    print(json.dumps(manifest, ensure_ascii=False, indent=2, sort_keys=True))
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(prog="embodied-gap")
     subparsers = parser.add_subparsers(dest="command", required=True)
@@ -225,6 +239,18 @@ def main(argv: list[str] | None = None) -> int:
     memory_parser.add_argument("--runs", required=True, nargs="+")
     memory_parser.add_argument("--out", required=True)
     memory_parser.set_defaults(func=build_failure_memory)
+
+    heldout_parser = subparsers.add_parser(
+        "freeze-heldout",
+        help="Freeze an executable-minus-development held-out split with hashes.",
+    )
+    heldout_parser.add_argument("--executable", required=True)
+    heldout_parser.add_argument("--development", required=True)
+    heldout_parser.add_argument("--out-dir", required=True)
+    heldout_parser.add_argument("--name", required=True)
+    heldout_parser.add_argument("--expected-count", required=True, type=int)
+    heldout_parser.add_argument("--expected-dataset")
+    heldout_parser.set_defaults(func=freeze_heldout)
 
     args = parser.parse_args(argv)
     return args.func(args)

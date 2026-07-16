@@ -164,6 +164,10 @@ See `docs/experiment_matrix.md` for the historical pilot results. The revised
 planning/recovery/generalization design is documented in
 `docs/revised_experiment_design.md`.
 
+The data-use boundary is frozen in `docs/data_split_protocol.md`: 202 tasks are
+development-only and 119 VirtualHome tasks are reserved for one-shot local
+held-out evaluation.
+
 ## Experiment Artifacts
 
 Every invocation creates a new immutable directory below the configured
