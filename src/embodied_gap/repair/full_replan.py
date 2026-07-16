@@ -9,7 +9,7 @@ from embodied_gap.knowledge.pddl_grounded_search import PDDLGroundedSearch
 
 
 class FullReplanRepair:
-    name = "full_graph_replan"
+    name = "symbolic_replan"
 
     def __init__(
         self,
@@ -54,6 +54,10 @@ class FullReplanRepair:
             source=self.name,
             before=plan.actions,
             after=result.actions,
-            explanation="Replaced the failed plan with a graph-grounded plan.",
-            metadata={"explored_states": result.explored_states, "reason": result.reason},
+            explanation="Replaced the failed plan with a symbolic action-model plan.",
+            metadata={
+                "engine": "symbolic_action_model_search",
+                "explored_states": result.explored_states,
+                "reason": result.reason,
+            },
         )

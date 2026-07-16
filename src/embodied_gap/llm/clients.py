@@ -234,6 +234,39 @@ class OneAPIChatClient:
         )
         return str(content)
 
+    def list_models(self) -> list[str]:
+        """Return the model IDs exposed by the configured One API account."""
+
+        request = urllib.request.Request(
+            f"{self.base_url}/models",
+            headers={"Authorization": f"Bearer {self.api_key}"},
+            method="GET",
+        )
+        try:
+            with urllib.request.urlopen(
+                request,
+                timeout=self.timeout,
+                context=self._ssl_context(),
+            ) as response:
+                payload = json.loads(response.read().decode("utf-8"))
+        except urllib.error.HTTPError as exc:
+            message = exc.read().decode("utf-8", errors="replace")
+            raise RuntimeError(
+                f"One API model discovery failed with HTTP {exc.code}: {message}"
+            ) from exc
+        except (urllib.error.URLError, socket.timeout, TimeoutError) as exc:
+            raise RuntimeError(f"One API model discovery failed: {exc}") from exc
+
+        rows = payload.get("data") if isinstance(payload, dict) else None
+        if not isinstance(rows, list):
+            raise RuntimeError(f"Unexpected One API model-list response shape: {payload}")
+        model_ids = {
+            str(row["id"])
+            for row in rows
+            if isinstance(row, dict) and isinstance(row.get("id"), str)
+        }
+        return sorted(model_ids, key=str.casefold)
+
     def parameters(self) -> dict[str, object]:
         return {
             "provider": self.provider,

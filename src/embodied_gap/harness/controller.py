@@ -10,7 +10,17 @@ from embodied_gap.execution.goal_checker import GoalChecker
 from embodied_gap.execution.symbolic_executor import ExecutionTrace, SymbolicExecutor
 from embodied_gap.execution.validators import PlanValidator
 from embodied_gap.planners.base import InitialPlanner
+from embodied_gap.knowledge.failure_memory_store import FrozenFailureMemory
 from embodied_gap.repair.repair_router import RepairRouter
+from embodied_gap.repair.full_replan import FullReplanRepair
+from embodied_gap.repair.llm_feedback import (
+    ErrorSpecificLLMRepair,
+    ErrorSpecificMemoryLLMRepair,
+    LLMFeedbackRepair,
+    MemoryAugmentedLLMRepair,
+)
+from embodied_gap.repair.local_patch import LocalPatchRepair
+from embodied_gap.repair.rule_repair import SafetyRuleRepair
 from embodied_gap.core.task_schema import Task
 
 from .recovery_policy import HarnessMode
@@ -72,11 +82,13 @@ class HarnessController:
         executor: SymbolicExecutor | None = None,
         validator: PlanValidator | None = None,
         repair_router: RepairRouter | None = None,
+        failure_memory: FrozenFailureMemory | None = None,
         max_retries: int = 3,
     ) -> None:
         self.executor = executor or SymbolicExecutor()
         self.validator = validator or PlanValidator(self.executor)
         self.repair_router = repair_router or RepairRouter()
+        self.failure_memory = failure_memory or FrozenFailureMemory.empty()
         self.goal_checker = GoalChecker()
         self.retry_budget = RetryBudget(max_retries)
 
@@ -92,7 +104,13 @@ class HarnessController:
             return self._open_loop(task, planner.name, initial_plan, mode)
         if mode == HarnessMode.H1_VERIFIER_GATED:
             return self._verifier_gated(task, planner.name, initial_plan, mode)
-        return self._full_recovery(task, planner.name, initial_plan, mode)
+        return self._recovery(
+            task,
+            planner.name,
+            initial_plan,
+            mode,
+            repair_router=self._repair_router_for(mode, planner),
+        )
 
     def _open_loop(
         self,
@@ -149,12 +167,13 @@ class HarnessController:
             attempts=(attempt,),
         )
 
-    def _full_recovery(
+    def _recovery(
         self,
         task: Task,
         planner_name: str,
         initial_plan: PlanCandidate,
         mode: HarnessMode,
+        repair_router: RepairRouter,
     ) -> HarnessRun:
         plan = initial_plan
         attempts: list[HarnessAttempt] = []
@@ -200,7 +219,7 @@ class HarnessController:
                 attempts.append(HarnessAttempt(retry_index, plan, trace))
                 break
 
-            patch = self.repair_router.repair(task, plan, violation)
+            patch = repair_router.repair(task, plan, violation)
             patches.append(patch)
             attempts.append(HarnessAttempt(retry_index, plan, trace, patch))
             if not patch.changed():
@@ -229,3 +248,66 @@ class HarnessController:
             patches=tuple(patches),
             metadata={"termination": "retry_budget_or_no_patch"},
         )
+
+    def _repair_router_for(self, mode: HarnessMode, planner: InitialPlanner) -> RepairRouter:
+        if mode == HarnessMode.H2_LOCAL_RECOVERY:
+            return RepairRouter([SafetyRuleRepair(), LocalPatchRepair()])
+        if mode == HarnessMode.H2_LLM_REFLECTION:
+            return RepairRouter(
+                [SafetyRuleRepair(), LLMFeedbackRepair(getattr(planner, "llm_client", None))]
+            )
+        if mode == HarnessMode.H2_ERROR_SPECIFIC:
+            return RepairRouter(
+                [SafetyRuleRepair(), ErrorSpecificLLMRepair(getattr(planner, "llm_client", None))]
+            )
+        if mode == HarnessMode.H2_MEMORY:
+            return RepairRouter(
+                [
+                    SafetyRuleRepair(),
+                    MemoryAugmentedLLMRepair(
+                        getattr(planner, "llm_client", None), self.failure_memory
+                    ),
+                ]
+            )
+        if mode == HarnessMode.H2_COMBINED:
+            return RepairRouter(
+                [
+                    SafetyRuleRepair(),
+                    LocalPatchRepair(),
+                    ErrorSpecificMemoryLLMRepair(
+                        getattr(planner, "llm_client", None), self.failure_memory
+                    ),
+                ]
+            )
+        if mode == HarnessMode.H2_COMBINED_NO_LOCAL:
+            return RepairRouter(
+                [
+                    SafetyRuleRepair(),
+                    ErrorSpecificMemoryLLMRepair(
+                        getattr(planner, "llm_client", None), self.failure_memory
+                    ),
+                ]
+            )
+        if mode == HarnessMode.H2_COMBINED_NO_ERROR:
+            return RepairRouter(
+                [
+                    SafetyRuleRepair(),
+                    LocalPatchRepair(),
+                    MemoryAugmentedLLMRepair(
+                        getattr(planner, "llm_client", None), self.failure_memory
+                    ),
+                ]
+            )
+        if mode == HarnessMode.H2_COMBINED_NO_MEMORY:
+            return RepairRouter(
+                [
+                    SafetyRuleRepair(),
+                    LocalPatchRepair(),
+                    ErrorSpecificLLMRepair(getattr(planner, "llm_client", None)),
+                ]
+            )
+        if mode == HarnessMode.H2_PDDL_RECOVERY:
+            return RepairRouter([SafetyRuleRepair(), FullReplanRepair()])
+        if mode == HarnessMode.H2_FULL_RECOVERY:
+            return self.repair_router
+        raise ValueError(f"Unsupported recovery mode: {mode.value}")

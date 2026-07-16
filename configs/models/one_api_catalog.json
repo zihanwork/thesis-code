@@ -1,0 +1,75 @@
+{
+  "as_of": "2026-07-16",
+  "source": "GET /v1/models plus minimal chat-completions smoke checks",
+  "listed_models": [
+    "Fable 5",
+    "MiniMax-M3",
+    "gpt-5.6-luna",
+    "gpt-5.6-sol",
+    "Claude Sonnet 5",
+    "Claude Opus 4.6",
+    "Claude Opus 4.7",
+    "GLM-5",
+    "GLM-5-Turbo",
+    "Claude Sonnet 4.6",
+    "Opus 4.8",
+    "Kimi-K2.6",
+    "DeepSeek-V4-Pro",
+    "DeepSeek-V4-Flash",
+    "GLM-5.2",
+    "Kimi-K2.7-Code",
+    "grok-4.5",
+    "gpt-5.4",
+    "gpt-5.6-terra",
+    "GLM-5.1",
+    "gpt-5.5",
+    "Claude Haiku 4.5"
+  ],
+  "smoke_checks": {
+    "DeepSeek-V4-Flash": {
+      "status": "verified",
+      "notes": "Existing project runs succeeded."
+    },
+    "gpt-5.5": {
+      "status": "verified",
+      "notes": "Existing project runs succeeded."
+    },
+    "DeepSeek-V4-Pro": {
+      "status": "verified",
+      "response": "valid_json"
+    },
+    "GLM-5-Turbo": {
+      "status": "verified",
+      "response": "valid_json"
+    },
+    "MiniMax-M3": {
+      "status": "conditional",
+      "notes": "Endpoint succeeded but emitted a thinking prefix; validate parser compliance on the EAI smoke set before inclusion."
+    },
+    "Kimi-K2.6": {
+      "status": "conditional",
+      "temperature": 1.0,
+      "notes": "Endpoint accepts requests only at temperature 1, but returned empty content in two minimal checks."
+    },
+    "Claude Sonnet 4.6": {
+      "status": "unavailable",
+      "notes": "Chat-completions route returned upstream HTTP 404."
+    },
+    "Claude Sonnet 5": {
+      "status": "unavailable",
+      "notes": "Chat-completions route returned upstream HTTP 404."
+    },
+    "Claude Opus 4.6": {
+      "status": "unavailable",
+      "notes": "Chat-completions route returned upstream HTTP 404."
+    },
+    "Claude Haiku 4.5": {
+      "status": "unavailable",
+      "notes": "Chat-completions route returned upstream HTTP 404."
+    },
+    "grok-4.5": {
+      "status": "unavailable",
+      "notes": "The route rejected POST /v1/chat/completions."
+    }
+  }
+}

@@ -133,7 +133,7 @@ class PDDLBackedExecutor:
             risk=risk,
             metadata={
                 "engine": "pddl_backed",
-                "domain_path": str(domain_path),
+                "domain_path": portable_domain_path(task, domain_path),
                 "goal_satisfied": task.goal.is_satisfied(final_state),
             },
         )
@@ -456,5 +456,15 @@ def failed_trace(
         steps=tuple(steps),
         violation=violation,
         risk=risk,
-        metadata={"engine": "pddl_backed", "domain_path": str(domain_path)},
+        metadata={"engine": "pddl_backed", "domain_path": portable_domain_path(task, domain_path)},
     )
+
+
+def portable_domain_path(task: Task, resolved_path: Path) -> str:
+    """Serialize a domain reference without leaking a machine-specific path."""
+
+    for key in ("domain_relative_path", "source_relative_path"):
+        value = task.metadata.get(key)
+        if isinstance(value, str) and value and not Path(value).is_absolute():
+            return value
+    return resolved_path.name

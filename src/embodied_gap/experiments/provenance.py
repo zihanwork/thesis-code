@@ -112,6 +112,7 @@ class RunContext:
         config: dict[str, Any],
         tasks_path: str | Path,
         retrieval_examples_path: str | Path | None = None,
+        failure_memory_path: str | Path | None = None,
         models: list[dict[str, Any]] | None = None,
     ) -> "RunContext":
         base = Path(base_output_dir)
@@ -131,6 +132,7 @@ class RunContext:
                 config=config,
                 tasks_path=tasks_path,
                 retrieval_examples_path=retrieval_examples_path,
+                failure_memory_path=failure_memory_path,
                 models=models,
                 index_path=base / "run_index.jsonl",
             )
@@ -148,6 +150,7 @@ class RunContext:
         config: dict[str, Any],
         tasks_path: str | Path,
         retrieval_examples_path: str | Path | None = None,
+        failure_memory_path: str | Path | None = None,
         models: list[dict[str, Any]] | None = None,
         parent_run_id: str | None = None,
     ) -> "RunContext":
@@ -160,6 +163,7 @@ class RunContext:
             config=config,
             tasks_path=tasks_path,
             retrieval_examples_path=retrieval_examples_path,
+            failure_memory_path=failure_memory_path,
             models=models,
             parent_run_id=parent_run_id,
         )
@@ -176,6 +180,7 @@ class RunContext:
         config: dict[str, Any],
         tasks_path: str | Path,
         retrieval_examples_path: str | Path | None,
+        failure_memory_path: str | Path | None,
         models: list[dict[str, Any]] | None = None,
         parent_run_id: str | None = None,
         index_path: Path | None = None,
@@ -208,6 +213,9 @@ class RunContext:
                     taskset_fingerprint(retrieval_examples_path)
                     if retrieval_examples_path
                     else None
+                ),
+                "failure_memory": (
+                    file_fingerprint(failure_memory_path) if failure_memory_path else None
                 ),
             },
             "prompts": {

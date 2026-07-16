@@ -7,6 +7,7 @@ from embodied_gap.core.task_schema import load_tasks
 from embodied_gap.evaluation.metrics import EvaluationRecord, aggregate_records, evaluate_run
 from embodied_gap.harness.controller import HarnessController, HarnessRun
 from embodied_gap.llm.clients import client_telemetry
+from embodied_gap.knowledge.failure_memory_store import FrozenFailureMemory
 
 from .config import ExperimentConfig
 from .logger import ExperimentLogger
@@ -58,7 +59,15 @@ class ExperimentRunner:
                 llm_output_cost_per_million=self.config.llm_output_cost_per_million,
             )
             harness_modes = parse_harness_modes(self.config.harness_modes)
-            harness = HarnessController(max_retries=self.config.max_retries)
+            failure_memory = (
+                FrozenFailureMemory.from_jsonl(self.config.failure_memory_path)
+                if self.config.failure_memory_path
+                else FrozenFailureMemory.empty()
+            )
+            harness = HarnessController(
+                failure_memory=failure_memory,
+                max_retries=self.config.max_retries,
+            )
 
             runs: list[HarnessRun] = []
             records: list[EvaluationRecord] = []
@@ -106,6 +115,7 @@ class ExperimentRunner:
                 config=config_payload,
                 tasks_path=self.config.tasks_path,
                 retrieval_examples_path=self.config.retrieval_examples_path,
+                failure_memory_path=self.config.failure_memory_path,
                 models=self._model_manifest(),
                 parent_run_id=self.parent_run_id,
             )
@@ -115,6 +125,7 @@ class ExperimentRunner:
             config=config_payload,
             tasks_path=self.config.tasks_path,
             retrieval_examples_path=self.config.retrieval_examples_path,
+            failure_memory_path=self.config.failure_memory_path,
             models=self._model_manifest(),
         )
 

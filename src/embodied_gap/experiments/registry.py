@@ -5,7 +5,11 @@ from embodied_gap.harness.recovery_policy import HarnessMode
 from embodied_gap.knowledge.graph_store import ActionKnowledgeGraph
 from embodied_gap.llm.clients import OneAPIChatClient
 from embodied_gap.planners.graph_grounded import GraphGroundedPlanner
-from embodied_gap.planners.prompt_only import PromptOnlyPlanner
+from embodied_gap.planners.prompt_only import (
+    EngineeredPromptPlanner,
+    MinimalPromptPlanner,
+    PromptOnlyPlanner,
+)
 from embodied_gap.planners.retrieval_augmented import RetrievalAugmentedPlanner
 
 
@@ -38,10 +42,21 @@ def build_planners(
             input_cost_per_million=llm_input_cost_per_million,
             output_cost_per_million=llm_output_cost_per_million,
         )
+    minimal = MinimalPromptPlanner(llm_client=llm_client)
+    structured = PromptOnlyPlanner(llm_client=llm_client)
+    engineered = EngineeredPromptPlanner(llm_client=llm_client)
+    rag = RetrievalAugmentedPlanner(examples, llm_client=llm_client)
+    symbolic = GraphGroundedPlanner(graph)
     return {
-        "P0_prompt_only": PromptOnlyPlanner(llm_client=llm_client),
-        "P1_retrieval_augmented": RetrievalAugmentedPlanner(examples, llm_client=llm_client),
-        "P2_graph_grounded": GraphGroundedPlanner(graph),
+        "B0_minimal_prompt": minimal,
+        "P0_structured_prompt": structured,
+        "P0_engineered_prompt": engineered,
+        "P1_rag": rag,
+        "P2_symbolic_pddl": symbolic,
+        # Legacy config aliases for historical pilot configuration files.
+        "P0_prompt_only": structured,
+        "P1_retrieval_augmented": rag,
+        "P2_graph_grounded": symbolic,
     }
 
 

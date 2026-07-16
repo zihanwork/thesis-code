@@ -21,6 +21,11 @@ from embodied_gap.datasets.resource_paths import resolve_domain_path, resolve_pr
 from embodied_gap.experiments.model_matrix import ModelMatrixConfig, ModelSpec, MultiModelExperimentRunner
 from embodied_gap.knowledge.corpus_builder import KnowledgeCorpusBuilder
 from embodied_gap.knowledge.failure_memory import classify_failure_patterns
+from embodied_gap.knowledge.failure_memory_store import (
+    FailureMemoryEntry,
+    FrozenFailureMemory,
+    build_frozen_failure_memory,
+)
 from embodied_gap.knowledge.pddl_grounded_search import PDDLGroundedSearch
 from embodied_gap.evaluation.metrics import evaluate_run
 from embodied_gap.experiments.config import ExperimentConfig
@@ -33,7 +38,11 @@ from embodied_gap.llm.parsers import parse_action_list
 from embodied_gap.llm.clients import OneAPIChatClient
 from embodied_gap.llm.prompts import render_planning_prompt
 from embodied_gap.planners.graph_grounded import GraphGroundedPlanner
-from embodied_gap.planners.prompt_only import PromptOnlyPlanner
+from embodied_gap.planners.prompt_only import (
+    EngineeredPromptPlanner,
+    MinimalPromptPlanner,
+    PromptOnlyPlanner,
+)
 from embodied_gap.planners.retrieval_augmented import RetrievalAugmentedPlanner
 
 
@@ -50,6 +59,20 @@ class ResearchFrameworkTests(unittest.TestCase):
         record = evaluate_run(task, run)
         self.assertFalse(record.execution_success)
         self.assertIn("missing_step", record.error_counts)
+
+    def test_prompt_ablation_profiles_are_distinct(self) -> None:
+        task = self.eval_tasks["eval_move_apple"]
+        minimal = MinimalPromptPlanner().plan(task)
+        structured = PromptOnlyPlanner().plan(task)
+        engineered = EngineeredPromptPlanner().plan(task)
+
+        self.assertEqual(minimal.planner_name, "B0_minimal_prompt")
+        self.assertEqual(structured.planner_name, "P0_structured_prompt")
+        self.assertEqual(engineered.planner_name, "P0_engineered_prompt")
+        self.assertNotIn("Initial facts:", minimal.prompt)
+        self.assertIn("Initial facts:", structured.prompt)
+        self.assertIn("Goal facts:", structured.prompt)
+        self.assertIn("internally verify", engineered.prompt)
 
     def test_retrieval_planner_adapts_successful_plan(self) -> None:
         task = self.eval_tasks["eval_move_apple"]
@@ -77,6 +100,177 @@ class ResearchFrameworkTests(unittest.TestCase):
         self.assertTrue(record.safe_success)
         self.assertFalse(record.risk)
 
+    def test_llm_reflection_uses_explicit_feedback_without_pddl_fallback(self) -> None:
+        class RepairClient:
+            provider = "unit"
+            model = "repair-model"
+
+            def generate(self, prompt: str) -> str:
+                self.prompt = prompt
+                return json.dumps(
+                    [
+                        "navigate(fridge)",
+                        "open(fridge)",
+                        "pickup(apple)",
+                        "navigate(countertop)",
+                        "put(apple, countertop)",
+                    ]
+                )
+
+        task = self.eval_tasks["eval_move_apple"]
+        client = RepairClient()
+        planner = PromptOnlyPlanner(llm_client=client)
+        initial = PlanCandidate(
+            planner_name=planner.name,
+            actions=("navigate(fridge)", "pickup(apple)"),
+        )
+        run = HarnessController(max_retries=1).run(
+            task,
+            planner,
+            HarnessMode.H2_LLM_REFLECTION,
+            initial_plan=initial,
+        )
+
+        record = evaluate_run(task, run)
+        self.assertTrue(record.task_success)
+        self.assertFalse(record.initial_task_success)
+        self.assertTrue(record.recovered)
+        self.assertEqual(run.patches[0].source, "llm_feedback_replan")
+        self.assertIn("missing_preconditions", client.prompt)
+        self.assertNotEqual(run.patches[0].source, "symbolic_replan")
+
+    def test_recovery_modes_are_separate(self) -> None:
+        task = self.eval_tasks["eval_move_apple"]
+        planner = PromptOnlyPlanner()
+        initial = PlanCandidate(
+            planner_name=planner.name,
+            actions=("navigate(fridge)", "pickup(apple)"),
+        )
+        local = HarnessController(max_retries=1).run(
+            task,
+            planner,
+            HarnessMode.H2_LOCAL_RECOVERY,
+            initial_plan=initial,
+        )
+        pddl = HarnessController(max_retries=1).run(
+            task,
+            planner,
+            HarnessMode.H2_PDDL_RECOVERY,
+            initial_plan=initial,
+        )
+
+        self.assertEqual(local.patches[0].source, "local_patch_repair")
+        self.assertEqual(pddl.patches[0].source, "symbolic_replan")
+
+    def test_error_specific_and_frozen_memory_repair_prompts_are_distinct(self) -> None:
+        class RepairClient:
+            provider = "unit"
+            model = "repair-model"
+
+            def __init__(self) -> None:
+                self.prompts: list[str] = []
+
+            def generate(self, prompt: str) -> str:
+                self.prompts.append(prompt)
+                return json.dumps(
+                    [
+                        "navigate(fridge)",
+                        "open(fridge)",
+                        "pickup(apple)",
+                        "navigate(countertop)",
+                        "put(apple, countertop)",
+                    ]
+                )
+
+        task = self.eval_tasks["eval_move_apple"]
+        memory = FrozenFailureMemory(
+            (
+                FailureMemoryEntry(
+                    id="memory-1",
+                    source_task_id="train_move_mug",
+                    instruction="Move a mug from a cabinet to a table.",
+                    dataset="unit",
+                    task_family="move",
+                    tags=("move",),
+                    error_type="missing_step",
+                    failed_plan=("pickup(mug)",),
+                    repaired_plan=("open(cabinet)", "pickup(mug)"),
+                    repair_source="unit",
+                ),
+            ),
+            sha256="frozen-unit-hash",
+        )
+        initial = PlanCandidate(
+            planner_name="P0_structured_prompt",
+            actions=("navigate(fridge)", "pickup(apple)"),
+        )
+
+        error_client = RepairClient()
+        error_planner = PromptOnlyPlanner(llm_client=error_client)
+        error_run = HarnessController(max_retries=1).run(
+            task,
+            error_planner,
+            HarnessMode.H2_ERROR_SPECIFIC,
+            initial_plan=initial,
+        )
+        self.assertTrue(evaluate_run(task, error_run).task_success)
+        self.assertIn("Insert actions that establish", error_client.prompts[0])
+
+        memory_client = RepairClient()
+        memory_planner = PromptOnlyPlanner(llm_client=memory_client)
+        memory_run = HarnessController(failure_memory=memory, max_retries=1).run(
+            task,
+            memory_planner,
+            HarnessMode.H2_MEMORY,
+            initial_plan=initial,
+        )
+        self.assertTrue(evaluate_run(task, memory_run).task_success)
+        self.assertIn("Memory ID: memory-1", memory_client.prompts[0])
+        self.assertEqual(
+            memory_run.patches[0].metadata["failure_memory_sha256"],
+            "frozen-unit-hash",
+        )
+
+    def test_failure_memory_builder_freezes_only_successful_repairs(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            tasks_path = Path(tmpdir) / "tasks.jsonl"
+            runs_path = Path(tmpdir) / "runs.jsonl"
+            memory_path = Path(tmpdir) / "memory.jsonl"
+            task = self.eval_tasks["eval_move_apple"]
+            dump_jsonl(tasks_path, [task.to_dict()])
+            runs_path.write_text(
+                json.dumps(
+                    {
+                        "task_id": task.id,
+                        "trace": {"final_state": ["on(apple, countertop)"]},
+                        "attempts": [
+                            {
+                                "trace": {"violation": {"type": "missing_step"}},
+                                "patch": {
+                                    "source": "unit_repair",
+                                    "before": ["pickup(apple)"],
+                                    "after": list(task.gold_plan),
+                                },
+                            }
+                        ],
+                    }
+                )
+                + "\n",
+                encoding="utf-8",
+            )
+
+            manifest = build_frozen_failure_memory(
+                tasks_path=tasks_path,
+                runs_path=runs_path,
+                output_path=memory_path,
+            )
+            memory = FrozenFailureMemory.from_jsonl(memory_path)
+
+            self.assertEqual(manifest["entry_count"], 1)
+            self.assertEqual(len(memory.entries), 1)
+            self.assertEqual(memory.entries[0].error_type, "missing_step")
+            self.assertEqual(memory.sha256, manifest["sha256"])
+
     def test_runner_writes_complete_matrix(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:
             config = ExperimentConfig(
@@ -86,9 +280,9 @@ class ResearchFrameworkTests(unittest.TestCase):
             )
             runner = ExperimentRunner(config)
             runs, records, summary = runner.run()
-            self.assertEqual(len(runs), 27)
-            self.assertEqual(len(records), 27)
-            self.assertEqual(len(summary), 9)
+            self.assertEqual(len(runs), 36)
+            self.assertEqual(len(records), 36)
+            self.assertEqual(len(summary), 12)
             self.assertIsNotNone(runner.output_dir)
             manifest = json.loads(
                 (runner.output_dir / "run_manifest.json").read_text(encoding="utf-8")
@@ -151,6 +345,41 @@ class ResearchFrameworkTests(unittest.TestCase):
         self.assertEqual(telemetry["call_count"], 1)
         self.assertEqual(telemetry["total_tokens"], 150)
         self.assertAlmostEqual(telemetry["estimated_cost_usd"], 0.0006)
+
+    def test_one_api_client_lists_models(self) -> None:
+        class FakeResponse:
+            def __enter__(self) -> "FakeResponse":
+                return self
+
+            def __exit__(self, *args: object) -> None:
+                return None
+
+            def read(self) -> bytes:
+                return json.dumps(
+                    {
+                        "object": "list",
+                        "data": [
+                            {"id": "gpt-5.5", "object": "model"},
+                            {"id": "Claude Sonnet 5", "object": "model"},
+                            {"id": "gpt-5.5", "object": "model"},
+                        ],
+                    }
+                ).encode("utf-8")
+
+        client = OneAPIChatClient(
+            api_key="unit-secret",
+            base_url="https://example.invalid/v1",
+            model="unit-model",
+        )
+        with mock.patch(
+            "embodied_gap.llm.clients.urllib.request.urlopen",
+            return_value=FakeResponse(),
+        ) as request:
+            models = client.list_models()
+
+        self.assertEqual(models, ["Claude Sonnet 5", "gpt-5.5"])
+        issued_request = request.call_args.args[0]
+        self.assertEqual(issued_request.full_url, "https://example.invalid/v1/models")
 
     def test_runner_uses_external_retrieval_examples(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -520,6 +749,7 @@ class ResearchFrameworkTests(unittest.TestCase):
         )
         record = evaluate_run(tasks["Make_coffee"], run)
         self.assertTrue(record.task_success)
+        self.assertFalse(Path(str(run.trace.metadata["domain_path"])).is_absolute())
         self.assertIn(
             "virtualhome_appliance_surface_activation",
             run.final_plan.metadata["failure_memory_patterns"],
@@ -677,6 +907,32 @@ class ResearchFrameworkTests(unittest.TestCase):
         self.assertEqual(eai_config.base_experiment.tasks_path, "data/processed/tasksets/balanced_eval_20.jsonl")
         self.assertEqual(eai_config.base_experiment.retrieval_examples_path, "data/processed/tasksets/rag_train.jsonl")
         self.assertEqual(len(eai_config.models), 2)
+
+        model = ModelSpec.from_dict(
+            {
+                "id": "kimi",
+                "model": "Kimi-K2.6",
+                "temperature": 1,
+                "max_tokens": 4096,
+                "timeout_seconds": 240,
+                "max_attempts": 2,
+            }
+        )
+        self.assertEqual(model.temperature, 1.0)
+        self.assertEqual(model.max_tokens, 4096)
+        self.assertEqual(model.timeout_seconds, 240)
+        self.assertEqual(model.max_attempts, 2)
+
+        generalization = ModelMatrixConfig.from_json(
+            "configs/experiments/eai_model_generalization_smoke.json"
+        )
+        self.assertEqual(len(generalization.models), 6)
+        self.assertEqual(
+            [item.model for item in generalization.models if item.enabled],
+            ["DeepSeek-V4-Flash", "gpt-5.5", "DeepSeek-V4-Pro", "GLM-5-Turbo"],
+        )
+        kimi = next(item for item in generalization.models if item.id == "kimi_k2_6")
+        self.assertEqual(kimi.temperature, 1.0)
 
     def test_experiment_runner_allocates_unique_non_overwriting_directories(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:

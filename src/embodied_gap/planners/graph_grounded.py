@@ -8,9 +8,9 @@ from embodied_gap.llm.prompts import PLANNING_PROMPT_VERSION, render_planning_pr
 
 
 class GraphGroundedPlanner:
-    """P2: graph-grounded planner over action preconditions and effects."""
+    """P2: model-independent symbolic planning reference."""
 
-    name = "P2_graph_grounded"
+    name = "P2_symbolic_pddl"
 
     def __init__(
         self,
@@ -21,7 +21,7 @@ class GraphGroundedPlanner:
         self.pddl_search = pddl_search or PDDLGroundedSearch()
 
     def plan(self, task: Task) -> PlanCandidate:
-        prompt = render_planning_prompt(task, strategy="graph_grounded")
+        prompt = render_planning_prompt(task, strategy="symbolic_reference")
         if not task.action_model and self.pddl_search.can_search(task):
             result = self.pddl_search.search(task)
             return PlanCandidate(
@@ -30,10 +30,11 @@ class GraphGroundedPlanner:
                 raw_response=str(list(result.actions)),
                 prompt=prompt,
                 metadata={
-                    "planner_family": "graph_grounded",
-                    "prompt_version": "p2_v1",
+                    "planner_family": "symbolic_pddl",
+                    "prompt_version": "p2_symbolic_v2",
                     "prompt_template_version": PLANNING_PROMPT_VERSION,
-                    "kg_type": "pddl_grounded_object_action_state_graph",
+                    "engine": "pddl_grounded_search",
+                    "model_independent": True,
                     "solved": result.solved,
                     "explored_states": result.explored_states,
                     "candidate_count": result.candidate_count,
@@ -49,10 +50,11 @@ class GraphGroundedPlanner:
             raw_response=str(list(result.actions)),
             prompt=prompt,
             metadata={
-                "planner_family": "graph_grounded",
-                "prompt_version": "p2_v1",
+                "planner_family": "symbolic_action_model",
+                "prompt_version": "p2_symbolic_v2",
                 "prompt_template_version": PLANNING_PROMPT_VERSION,
-                "kg_type": "object_action_state_precondition_effect_graph",
+                "engine": "symbolic_action_model_search",
+                "model_independent": True,
                 "solved": result.solved,
                 "explored_states": result.explored_states,
                 "reason": result.reason,

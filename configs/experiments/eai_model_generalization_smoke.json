@@ -1,0 +1,42 @@
+{
+  "name": "eai_model_generalization_smoke",
+  "continue_on_error": true,
+  "base_experiment": {
+    "name": "eai_model_generalization_smoke",
+    "tasks_path": "data/processed/tasksets/eai_smoke_eval.jsonl",
+    "retrieval_examples_path": "data/processed/tasksets/rag_train.jsonl",
+    "output_dir": "runs/eai_model_generalization_smoke",
+    "planners": ["P0_engineered_prompt", "P1_rag"],
+    "harness_modes": ["H0_open_loop", "H2_llm_reflection"],
+    "seed": 13,
+    "max_retries": 1,
+    "llm_backend": "one_api",
+    "use_llm_for_planners": true,
+    "metadata": {
+      "phase": "compatibility_smoke",
+      "research_question": "RQ4 cross-family generalization",
+      "promotion_rule": "Promote only models with valid parseable plans and stable telemetry."
+    }
+  },
+  "models": [
+    {"id": "deepseek_v4_flash", "provider": "one_api", "model": "DeepSeek-V4-Flash"},
+    {"id": "gpt_5_5", "provider": "one_api", "model": "gpt-5.5"},
+    {"id": "deepseek_v4_pro", "provider": "one_api", "model": "DeepSeek-V4-Pro"},
+    {"id": "glm_5_turbo", "provider": "one_api", "model": "GLM-5-Turbo"},
+    {
+      "id": "minimax_m3",
+      "provider": "one_api",
+      "model": "MiniMax-M3",
+      "enabled": false,
+      "notes": "Enable only after output-format compatibility is verified."
+    },
+    {
+      "id": "kimi_k2_6",
+      "provider": "one_api",
+      "model": "Kimi-K2.6",
+      "temperature": 1.0,
+      "enabled": false,
+      "notes": "Current smoke calls returned empty content."
+    }
+  ]
+}

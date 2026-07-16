@@ -1,7 +1,7 @@
 [project]
 name = "embodied-goal-action-gap"
 version = "0.1.0"
-description = "Experimental framework for diagnosing and improving LLM embodied planning across prompt, retrieval, graph grounding, and harness-guided methods."
+description = "Experimental framework for structured prompting, retrieval, and isolated recovery in LLM embodied planning."
 requires-python = ">=3.12,<3.13"
 dependencies = [
   "certifi>=2024.0.0",

@@ -7,13 +7,13 @@ from embodied_gap.llm.clients import LLMClient, last_call_metadata
 from embodied_gap.llm.parsers import parse_action_list
 from embodied_gap.llm.prompts import PLANNING_PROMPT_VERSION, render_planning_prompt
 
-from .prompt_only import PromptOnlyPlanner
+from .prompt_only import EngineeredPromptPlanner
 
 
 class RetrievalAugmentedPlanner:
     """P1: retrieval-augmented initial planner."""
 
-    name = "P1_retrieval_augmented"
+    name = "P1_rag"
 
     def __init__(
         self,
@@ -23,7 +23,7 @@ class RetrievalAugmentedPlanner:
     ) -> None:
         self.retriever = ExampleRetriever(examples)
         self.min_score = min_score
-        self.fallback = PromptOnlyPlanner()
+        self.fallback = EngineeredPromptPlanner()
         self.llm_client = llm_client
 
     def plan(self, task: Task) -> PlanCandidate:
@@ -33,6 +33,7 @@ class RetrievalAugmentedPlanner:
             task,
             strategy="retrieval_augmented",
             extra_context=context,
+            profile="engineered",
         )
         if self.llm_client and retrieved and retrieved[0].score >= self.min_score:
             return self._llm_plan(prompt, retrieved)
@@ -46,7 +47,7 @@ class RetrievalAugmentedPlanner:
                 prompt=prompt,
                 metadata={
                     "planner_family": "retrieval_augmented",
-                    "prompt_version": "p1_v1",
+                    "prompt_version": "p1_rag_v2",
                     "prompt_template_version": PLANNING_PROMPT_VERSION,
                     "retrieved": None,
                     "fallback": fallback.planner_name,
@@ -62,7 +63,7 @@ class RetrievalAugmentedPlanner:
             prompt=prompt,
             metadata={
                 "planner_family": "retrieval_augmented",
-                "prompt_version": "p1_v1",
+                "prompt_version": "p1_rag_v2",
                 "prompt_template_version": PLANNING_PROMPT_VERSION,
                 "retrieved": example.id,
                 "retrieval_score": retrieved[0].score,
@@ -77,7 +78,7 @@ class RetrievalAugmentedPlanner:
             actions = parse_action_list(raw_response)
             metadata = {
                 "planner_family": "retrieval_augmented",
-                "prompt_version": "p1_v1",
+                "prompt_version": "p1_rag_v2",
                 "prompt_template_version": PLANNING_PROMPT_VERSION,
                 "retrieved": retrieved[0].task.id,
                 "retrieval_score": retrieved[0].score,
@@ -90,7 +91,7 @@ class RetrievalAugmentedPlanner:
             actions = ()
             metadata = {
                 "planner_family": "retrieval_augmented",
-                "prompt_version": "p1_v1",
+                "prompt_version": "p1_rag_v2",
                 "prompt_template_version": PLANNING_PROMPT_VERSION,
                 "retrieved": retrieved[0].task.id,
                 "retrieval_score": retrieved[0].score,

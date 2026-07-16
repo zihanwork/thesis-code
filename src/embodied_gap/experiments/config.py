@@ -12,8 +12,18 @@ class ExperimentConfig:
     tasks_path: str
     output_dir: str
     retrieval_examples_path: str | None = None
-    planners: tuple[str, ...] = ("P0_prompt_only", "P1_retrieval_augmented", "P2_graph_grounded")
-    harness_modes: tuple[str, ...] = ("H0_open_loop", "H1_verifier_gated", "H2_full_recovery")
+    failure_memory_path: str | None = None
+    planners: tuple[str, ...] = (
+        "P0_structured_prompt",
+        "P0_engineered_prompt",
+        "P1_rag",
+    )
+    harness_modes: tuple[str, ...] = (
+        "H0_open_loop",
+        "H2_local_recovery",
+        "H2_llm_reflection",
+        "H2_pddl_recovery",
+    )
     seed: int = 13
     max_retries: int = 3
     llm_backend: str = "deterministic"
@@ -36,6 +46,7 @@ class ExperimentConfig:
             tasks_path=data["tasks_path"],
             output_dir=data["output_dir"],
             retrieval_examples_path=data.get("retrieval_examples_path"),
+            failure_memory_path=data.get("failure_memory_path"),
             planners=tuple(data.get("planners", cls.planners)),
             harness_modes=tuple(data.get("harness_modes", cls.harness_modes)),
             seed=int(data.get("seed", 13)),
@@ -63,6 +74,7 @@ class ExperimentConfig:
             "tasks_path": self.tasks_path,
             "output_dir": self.output_dir,
             "retrieval_examples_path": self.retrieval_examples_path,
+            "failure_memory_path": self.failure_memory_path,
             "planners": list(self.planners),
             "harness_modes": list(self.harness_modes),
             "seed": self.seed,

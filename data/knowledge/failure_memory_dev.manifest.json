@@ -1,0 +1,28 @@
+{
+  "entry_count": 357,
+  "error_type_counts": {
+    "action_argument_number_error": 2,
+    "missing_step": 290,
+    "parsing_error": 29,
+    "unknown_failure": 36
+  },
+  "memory_teacher": "symbolic_pddl",
+  "output_path": "data/knowledge/failure_memory_dev.jsonl",
+  "policy": "development_successful_repairs_only; read_only_during_final_evaluation",
+  "repair_source_counts": {
+    "full_graph_replan": 357
+  },
+  "runs": [
+    {
+      "path": "runs/eai_balanced_multimodel/deepseek_v4_flash/runs.jsonl",
+      "sha256": "91a63e38f61926717a3cafad919f913336118dcb879020ab151b77b31f8ab96c"
+    },
+    {
+      "path": "runs/eai_balanced_multimodel/gpt_5_5/runs.jsonl",
+      "sha256": "c7e83dfe1a24c377887a26772000ce5a4807c5b4ec3f76e03af4f3b8c0530aab"
+    }
+  ],
+  "schema_version": 1,
+  "sha256": "ec5ad98b7730b706b8b13186dc9caa76f2ee34dabd7bc1b49bb174a1d78d5099",
+  "tasks_path": "data/processed/tasksets/balanced_eval.jsonl"
+}

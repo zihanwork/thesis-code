@@ -19,6 +19,10 @@ class ModelSpec:
     provider: str = "one_api"
     enabled: bool = True
     notes: str = ""
+    temperature: float | None = None
+    max_tokens: int | None = None
+    timeout_seconds: int | None = None
+    max_attempts: int | None = None
     input_cost_per_million: float | None = None
     output_cost_per_million: float | None = None
 
@@ -30,6 +34,10 @@ class ModelSpec:
             provider=data.get("provider", "one_api"),
             enabled=bool(data.get("enabled", True)),
             notes=data.get("notes", ""),
+            temperature=_optional_float(data.get("temperature")),
+            max_tokens=_optional_int(data.get("max_tokens")),
+            timeout_seconds=_optional_int(data.get("timeout_seconds")),
+            max_attempts=_optional_int(data.get("max_attempts")),
             input_cost_per_million=_optional_float(data.get("input_cost_per_million")),
             output_cost_per_million=_optional_float(data.get("output_cost_per_million")),
         )
@@ -41,6 +49,10 @@ class ModelSpec:
             "provider": self.provider,
             "enabled": self.enabled,
             "notes": self.notes,
+            "temperature": self.temperature,
+            "max_tokens": self.max_tokens,
+            "timeout_seconds": self.timeout_seconds,
+            "max_attempts": self.max_attempts,
             "input_cost_per_million": self.input_cost_per_million,
             "output_cost_per_million": self.output_cost_per_million,
         }
@@ -64,6 +76,7 @@ class ModelMatrixConfig:
                 tasks_path=base_data["tasks_path"],
                 output_dir=base_data["output_dir"],
                 retrieval_examples_path=base_data.get("retrieval_examples_path"),
+                failure_memory_path=base_data.get("failure_memory_path"),
                 planners=tuple(base_data.get("planners", ExperimentConfig.planners)),
                 harness_modes=tuple(
                     base_data.get("harness_modes", ExperimentConfig.harness_modes)
@@ -111,6 +124,7 @@ class MultiModelExperimentRunner:
             },
             tasks_path=self.config.base_experiment.tasks_path,
             retrieval_examples_path=self.config.base_experiment.retrieval_examples_path,
+            failure_memory_path=self.config.base_experiment.failure_memory_path,
             models=[model.to_dict() for model in enabled_models],
         )
         output_root = context.output_dir
@@ -191,6 +205,7 @@ class MultiModelExperimentRunner:
             tasks_path=base.tasks_path,
             output_dir=str(output_root / model.id),
             retrieval_examples_path=base.retrieval_examples_path,
+            failure_memory_path=base.failure_memory_path,
             planners=base.planners,
             harness_modes=base.harness_modes,
             seed=base.seed,
@@ -198,10 +213,22 @@ class MultiModelExperimentRunner:
             llm_backend=base.llm_backend,
             use_llm_for_planners=base.use_llm_for_planners,
             llm_model=model.model,
-            llm_temperature=base.llm_temperature,
-            llm_max_tokens=base.llm_max_tokens,
-            llm_timeout_seconds=base.llm_timeout_seconds,
-            llm_max_attempts=base.llm_max_attempts,
+            llm_temperature=(
+                model.temperature if model.temperature is not None else base.llm_temperature
+            ),
+            llm_max_tokens=(
+                model.max_tokens if model.max_tokens is not None else base.llm_max_tokens
+            ),
+            llm_timeout_seconds=(
+                model.timeout_seconds
+                if model.timeout_seconds is not None
+                else base.llm_timeout_seconds
+            ),
+            llm_max_attempts=(
+                model.max_attempts
+                if model.max_attempts is not None
+                else base.llm_max_attempts
+            ),
             llm_backoff_seconds=base.llm_backoff_seconds,
             llm_input_cost_per_million=(
                 model.input_cost_per_million
@@ -219,3 +246,7 @@ class MultiModelExperimentRunner:
 
 def _optional_float(value: object) -> float | None:
     return float(value) if value is not None else None
+
+
+def _optional_int(value: object) -> int | None:
+    return int(value) if value is not None else None

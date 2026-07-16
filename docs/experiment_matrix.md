@@ -1,4 +1,8 @@
-# Experiment Matrix
+# Historical Pilot Experiment Matrix
+
+> This document records the original 3x3 pilot and its historical results.
+> It is not the final thesis design. See `docs/revised_experiment_design.md` for
+> the renamed planners, isolated recovery modes, and staged confirmatory study.
 
 The thesis framework separates planner generation from execution harnessing:
 

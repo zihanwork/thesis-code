@@ -17,9 +17,11 @@ This avoids treating harness engineering as just another prompt/planner method.
 
 | ID | Planner | Research Question |
 | --- | --- | --- |
-| P0 | Prompt-only Planning | How far can structured prompting go without external knowledge? |
-| P1 | Retrieval-Augmented Planning | Can retrieved demonstrations reduce missing-step and task-prior errors? |
-| P2 | Graph-Grounded Planning | Can object-action-state graphs reduce hallucination and affordance errors? |
+| B0 | Minimal Prompt Baseline | How far does an instruction/action-list prompt go? |
+| P0 | Structured PDDL-Informed Prompt | What is gained from state, goal, objects, and action signatures? |
+| P0-PE | Engineered Structured Prompt | What is gained from a fixed constraint checklist? |
+| P1 | Retrieval-Augmented Planning | What additional gain comes from task-conditioned demonstrations? |
+| P2 | Symbolic PDDL Reference | How does a model-independent symbolic planner perform? |
 
 ### Harness Modes
 
@@ -27,17 +29,13 @@ This avoids treating harness engineering as just another prompt/planner method.
 | --- | --- | --- |
 | H0 | Open-loop Execution | What fails when the plan is executed directly? |
 | H1 | Verifier-Gated Execution | How much does precondition/safety validation help without repair? |
-| H2 | Full Harness Recovery | How much do validation, local patching, graph replanning, and rejection improve robustness? |
+| H2-Local | Local Recovery | What can deterministic local repair fix? |
+| H2-LLM | LLM Feedback Replanning | What can the original model repair from explicit validator feedback? |
+| H2-PDDL | Symbolic PDDL Recovery | What is gained from a symbolic fallback? |
 
-The full experiment matrix is:
-
-| Planner / Harness | H0 Open-loop | H1 Verifier | H2 Full Recovery |
-| --- | --- | --- | --- |
-| P0 Prompt-only | P0-H0 | P0-H1 | P0-H2 |
-| P1 RAG | P1-H0 | P1-H1 | P1-H2 |
-| P2 Graph-grounded | P2-H0 | P2-H1 | P2-H2 |
-
-The expected primary method is **P2-H2: Graph-Grounded Planning with Full Harness Recovery**.
+The original 3x3 matrix is retained as a historical pilot. The final design
+uses separate planning and recovery ablations so P2 and H2 cannot claim credit
+for the same symbolic search. See `docs/revised_experiment_design.md`.
 
 ## Repository Structure
 
@@ -77,7 +75,7 @@ Create the exact Python 3.12 environment recorded in `uv.lock`:
 uv sync --locked
 ```
 
-Run the sample 3x3 matrix:
+Run the offline historical sample matrix:
 
 ```bash
 uv run --frozen embodied-gap run \
@@ -126,6 +124,14 @@ Check connectivity:
 PYTHONPATH=src python3 -m embodied_gap.cli check-one-api
 ```
 
+List the model IDs exposed to the configured account, or smoke-test a specific
+model without changing `.env`:
+
+```bash
+PYTHONPATH=src python3 -m embodied_gap.cli list-one-api-models
+PYTHONPATH=src python3 -m embodied_gap.cli check-one-api --model "GLM-5-Turbo"
+```
+
 Run the matrix with One API-backed P0/P1 planners:
 
 ```bash
@@ -154,8 +160,9 @@ PYTHONPATH=src python3 -m embodied_gap.cli run-model-matrix \
   --config configs/experiments/eai_balanced_20_multimodel_one_api.json
 ```
 
-See `docs/experiment_matrix.md` for the model matrix and current smoke-run
-status.
+See `docs/experiment_matrix.md` for the historical pilot results. The revised
+planning/recovery/generalization design is documented in
+`docs/revised_experiment_design.md`.
 
 ## Experiment Artifacts
 
@@ -201,15 +208,16 @@ This makes it possible to adapt EAI, ALFRED, ET-Plan-Bench, SafeAgentBench, or c
 Implemented:
 
 - Canonical task/plan/state/violation/patch schemas.
-- P0/P1/P2 initial planners.
-- H0/H1/H2 harness modes.
+- Minimal, structured, engineered, RAG, and symbolic-reference planners.
+- Open-loop, verifier, local, LLM-feedback, and PDDL recovery modes.
 - Clean EAI raw-resource import for VirtualHome and BEHAVIOR PDDL tasks.
 - Thesis task set builder for RAG train, full eval, executable eval, balanced eval, and 20/50-task balanced pilots.
 - Multi-model One API experiment runner with per-model fault isolation.
 - External retrieval example files for P1 RAG experiments.
 - PDDL-backed execution and gold-plan validation for clean EAI tasksets.
-- P2 PDDL-grounded macro planning for real EAI smoke tasks.
-- H2 PDDL-grounded full recovery for failed P0/P1 real EAI smoke plans.
+- Model-independent P2 symbolic PDDL planning.
+- Isolated local, LLM-feedback, and symbolic PDDL recovery paths.
+- Error-specific LLM repair, frozen failure memory, and combined leave-one-out modes.
 - Failure-memory labels for recurring macro-recoverable failures.
 - KG/macro goal-regression coverage for cleaning, soaking, container transfer,
   surface/next-to/floor placement, food processing, and VirtualHome appliance
@@ -229,12 +237,8 @@ Implemented:
 
 Next planned integrations:
 
-- Resolve the 4 remaining P2/H2 long-tail BEHAVIOR families
-  (`cleaning_up_after_a_meal`, `laying_wood_floors`, `making_tea`,
-  `organizing_school_stuff`) that cap full-draft P2/H2 at 0.980. Shared root
-  cause: the `grasp` `forall` effect erases existing spatial relations, plus
-  graspability-aware cleaning-tool selection. (`cleaning_freezer` is already
-  fixed via negative-`inside` removal.)
-- Persistent retrieval corpus and failure-memory export/import.
-- Domain KG export/import.
-- Thesis-ready plotting scripts.
+- Cost-controlled development runs for the new recovery and leave-one-out ablations.
+- BM25/structured/embedding retrieval and top-k RAG ablations.
+- Official EAI output/evaluator integration and a separate frozen safety set.
+- Confidence intervals, paired tests, cost aggregation, and failure analysis.
+- A local open-weight backend for the optional LoRA/PEFT comparison.

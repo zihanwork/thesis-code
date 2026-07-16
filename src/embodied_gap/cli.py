@@ -11,6 +11,7 @@ from embodied_gap.experiments.model_matrix import ModelMatrixConfig, MultiModelE
 from embodied_gap.experiments.runner import ExperimentRunner
 from embodied_gap.evaluation.pddl_gold_validator import PDDLGoldPlanValidator
 from embodied_gap.knowledge.corpus_builder import KnowledgeCorpusBuilder
+from embodied_gap.knowledge.failure_memory_store import build_frozen_failure_memory
 from embodied_gap.llm.clients import OneAPIChatClient
 
 
@@ -32,7 +33,13 @@ def run(args: argparse.Namespace) -> int:
 
 
 def check_one_api(args: argparse.Namespace) -> int:
-    client = OneAPIChatClient.from_env(args.env)
+    client = OneAPIChatClient.from_env(
+        args.env,
+        model=args.model,
+        temperature=args.temperature,
+        max_tokens=args.max_tokens,
+    )
+    print("Model:", client.model)
     try:
         response = client.generate('Return exactly this JSON list and nothing else: ["noop()"]')
     except RuntimeError as exc:
@@ -43,6 +50,18 @@ def check_one_api(args: argparse.Namespace) -> int:
         print("One API smoke test: success")
         print("Response preview:", response[:120].replace("\n", " "))
         return 0
+
+
+def list_one_api_models(args: argparse.Namespace) -> int:
+    client = OneAPIChatClient.from_env(args.env)
+    try:
+        models = client.list_models()
+    except RuntimeError as exc:
+        print("One API model discovery: failed")
+        print(str(exc))
+        return 1
+    print(json.dumps({"count": len(models), "models": models}, ensure_ascii=False, indent=2))
+    return 0
 
 
 def prepare_eai(args: argparse.Namespace) -> int:
@@ -104,6 +123,16 @@ def validate_pddl_gold(args: argparse.Namespace) -> int:
     return 0
 
 
+def build_failure_memory(args: argparse.Namespace) -> int:
+    manifest = build_frozen_failure_memory(
+        tasks_path=args.tasks,
+        runs_path=args.runs,
+        output_path=args.out,
+    )
+    print(json.dumps(manifest, ensure_ascii=False, indent=2, sort_keys=True))
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(prog="embodied-gap")
     subparsers = parser.add_subparsers(dest="command", required=True)
@@ -118,7 +147,20 @@ def main(argv: list[str] | None = None) -> int:
 
     check_parser = subparsers.add_parser("check-one-api", help="Check One API connectivity.")
     check_parser.add_argument("--env", default=".env")
+    check_parser.add_argument(
+        "--model",
+        help="Override ONE_API_MODEL for a one-call compatibility check.",
+    )
+    check_parser.add_argument("--temperature", type=float)
+    check_parser.add_argument("--max-tokens", type=int)
     check_parser.set_defaults(func=check_one_api)
+
+    list_models_parser = subparsers.add_parser(
+        "list-one-api-models",
+        help="List model IDs exposed by the configured One API account.",
+    )
+    list_models_parser.add_argument("--env", default=".env")
+    list_models_parser.set_defaults(func=list_one_api_models)
 
     eai_parser = subparsers.add_parser(
         "prepare-eai",
@@ -174,6 +216,15 @@ def main(argv: list[str] | None = None) -> int:
     validate_parser.add_argument("--out-dir", default="runs/pddl_gold_validation")
     validate_parser.add_argument("--limit", type=int)
     validate_parser.set_defaults(func=validate_pddl_gold)
+
+    memory_parser = subparsers.add_parser(
+        "build-failure-memory",
+        help="Freeze successful development failure-to-repair pairs as read-only memory.",
+    )
+    memory_parser.add_argument("--tasks", required=True)
+    memory_parser.add_argument("--runs", required=True, nargs="+")
+    memory_parser.add_argument("--out", required=True)
+    memory_parser.set_defaults(func=build_failure_memory)
 
     args = parser.parse_args(argv)
     return args.func(args)
