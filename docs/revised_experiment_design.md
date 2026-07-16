@@ -81,6 +81,10 @@ hash `036ed8d9c943477bdc704d4d1e4fd3e84541352f8a132984b68c3b6c51f22eac`.
 See `docs/data_split_protocol.md`. It must not be executed until final methods
 and reporting rules are frozen.
 
+RAG selection uses normalized lexical, BM25, and field-structured retrieval,
+top-1/3/5, and four query field profiles. The staged protocol is defined in
+`docs/rag_ablation.md`.
+
 ## One API Model Policy
 
 The account model directory and smoke results are recorded in

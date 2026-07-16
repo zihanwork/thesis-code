@@ -26,6 +26,10 @@ def build_planners(
     llm_backoff_seconds: float = 2.0,
     llm_input_cost_per_million: float | None = None,
     llm_output_cost_per_million: float | None = None,
+    retrieval_method: str = "lexical",
+    retrieval_field_profile: str = "instruction_state_goal_schema",
+    retrieval_top_k: int = 1,
+    retrieval_min_score: float = 0.0,
 ) -> dict[str, object]:
     graph = ActionKnowledgeGraph()
     llm_client = None
@@ -45,7 +49,14 @@ def build_planners(
     minimal = MinimalPromptPlanner(llm_client=llm_client)
     structured = PromptOnlyPlanner(llm_client=llm_client)
     engineered = EngineeredPromptPlanner(llm_client=llm_client)
-    rag = RetrievalAugmentedPlanner(examples, llm_client=llm_client)
+    rag = RetrievalAugmentedPlanner(
+        examples,
+        min_score=retrieval_min_score,
+        top_k=retrieval_top_k,
+        retrieval_method=retrieval_method,
+        field_profile=retrieval_field_profile,
+        llm_client=llm_client,
+    )
     symbolic = GraphGroundedPlanner(graph)
     return {
         "B0_minimal_prompt": minimal,

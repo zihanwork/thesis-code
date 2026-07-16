@@ -76,6 +76,12 @@ class ModelMatrixConfig:
                 tasks_path=base_data["tasks_path"],
                 output_dir=base_data["output_dir"],
                 retrieval_examples_path=base_data.get("retrieval_examples_path"),
+                retrieval_method=base_data.get("retrieval_method", "lexical"),
+                retrieval_field_profile=base_data.get(
+                    "retrieval_field_profile", "instruction_state_goal_schema"
+                ),
+                retrieval_top_k=int(base_data.get("retrieval_top_k", 1)),
+                retrieval_min_score=float(base_data.get("retrieval_min_score", 0.0)),
                 failure_memory_path=base_data.get("failure_memory_path"),
                 planners=tuple(base_data.get("planners", ExperimentConfig.planners)),
                 harness_modes=tuple(
@@ -205,6 +211,10 @@ class MultiModelExperimentRunner:
             tasks_path=base.tasks_path,
             output_dir=str(output_root / model.id),
             retrieval_examples_path=base.retrieval_examples_path,
+            retrieval_method=base.retrieval_method,
+            retrieval_field_profile=base.retrieval_field_profile,
+            retrieval_top_k=base.retrieval_top_k,
+            retrieval_min_score=base.retrieval_min_score,
             failure_memory_path=base.failure_memory_path,
             planners=base.planners,
             harness_modes=base.harness_modes,

@@ -28,6 +28,7 @@ from embodied_gap.knowledge.failure_memory_store import (
     build_frozen_failure_memory,
 )
 from embodied_gap.knowledge.pddl_grounded_search import PDDLGroundedSearch
+from embodied_gap.knowledge.retriever import ExampleRetriever
 from embodied_gap.evaluation.metrics import evaluate_run
 from embodied_gap.experiments.config import ExperimentConfig
 from embodied_gap.experiments.runner import ExperimentRunner
@@ -85,6 +86,34 @@ class ResearchFrameworkTests(unittest.TestCase):
         record = evaluate_run(task, run)
         self.assertTrue(record.task_success)
         self.assertEqual(run.final_plan.metadata["retrieved"], "train_move_mug")
+
+    def test_rag_retrievers_are_normalized_deterministic_and_top_k(self) -> None:
+        examples = load_tasks("data/processed/tasksets/rag_train.jsonl")
+        query = load_tasks("data/processed/tasksets/balanced_eval_20.jsonl")[0]
+        for method in ("lexical", "bm25", "structured"):
+            retriever = ExampleRetriever(
+                examples,
+                method=method,
+                field_profile="instruction_state_goal_schema",
+            )
+            first = retriever.retrieve(query, k=5)
+            second = retriever.retrieve(query, k=5)
+            self.assertEqual(first, second)
+            self.assertEqual(len(first), 5)
+            self.assertTrue(all(0.0 <= item.score <= 1.0 for item in first))
+            self.assertEqual(len({item.task.id for item in first}), 5)
+
+        planner = RetrievalAugmentedPlanner(
+            self.examples,
+            top_k=2,
+            retrieval_method="structured",
+            field_profile="instruction_goal",
+        )
+        plan = planner.plan(self.eval_tasks["eval_move_apple"])
+        self.assertEqual(len(plan.metadata["retrieved_ids"]), 2)
+        self.assertEqual(plan.metadata["retrieval_top_k"], 2)
+        self.assertEqual(plan.metadata["retrieval_method"], "structured")
+        self.assertIn("Retrieved demonstration 2:", plan.prompt)
 
     def test_graph_grounded_planner_solves_preconditions(self) -> None:
         task = self.eval_tasks["eval_clean_plate"]
@@ -981,6 +1010,17 @@ class ResearchFrameworkTests(unittest.TestCase):
         )
         kimi = next(item for item in generalization.models if item.id == "kimi_k2_6")
         self.assertEqual(kimi.temperature, 1.0)
+
+        rag_config = ModelMatrixConfig.from_json(
+            "configs/experiments/eai_planning_ablation_dev.json"
+        ).base_experiment
+        self.assertEqual(rag_config.retrieval_method, "lexical")
+        self.assertEqual(
+            rag_config.retrieval_field_profile,
+            "instruction_state_goal_schema",
+        )
+        self.assertEqual(rag_config.retrieval_top_k, 1)
+        self.assertEqual(rag_config.retrieval_min_score, 0.0)
 
     def test_experiment_runner_allocates_unique_non_overwriting_directories(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:

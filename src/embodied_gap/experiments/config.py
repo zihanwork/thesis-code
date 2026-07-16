@@ -12,6 +12,10 @@ class ExperimentConfig:
     tasks_path: str
     output_dir: str
     retrieval_examples_path: str | None = None
+    retrieval_method: str = "lexical"
+    retrieval_field_profile: str = "instruction_state_goal_schema"
+    retrieval_top_k: int = 1
+    retrieval_min_score: float = 0.0
     failure_memory_path: str | None = None
     planners: tuple[str, ...] = (
         "P0_structured_prompt",
@@ -46,6 +50,12 @@ class ExperimentConfig:
             tasks_path=data["tasks_path"],
             output_dir=data["output_dir"],
             retrieval_examples_path=data.get("retrieval_examples_path"),
+            retrieval_method=data.get("retrieval_method", "lexical"),
+            retrieval_field_profile=data.get(
+                "retrieval_field_profile", "instruction_state_goal_schema"
+            ),
+            retrieval_top_k=int(data.get("retrieval_top_k", 1)),
+            retrieval_min_score=float(data.get("retrieval_min_score", 0.0)),
             failure_memory_path=data.get("failure_memory_path"),
             planners=tuple(data.get("planners", cls.planners)),
             harness_modes=tuple(data.get("harness_modes", cls.harness_modes)),
@@ -74,6 +84,10 @@ class ExperimentConfig:
             "tasks_path": self.tasks_path,
             "output_dir": self.output_dir,
             "retrieval_examples_path": self.retrieval_examples_path,
+            "retrieval_method": self.retrieval_method,
+            "retrieval_field_profile": self.retrieval_field_profile,
+            "retrieval_top_k": self.retrieval_top_k,
+            "retrieval_min_score": self.retrieval_min_score,
             "failure_memory_path": self.failure_memory_path,
             "planners": list(self.planners),
             "harness_modes": list(self.harness_modes),

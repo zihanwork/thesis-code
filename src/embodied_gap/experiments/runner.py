@@ -57,6 +57,10 @@ class ExperimentRunner:
                 llm_backoff_seconds=self.config.llm_backoff_seconds,
                 llm_input_cost_per_million=self.config.llm_input_cost_per_million,
                 llm_output_cost_per_million=self.config.llm_output_cost_per_million,
+                retrieval_method=self.config.retrieval_method,
+                retrieval_field_profile=self.config.retrieval_field_profile,
+                retrieval_top_k=self.config.retrieval_top_k,
+                retrieval_min_score=self.config.retrieval_min_score,
             )
             harness_modes = parse_harness_modes(self.config.harness_modes)
             failure_memory = (

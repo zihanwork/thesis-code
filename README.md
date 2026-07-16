@@ -242,7 +242,7 @@ Implemented:
 Next planned integrations:
 
 - Cost-controlled development runs for the new recovery and leave-one-out ablations.
-- BM25/structured/embedding retrieval and top-k RAG ablations.
+- Cost-controlled lexical/BM25/structured, field-profile, and top-k RAG selection.
 - Official EAI output/evaluator integration and a separate frozen safety set.
 - Confidence intervals, paired tests, cost aggregation, and failure analysis.
 - A local open-weight backend for the optional LoRA/PEFT comparison.
