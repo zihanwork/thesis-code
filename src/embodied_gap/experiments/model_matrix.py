@@ -8,6 +8,7 @@ from typing import Any
 from embodied_gap.analysis.make_tables import summary_to_markdown
 
 from .config import ExperimentConfig
+from .provenance import RunContext, atomic_write_json
 from .runner import ExperimentRunner
 
 
@@ -18,6 +19,8 @@ class ModelSpec:
     provider: str = "one_api"
     enabled: bool = True
     notes: str = ""
+    input_cost_per_million: float | None = None
+    output_cost_per_million: float | None = None
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> "ModelSpec":
@@ -27,6 +30,8 @@ class ModelSpec:
             provider=data.get("provider", "one_api"),
             enabled=bool(data.get("enabled", True)),
             notes=data.get("notes", ""),
+            input_cost_per_million=_optional_float(data.get("input_cost_per_million")),
+            output_cost_per_million=_optional_float(data.get("output_cost_per_million")),
         )
 
     def to_dict(self) -> dict[str, Any]:
@@ -36,6 +41,8 @@ class ModelSpec:
             "provider": self.provider,
             "enabled": self.enabled,
             "notes": self.notes,
+            "input_cost_per_million": self.input_cost_per_million,
+            "output_cost_per_million": self.output_cost_per_million,
         }
 
 
@@ -66,6 +73,17 @@ class ModelMatrixConfig:
                 llm_backend=base_data.get("llm_backend", "one_api"),
                 use_llm_for_planners=bool(base_data.get("use_llm_for_planners", True)),
                 llm_model=base_data.get("llm_model"),
+                llm_temperature=float(base_data.get("llm_temperature", 0.0)),
+                llm_max_tokens=int(base_data.get("llm_max_tokens", 2048)),
+                llm_timeout_seconds=int(base_data.get("llm_timeout_seconds", 180)),
+                llm_max_attempts=int(base_data.get("llm_max_attempts", 4)),
+                llm_backoff_seconds=float(base_data.get("llm_backoff_seconds", 2.0)),
+                llm_input_cost_per_million=_optional_float(
+                    base_data.get("llm_input_cost_per_million")
+                ),
+                llm_output_cost_per_million=_optional_float(
+                    base_data.get("llm_output_cost_per_million")
+                ),
                 metadata=dict(base_data.get("metadata", {})),
             ),
             models=tuple(ModelSpec.from_dict(item) for item in data.get("models", [])),
@@ -82,41 +100,50 @@ class MultiModelExperimentRunner:
         if not enabled_models:
             raise ValueError("Model matrix has no enabled models.")
 
-        output_root = Path(self.config.base_experiment.output_dir)
-        output_root.mkdir(parents=True, exist_ok=True)
+        context = RunContext.create(
+            self.config.base_experiment.output_dir,
+            name=self.config.name,
+            config={
+                "name": self.config.name,
+                "continue_on_error": self.config.continue_on_error,
+                "base_experiment": self.config.base_experiment.to_dict(),
+                "models": [model.to_dict() for model in enabled_models],
+            },
+            tasks_path=self.config.base_experiment.tasks_path,
+            retrieval_examples_path=self.config.base_experiment.retrieval_examples_path,
+            models=[model.to_dict() for model in enabled_models],
+        )
+        output_root = context.output_dir
         summaries: dict[str, Any] = {}
-
-        for model in enabled_models:
-            experiment_config = self._experiment_for_model(model, output_root)
-            try:
-                _, _, summary = ExperimentRunner(experiment_config).run()
-            except Exception as exc:
-                model_dir = Path(experiment_config.output_dir)
-                model_dir.mkdir(parents=True, exist_ok=True)
-                self._remove_stale_success_artifacts(model_dir)
-                error_payload = {
-                    "model": model.to_dict(),
-                    "output_dir": experiment_config.output_dir,
-                    "status": "failed",
-                    "error_type": type(exc).__name__,
-                    "error": str(exc),
-                }
-                (model_dir / "error.json").write_text(
-                    json.dumps(error_payload, indent=2, ensure_ascii=False, sort_keys=True),
-                    encoding="utf-8",
+        try:
+            for model in enabled_models:
+                experiment_config = self._experiment_for_model(model, output_root)
+                model_dir = output_root / model.id
+                runner = ExperimentRunner(
+                    experiment_config,
+                    output_dir=model_dir,
+                    run_id=f"{context.run_id}__{model.id}",
+                    parent_run_id=context.run_id,
                 )
-                summaries[model.id] = error_payload
-                if not self.config.continue_on_error:
-                    raise
-                continue
-            else:
-                model_dir = Path(experiment_config.output_dir)
-                stale_error = model_dir / "error.json"
-                if stale_error.exists():
-                    stale_error.unlink()
+                try:
+                    _, _, summary = runner.run()
+                except Exception as exc:
+                    error_payload = {
+                        "model": model.to_dict(),
+                        "output_dir": str(model_dir),
+                        "status": "failed",
+                        "error_type": type(exc).__name__,
+                        "error": str(exc),
+                    }
+                    atomic_write_json(model_dir / "error.json", error_payload)
+                    summaries[model.id] = error_payload
+                    context.update(model_results=summaries)
+                    if not self.config.continue_on_error:
+                        raise
+                    continue
                 summaries[model.id] = {
                     "model": model.to_dict(),
-                    "output_dir": experiment_config.output_dir,
+                    "output_dir": str(model_dir),
                     "status": "succeeded",
                     "summary": summary,
                 }
@@ -124,20 +151,29 @@ class MultiModelExperimentRunner:
                     summary_to_markdown(summary),
                     encoding="utf-8",
                 )
+                context.update(model_results=summaries)
 
-        matrix_summary = {
-            "name": self.config.name,
-            "model_count": len(enabled_models),
-            "succeeded": sum(payload.get("status") == "succeeded" for payload in summaries.values()),
-            "failed": sum(payload.get("status") == "failed" for payload in summaries.values()),
-            "base_tasks_path": self.config.base_experiment.tasks_path,
-            "models": summaries,
-        }
-        (output_root / "model_matrix_summary.json").write_text(
-            json.dumps(matrix_summary, indent=2, ensure_ascii=False, sort_keys=True),
-            encoding="utf-8",
-        )
-        return matrix_summary
+            matrix_summary = {
+                "name": self.config.name,
+                "run_id": context.run_id,
+                "output_dir": str(output_root),
+                "model_count": len(enabled_models),
+                "succeeded": sum(
+                    payload.get("status") == "succeeded" for payload in summaries.values()
+                ),
+                "failed": sum(
+                    payload.get("status") == "failed" for payload in summaries.values()
+                ),
+                "base_tasks_path": self.config.base_experiment.tasks_path,
+                "models": summaries,
+            }
+            atomic_write_json(output_root / "model_matrix_summary.json", matrix_summary)
+            final_status = "succeeded" if matrix_summary["failed"] == 0 else "partial"
+            context.finalize(final_status, results=matrix_summary)
+            return matrix_summary
+        except Exception as exc:
+            context.finalize("failed", results={"models": summaries}, error=exc)
+            raise
 
     def _experiment_for_model(self, model: ModelSpec, output_root: Path) -> ExperimentConfig:
         base = self.config.base_experiment
@@ -162,11 +198,24 @@ class MultiModelExperimentRunner:
             llm_backend=base.llm_backend,
             use_llm_for_planners=base.use_llm_for_planners,
             llm_model=model.model,
+            llm_temperature=base.llm_temperature,
+            llm_max_tokens=base.llm_max_tokens,
+            llm_timeout_seconds=base.llm_timeout_seconds,
+            llm_max_attempts=base.llm_max_attempts,
+            llm_backoff_seconds=base.llm_backoff_seconds,
+            llm_input_cost_per_million=(
+                model.input_cost_per_million
+                if model.input_cost_per_million is not None
+                else base.llm_input_cost_per_million
+            ),
+            llm_output_cost_per_million=(
+                model.output_cost_per_million
+                if model.output_cost_per_million is not None
+                else base.llm_output_cost_per_million
+            ),
             metadata=metadata,
         )
 
-    def _remove_stale_success_artifacts(self, model_dir: Path) -> None:
-        for filename in ("config.json", "runs.jsonl", "metrics.jsonl", "summary.json", "summary.md"):
-            path = model_dir / filename
-            if path.exists():
-                path.unlink()
+
+def _optional_float(value: object) -> float | None:
+    return float(value) if value is not None else None

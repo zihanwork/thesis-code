@@ -5,6 +5,7 @@ __pycache__/
 .ruff_cache/
 .venv/
 venv/
+*.egg-info/
 .env
 .env.*
 !.env.example
@@ -17,6 +18,9 @@ data/raw/*
 !data/raw/.gitkeep
 data/processed/*
 !data/processed/.gitkeep
+!data/processed/tasksets/
+!data/processed/tasksets/*.jsonl
+!data/processed/tasksets/tasksets_manifest.json
 data/knowledge_graphs/*
 !data/knowledge_graphs/.gitkeep
 data/retrieval_corpus/*

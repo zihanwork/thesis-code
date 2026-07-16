@@ -3,9 +3,9 @@ from __future__ import annotations
 from embodied_gap.core.plan_schema import PlanCandidate
 from embodied_gap.core.task_schema import Task
 from embodied_gap.knowledge.retriever import ExampleRetriever, adapt_plan
-from embodied_gap.llm.clients import LLMClient
+from embodied_gap.llm.clients import LLMClient, last_call_metadata
 from embodied_gap.llm.parsers import parse_action_list
-from embodied_gap.llm.prompts import render_planning_prompt
+from embodied_gap.llm.prompts import PLANNING_PROMPT_VERSION, render_planning_prompt
 
 from .prompt_only import PromptOnlyPlanner
 
@@ -46,6 +46,8 @@ class RetrievalAugmentedPlanner:
                 prompt=prompt,
                 metadata={
                     "planner_family": "retrieval_augmented",
+                    "prompt_version": "p1_v1",
+                    "prompt_template_version": PLANNING_PROMPT_VERSION,
                     "retrieved": None,
                     "fallback": fallback.planner_name,
                 },
@@ -60,6 +62,8 @@ class RetrievalAugmentedPlanner:
             prompt=prompt,
             metadata={
                 "planner_family": "retrieval_augmented",
+                "prompt_version": "p1_v1",
+                "prompt_template_version": PLANNING_PROMPT_VERSION,
                 "retrieved": example.id,
                 "retrieval_score": retrieved[0].score,
                 "retrieval_corpus": "train_gold_plans",
@@ -68,25 +72,32 @@ class RetrievalAugmentedPlanner:
 
     def _llm_plan(self, prompt: str, retrieved: list[object]) -> PlanCandidate:
         raw_response = self.llm_client.generate(prompt)
+        call_metadata = last_call_metadata(self.llm_client)
         try:
             actions = parse_action_list(raw_response)
             metadata = {
                 "planner_family": "retrieval_augmented",
+                "prompt_version": "p1_v1",
+                "prompt_template_version": PLANNING_PROMPT_VERSION,
                 "retrieved": retrieved[0].task.id,
                 "retrieval_score": retrieved[0].score,
                 "retrieval_corpus": "train_gold_plans",
                 "llm_provider": self.llm_client.provider,
                 "llm_model": self.llm_client.model,
+                "llm_call": call_metadata,
             }
         except Exception as exc:  # noqa: BLE001 - parse failures are experimental observations.
             actions = ()
             metadata = {
                 "planner_family": "retrieval_augmented",
+                "prompt_version": "p1_v1",
+                "prompt_template_version": PLANNING_PROMPT_VERSION,
                 "retrieved": retrieved[0].task.id,
                 "retrieval_score": retrieved[0].score,
                 "retrieval_corpus": "train_gold_plans",
                 "llm_provider": self.llm_client.provider,
                 "llm_model": self.llm_client.model,
+                "llm_call": call_metadata,
                 "parse_error": str(exc),
             }
         return PlanCandidate(

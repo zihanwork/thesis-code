@@ -1,0 +1,137 @@
+{
+  "exclusions": {
+    "empty_goal": 32,
+    "missing_gold_plan": 42
+  },
+  "files": {
+    "balanced_eval": {
+      "path": "data/processed/tasksets/balanced_eval.jsonl",
+      "rows": 202,
+      "summary": {
+        "avg_gold_plan_length": 9.193069306930694,
+        "by_dataset": {
+          "behavior": 82,
+          "virtualhome": 120
+        },
+        "by_difficulty": {
+          "easy": 61,
+          "hard": 74,
+          "medium": 67
+        },
+        "max_gold_plan_length": 36
+      }
+    },
+    "balanced_eval_20": {
+      "path": "data/processed/tasksets/balanced_eval_20.jsonl",
+      "rows": 20,
+      "summary": {
+        "avg_gold_plan_length": 8.45,
+        "by_dataset": {
+          "behavior": 8,
+          "virtualhome": 12
+        },
+        "by_difficulty": {
+          "easy": 7,
+          "hard": 7,
+          "medium": 6
+        },
+        "max_gold_plan_length": 23
+      }
+    },
+    "balanced_eval_50": {
+      "path": "data/processed/tasksets/balanced_eval_50.jsonl",
+      "rows": 50,
+      "summary": {
+        "avg_gold_plan_length": 9.28,
+        "by_dataset": {
+          "behavior": 20,
+          "virtualhome": 30
+        },
+        "by_difficulty": {
+          "easy": 16,
+          "hard": 18,
+          "medium": 16
+        },
+        "max_gold_plan_length": 26
+      }
+    },
+    "eai_smoke_eval": {
+      "path": "data/processed/tasksets/eai_smoke_eval.jsonl",
+      "rows": 10,
+      "summary": {
+        "avg_gold_plan_length": 18.6,
+        "by_dataset": {
+          "behavior": 9,
+          "virtualhome": 1
+        },
+        "by_difficulty": {
+          "hard": 8,
+          "medium": 2
+        },
+        "max_gold_plan_length": 30
+      }
+    },
+    "executable_eval": {
+      "path": "data/processed/tasksets/executable_eval.jsonl",
+      "rows": 321,
+      "summary": {
+        "avg_gold_plan_length": 6.806853582554517,
+        "by_dataset": {
+          "behavior": 82,
+          "virtualhome": 239
+        },
+        "by_difficulty": {
+          "easy": 138,
+          "hard": 77,
+          "medium": 106
+        },
+        "max_gold_plan_length": 36
+      }
+    },
+    "full_eval": {
+      "path": "data/processed/tasksets/full_eval.jsonl",
+      "rows": 351,
+      "summary": {
+        "avg_gold_plan_length": 6.2250712250712255,
+        "by_dataset": {
+          "behavior": 82,
+          "virtualhome": 269
+        },
+        "by_difficulty": {
+          "easy": 160,
+          "hard": 77,
+          "medium": 114
+        },
+        "max_gold_plan_length": 36
+      }
+    },
+    "rag_train": {
+      "path": "data/processed/tasksets/rag_train.jsonl",
+      "rows": 75,
+      "summary": {
+        "avg_gold_plan_length": 5.986666666666666,
+        "by_dataset": {
+          "behavior": 18,
+          "virtualhome": 57
+        },
+        "by_difficulty": {
+          "easy": 37,
+          "hard": 14,
+          "medium": 24
+        },
+        "max_gold_plan_length": 30
+      }
+    }
+  },
+  "per_family": 8,
+  "selection_policy": {
+    "balanced_eval": "deterministic length-spread sample per dataset/task_family",
+    "balanced_eval_20": "stratified deterministic sample from balanced_eval by dataset/difficulty",
+    "balanced_eval_50": "larger stratified deterministic sample from balanced_eval by dataset/difficulty",
+    "eai_smoke_eval": "first 8 BEHAVIOR train demonstrations plus first executable BEHAVIOR and VirtualHome evaluation tasks",
+    "executable_eval": "non-train tasks with non-empty goals and gold plans",
+    "full_eval": "all non-train clean EAI tasks",
+    "rag_train": "all train tasks with gold plans"
+  },
+  "source_task_count": 438
+}

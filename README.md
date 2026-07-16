@@ -71,17 +71,23 @@ notebooks/              Exploratory analysis
 
 ## Quick Start
 
+Create the exact Python 3.12 environment recorded in `uv.lock`:
+
+```bash
+uv sync --locked
+```
+
 Run the sample 3x3 matrix:
 
 ```bash
-PYTHONPATH=src python3 -m embodied_gap.cli run \
+uv run --frozen embodied-gap run \
   --config configs/experiments/sample_matrix.json
 ```
 
 Run tests:
 
 ```bash
-PYTHONPATH=src python3 -m unittest discover -s tests
+uv run --frozen python -m unittest discover -s tests -v
 ```
 
 Prepare clean EAI raw benchmark data:
@@ -95,6 +101,10 @@ PYTHONPATH=src python3 -m embodied_gap.cli prepare-eai \
 Generated task metadata stores paths relative to the EAI checkout. If the
 checkout is kept elsewhere, set `EAI_SOURCE_ROOT=/path/to/embodied-agent-interface`
 or pass `--source-root`; processed JSONL files do not need to be rewritten.
+The canonical `data/processed/tasksets/*.jsonl` files used by committed
+experiment configs are version-controlled so a fresh clone can run them
+immediately. Intermediate `data/processed/eai_clean/` conversion outputs remain
+ignored and can be regenerated with `prepare-eai`.
 
 The EAI import reads only source benchmark resources, not previous model outputs
 or diagnostics. See `docs/data_pipeline.md` for the data policy and current
@@ -149,12 +159,29 @@ status.
 
 ## Experiment Artifacts
 
+Every invocation creates a new immutable directory below the configured
+`output_dir`; an earlier run is never deleted or overwritten. A normal run is
+stored as `output_dir/<run_id>/`. A model matrix uses
+`output_dir/<run_id>/<model_id>/` and keeps its matrix-level summary at the
+`<run_id>` level. `run_index.jsonl` provides a compact history of completed
+runs.
+
 Each run writes:
 
+- `run_manifest.json` - run ID and timestamps; Git commit, dirty state, and
+  pinned submodule commit; Python and `uv.lock` fingerprints; dataset hash and
+  task IDs; prompt file hash and prompt version; model parameters; token usage,
+  latency, estimated cost, response IDs, and failures.
 - `config.json` - exact experiment configuration.
 - `runs.jsonl` - initial plans, final plans, traces, violations, patches.
 - `metrics.jsonl` - one evaluation record per task/planner/harness cell.
 - `summary.json` - aggregate task success, execution success, safety, risk, rejection, patch, and error metrics.
+
+Per-call cost is estimated only when both `input_cost_per_million` and
+`output_cost_per_million` are configured for that model. Otherwise the
+manifest records `pricing_not_configured` rather than inventing a price. API
+keys and full prompt text are never written; prompts are identified by a
+SHA-256 fingerprint.
 
 ## Canonical Task Format
 
@@ -192,6 +219,9 @@ Implemented:
 - Robust parsing for common fenced JSON action-list outputs.
 - EAI-style symbolic execution errors: hallucination, missing step, wrong order, affordance error, additional step, safety violation, goal unsatisfied.
 - JSONL experiment logging and summary generation.
+- Immutable run directories with provenance manifests, task/prompt hashes,
+  model parameters, token/latency telemetry, and optional cost estimates.
+- Locked Python 3.12 environment and CI verification.
 - Local balanced 20-task and 50-task verification after failure-memory and
   KG/macro enhancement.
 - Unit/integration tests for the sample matrix.

@@ -2,9 +2,9 @@ from __future__ import annotations
 
 from embodied_gap.core.plan_schema import PlanCandidate
 from embodied_gap.core.task_schema import Task
-from embodied_gap.llm.clients import LLMClient
+from embodied_gap.llm.clients import LLMClient, last_call_metadata
 from embodied_gap.llm.parsers import parse_action_list
-from embodied_gap.llm.prompts import render_planning_prompt
+from embodied_gap.llm.prompts import PLANNING_PROMPT_VERSION, render_planning_prompt
 
 
 class PromptOnlyPlanner:
@@ -59,27 +59,36 @@ class PromptOnlyPlanner:
             actions=actions,
             raw_response=str(list(actions)),
             prompt=prompt,
-            metadata={"planner_family": "prompt_only", "prompt_version": "p0_v1"},
+            metadata={
+                "planner_family": "prompt_only",
+                "prompt_version": "p0_v1",
+                "prompt_template_version": PLANNING_PROMPT_VERSION,
+            },
         )
 
     def _llm_plan(self, task: Task) -> PlanCandidate:
         prompt = render_planning_prompt(task, strategy="structured_prompt_only")
         raw_response = self.llm_client.generate(prompt)
+        call_metadata = last_call_metadata(self.llm_client)
         try:
             actions = parse_action_list(raw_response)
             metadata = {
                 "planner_family": "prompt_only",
                 "prompt_version": "p0_v1",
+                "prompt_template_version": PLANNING_PROMPT_VERSION,
                 "llm_provider": self.llm_client.provider,
                 "llm_model": self.llm_client.model,
+                "llm_call": call_metadata,
             }
         except Exception as exc:  # noqa: BLE001 - parse failures are experimental observations.
             actions = ()
             metadata = {
                 "planner_family": "prompt_only",
                 "prompt_version": "p0_v1",
+                "prompt_template_version": PLANNING_PROMPT_VERSION,
                 "llm_provider": self.llm_client.provider,
                 "llm_model": self.llm_client.model,
+                "llm_call": call_metadata,
                 "parse_error": str(exc),
             }
         return PlanCandidate(

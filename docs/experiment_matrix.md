@@ -57,21 +57,23 @@ demonstration rows into the evaluation rows.
 
 ## Current Sample Smoke Results
 
-The latest sample smoke run wrote artifacts to:
+New sample smoke runs write artifacts below the configured base directory:
 
-`runs/sample_multimodel_one_api`
+`runs/sample_multimodel_one_api/<run_id>`
 
 Successful model directories include:
 
-- `runs/sample_multimodel_one_api/deepseek_v4_flash`
-- `runs/sample_multimodel_one_api/gpt_5_5`
+- `runs/sample_multimodel_one_api/<run_id>/deepseek_v4_flash`
+- `runs/sample_multimodel_one_api/<run_id>/gpt_5_5`
 
 The failed GLM-5 run is preserved as:
 
-- `runs/sample_multimodel_one_api/glm_5/error.json`
+- `runs/sample_multimodel_one_api/<run_id>/glm_5/error.json`
 
 The multi-model runner is intentionally fault tolerant: one unavailable model
-is recorded as failed but does not abort successful models.
+is recorded as failed but does not abort successful models. Re-running creates
+a different `<run_id>`, so a partial or failed rerun cannot overwrite an older
+summary.
 
 ## Current Real EAI Smoke Results
 
@@ -87,9 +89,9 @@ The smoke taskset is:
 `data/processed/tasksets/eai_smoke_eval.jsonl`
 
 It contains 8 train/RAG examples and 2 eval tasks: one BEHAVIOR task and one
-VirtualHome task. The latest run on 2026-06-29 wrote artifacts to:
+VirtualHome task. New runs write artifacts below:
 
-`runs/eai_smoke_multimodel_one_api`
+`runs/eai_smoke_multimodel_one_api/<run_id>`
 
 | Model | Method | H0 task SR | H1 task SR | H2 task SR |
 | --- | --- | ---: | ---: | ---: |
@@ -312,9 +314,32 @@ During the first full-draft attempt, `gpt-5.5` failed with `TimeoutError`
 (fault isolated by `continue_on_error`). `OneAPIChatClient` was hardened in
 `src/embodied_gap/llm/clients.py`: default request timeout raised 60s -> 180s
 and exponential-backoff retries added (`max_attempts=4`, `backoff_seconds=2.0`)
-for HTTP 429/5xx and network/timeout errors. The `gpt-5.5` full draft was then
-rerun successfully into the same `runs/eai_balanced_multimodel/gpt_5_5`
-directory.
+for HTTP 429/5xx and network/timeout errors. The historical `gpt-5.5` full-draft
+rerun succeeded; current runs always use a new immutable `<run_id>` directory.
+
+## Reproducibility And Cost Metadata
+
+Each matrix invocation now creates
+`runs/<experiment>/<run_id>/<model_id>/`. Both the matrix directory and every
+model directory contain `run_manifest.json`. The manifest records code and
+submodule commits, dataset and task IDs/hashes, prompt versions and hashes,
+model/request parameters, token counts, latency, response IDs, retry counts,
+and errors.
+
+To estimate cost, add both rates to an individual model entry:
+
+```json
+{
+  "id": "model_id",
+  "model": "provider-model-name",
+  "input_cost_per_million": 0.0,
+  "output_cost_per_million": 0.0
+}
+```
+
+Replace the example zeroes with the price effective on the experiment date.
+If either rate is absent, cost remains `null` and is labelled
+`pricing_not_configured`.
 
 ## PDDL-Backed Validation
 

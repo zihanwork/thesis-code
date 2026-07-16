@@ -30,6 +30,7 @@ from embodied_gap.execution.symbolic_executor import SymbolicExecutor
 from embodied_gap.harness.controller import HarnessController
 from embodied_gap.harness.recovery_policy import HarnessMode
 from embodied_gap.llm.parsers import parse_action_list
+from embodied_gap.llm.clients import OneAPIChatClient
 from embodied_gap.llm.prompts import render_planning_prompt
 from embodied_gap.planners.graph_grounded import GraphGroundedPlanner
 from embodied_gap.planners.prompt_only import PromptOnlyPlanner
@@ -83,10 +84,73 @@ class ResearchFrameworkTests(unittest.TestCase):
                 tasks_path="data/sample_tasks.jsonl",
                 output_dir=tmpdir,
             )
-            runs, records, summary = ExperimentRunner(config).run()
+            runner = ExperimentRunner(config)
+            runs, records, summary = runner.run()
             self.assertEqual(len(runs), 27)
             self.assertEqual(len(records), 27)
             self.assertEqual(len(summary), 9)
+            self.assertIsNotNone(runner.output_dir)
+            manifest = json.loads(
+                (runner.output_dir / "run_manifest.json").read_text(encoding="utf-8")
+            )
+            self.assertEqual(manifest["status"], "succeeded")
+            self.assertEqual(manifest["data"]["tasks"]["task_count"], 5)
+            self.assertIn("eval_move_apple", manifest["data"]["tasks"]["evaluation_task_ids"])
+            self.assertIn("sha256", manifest["prompts"]["template"])
+            eai = manifest["code"]["submodules"]["external/embodied-agent-interface"]
+            self.assertEqual(eai["pinned_commit"], eai["checked_out_commit"])
+
+    def test_one_api_client_records_usage_cost_and_prompt_fingerprint(self) -> None:
+        class FakeResponse:
+            def __enter__(self) -> "FakeResponse":
+                return self
+
+            def __exit__(self, *args: object) -> None:
+                return None
+
+            def read(self) -> bytes:
+                return json.dumps(
+                    {
+                        "id": "response-unit-1",
+                        "choices": [
+                            {
+                                "message": {"content": '["noop()"]'},
+                                "finish_reason": "stop",
+                            }
+                        ],
+                        "usage": {
+                            "prompt_tokens": 100,
+                            "completion_tokens": 50,
+                            "total_tokens": 150,
+                        },
+                    }
+                ).encode("utf-8")
+
+        client = OneAPIChatClient(
+            api_key="unit-secret",
+            base_url="https://example.invalid/v1",
+            model="unit-model",
+            input_cost_per_million=2.0,
+            output_cost_per_million=8.0,
+        )
+        with mock.patch(
+            "embodied_gap.llm.clients.urllib.request.urlopen",
+            return_value=FakeResponse(),
+        ):
+            result = client.generate("unit prompt")
+
+        self.assertEqual(result, '["noop()"]')
+        call = client.last_call_metadata()
+        self.assertEqual(call["total_tokens"], 150)
+        self.assertEqual(call["response_id"], "response-unit-1")
+        self.assertEqual(call["finish_reason"], "stop")
+        self.assertAlmostEqual(call["estimated_cost_usd"], 0.0006)
+        self.assertEqual(len(call["prompt_sha256"]), 64)
+        self.assertNotIn("unit-secret", json.dumps(call))
+        telemetry = client.telemetry()
+        self.assertEqual(telemetry["call_count"], 1)
+        self.assertEqual(telemetry["total_tokens"], 150)
+        self.assertAlmostEqual(telemetry["estimated_cost_usd"], 0.0006)
 
     def test_runner_uses_external_retrieval_examples(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -545,9 +609,11 @@ class ResearchFrameworkTests(unittest.TestCase):
             self.assertIn("balanced_eval", manifest["files"])
             self.assertIn("balanced_eval_20", manifest["files"])
             self.assertIn("balanced_eval_50", manifest["files"])
+            self.assertIn("eai_smoke_eval", manifest["files"])
             self.assertTrue((Path(tmpdir) / "balanced_eval.jsonl").exists())
             self.assertTrue((Path(tmpdir) / "balanced_eval_20.jsonl").exists())
             self.assertTrue((Path(tmpdir) / "balanced_eval_50.jsonl").exists())
+            self.assertTrue((Path(tmpdir) / "eai_smoke_eval.jsonl").exists())
             self.assertGreaterEqual(manifest["files"]["full_eval"]["rows"], 1)
             difficulty = classify_difficulty(self.eval_tasks["eval_clean_plate"])
             self.assertIn(difficulty.label, {"easy", "medium", "hard"})
@@ -612,51 +678,109 @@ class ResearchFrameworkTests(unittest.TestCase):
         self.assertEqual(eai_config.base_experiment.retrieval_examples_path, "data/processed/tasksets/rag_train.jsonl")
         self.assertEqual(len(eai_config.models), 2)
 
-    def test_model_matrix_removes_stale_error_after_success(self) -> None:
+    def test_experiment_runner_allocates_unique_non_overwriting_directories(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:
-            model_dir = Path(tmpdir) / "local_model"
-            model_dir.mkdir()
-            error_path = model_dir / "error.json"
-            error_path.write_text('{"status":"failed"}', encoding="utf-8")
-            config = ModelMatrixConfig(
-                name="unit_model_matrix_cleanup",
+            config = ExperimentConfig(
+                name="unit_unique_runs",
+                tasks_path="data/sample_tasks.jsonl",
+                output_dir=tmpdir,
+                planners=("P0_prompt_only",),
+                harness_modes=("H0_open_loop",),
+            )
+            first = ExperimentRunner(config)
+            second = ExperimentRunner(config)
+            first.run()
+            second.run()
+            self.assertNotEqual(first.output_dir, second.output_dir)
+            self.assertTrue((first.output_dir / "summary.json").exists())
+            self.assertTrue((second.output_dir / "summary.json").exists())
+            index_rows = (Path(tmpdir) / "run_index.jsonl").read_text(
+                encoding="utf-8"
+            ).splitlines()
+            self.assertEqual(len(index_rows), 2)
+
+            occupied = Path(tmpdir) / "occupied"
+            occupied.mkdir()
+            marker = occupied / "keep.txt"
+            marker.write_text("preserve", encoding="utf-8")
+            with self.assertRaises(FileExistsError):
+                ExperimentRunner(config, output_dir=occupied).run()
+            self.assertEqual(marker.read_text(encoding="utf-8"), "preserve")
+
+    def test_model_matrix_rerun_preserves_previous_models(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            base = ExperimentConfig(
+                name="unit_model_matrix_history",
+                tasks_path="data/sample_tasks.jsonl",
+                output_dir=tmpdir,
+                use_llm_for_planners=False,
+            )
+            first_config = ModelMatrixConfig(
+                name="unit_model_matrix_history",
+                base_experiment=base,
+                models=(
+                    ModelSpec(id="deepseek", model="deterministic-deepseek"),
+                    ModelSpec(id="gpt", model="deterministic-gpt"),
+                ),
+            )
+            first = MultiModelExperimentRunner(first_config).run()
+            deepseek_summary = Path(first["models"]["deepseek"]["output_dir"]) / "summary.json"
+            self.assertTrue(deepseek_summary.exists())
+            preserved = deepseek_summary.read_text(encoding="utf-8")
+
+            second_config = ModelMatrixConfig(
+                name="unit_model_matrix_history",
+                base_experiment=base,
+                models=(ModelSpec(id="gpt", model="deterministic-gpt"),),
+            )
+            second = MultiModelExperimentRunner(second_config).run()
+            self.assertNotEqual(first["output_dir"], second["output_dir"])
+            self.assertTrue(deepseek_summary.exists())
+            self.assertEqual(deepseek_summary.read_text(encoding="utf-8"), preserved)
+            self.assertNotIn("deepseek", second["models"])
+
+    def test_model_matrix_failed_rerun_preserves_prior_success(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            successful = ModelMatrixConfig(
+                name="unit_model_matrix_failure_history",
                 base_experiment=ExperimentConfig(
-                    name="unit_model_matrix_cleanup",
+                    name="unit_model_matrix_failure_history",
                     tasks_path="data/sample_tasks.jsonl",
                     output_dir=tmpdir,
                     use_llm_for_planners=False,
                 ),
-                models=(ModelSpec(id="local_model", model="deterministic"),),
+                models=(ModelSpec(id="model", model="deterministic"),),
             )
-            summary = MultiModelExperimentRunner(config).run()
-            self.assertEqual(summary["failed"], 0)
-            self.assertEqual(summary["succeeded"], 1)
-            self.assertFalse(error_path.exists())
+            first = MultiModelExperimentRunner(successful).run()
+            prior_summary = Path(first["models"]["model"]["output_dir"]) / "summary.json"
+            prior_content = prior_summary.read_text(encoding="utf-8")
 
-    def test_model_matrix_removes_stale_success_artifacts_after_failure(self) -> None:
-        with tempfile.TemporaryDirectory() as tmpdir:
-            model_dir = Path(tmpdir) / "broken_model"
-            model_dir.mkdir()
-            for filename in ("config.json", "runs.jsonl", "metrics.jsonl", "summary.json", "summary.md"):
-                (model_dir / filename).write_text("stale", encoding="utf-8")
-            config = ModelMatrixConfig(
-                name="unit_model_matrix_failure_cleanup",
+            failing = ModelMatrixConfig(
+                name="unit_model_matrix_failure_history",
                 base_experiment=ExperimentConfig(
-                    name="unit_model_matrix_failure_cleanup",
+                    name="unit_model_matrix_failure_history",
                     tasks_path="data/processed/tasksets/does_not_exist.jsonl",
                     output_dir=tmpdir,
                     use_llm_for_planners=False,
                 ),
-                models=(ModelSpec(id="broken_model", model="deterministic"),),
+                models=(ModelSpec(id="model", model="deterministic"),),
             )
-            summary = MultiModelExperimentRunner(config).run()
-            self.assertEqual(summary["failed"], 1)
-            self.assertEqual(summary["succeeded"], 0)
-            self.assertTrue((model_dir / "error.json").exists())
-            self.assertFalse((model_dir / "summary.json").exists())
-            self.assertFalse((model_dir / "summary.md").exists())
-            self.assertFalse((model_dir / "metrics.jsonl").exists())
-            self.assertFalse((model_dir / "runs.jsonl").exists())
+            second = MultiModelExperimentRunner(failing).run()
+            self.assertEqual(second["failed"], 1)
+            self.assertEqual(second["succeeded"], 0)
+            self.assertNotEqual(first["output_dir"], second["output_dir"])
+            self.assertTrue(prior_summary.exists())
+            self.assertEqual(prior_summary.read_text(encoding="utf-8"), prior_content)
+            failed_model_dir = Path(second["models"]["model"]["output_dir"])
+            self.assertTrue((failed_model_dir / "error.json").exists())
+            failed_manifest = json.loads(
+                (failed_model_dir / "run_manifest.json").read_text(encoding="utf-8")
+            )
+            self.assertEqual(failed_manifest["status"], "failed")
+            matrix_manifest = json.loads(
+                (Path(second["output_dir"]) / "run_manifest.json").read_text(encoding="utf-8")
+            )
+            self.assertEqual(matrix_manifest["status"], "partial")
 
     def test_knowledge_builder_exports_rag_docs_and_kg_edges(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:

@@ -4,7 +4,7 @@ from embodied_gap.core.plan_schema import PlanCandidate
 from embodied_gap.core.task_schema import Task
 from embodied_gap.knowledge.graph_store import ActionKnowledgeGraph
 from embodied_gap.knowledge.pddl_grounded_search import PDDLGroundedSearch
-from embodied_gap.llm.prompts import render_planning_prompt
+from embodied_gap.llm.prompts import PLANNING_PROMPT_VERSION, render_planning_prompt
 
 
 class GraphGroundedPlanner:
@@ -31,6 +31,8 @@ class GraphGroundedPlanner:
                 prompt=prompt,
                 metadata={
                     "planner_family": "graph_grounded",
+                    "prompt_version": "p2_v1",
+                    "prompt_template_version": PLANNING_PROMPT_VERSION,
                     "kg_type": "pddl_grounded_object_action_state_graph",
                     "solved": result.solved,
                     "explored_states": result.explored_states,
@@ -48,6 +50,8 @@ class GraphGroundedPlanner:
             prompt=prompt,
             metadata={
                 "planner_family": "graph_grounded",
+                "prompt_version": "p2_v1",
+                "prompt_template_version": PLANNING_PROMPT_VERSION,
                 "kg_type": "object_action_state_precondition_effect_graph",
                 "solved": result.solved,
                 "explored_states": result.explored_states,

@@ -11,6 +11,8 @@ from embodied_gap.execution.pddl_executor import (
 
 
 OBJECT_CANDIDATE_LIMIT = 8
+PLANNING_PROMPT_VERSION = "planning_prompt_v1"
+REPAIR_PROMPT_VERSION = "repair_prompt_v1"
 
 
 def render_planning_prompt(task: Task, strategy: str, extra_context: str = "") -> str:

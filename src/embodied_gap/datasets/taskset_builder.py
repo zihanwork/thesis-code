@@ -46,6 +46,22 @@ class TaskSetBuilder:
         balanced_eval = self._balanced_by_family(executable_eval, per_family=per_family)
         balanced_eval_20 = stratified_spread_sample(balanced_eval, limit=20)
         balanced_eval_50 = stratified_spread_sample(balanced_eval, limit=50)
+        smoke_train = [
+            task
+            for task in rag_train
+            if task.slots.get("dataset") == "behavior"
+        ][:8]
+        smoke_eval = smoke_train + [
+            candidates[0]
+            for dataset in ("behavior", "virtualhome")
+            if (
+                candidates := [
+                    task
+                    for task in executable_eval
+                    if task.slots.get("dataset") == dataset
+                ]
+            )
+        ]
 
         files = {
             "rag_train": output_dir / "rag_train.jsonl",
@@ -54,6 +70,7 @@ class TaskSetBuilder:
             "balanced_eval": output_dir / "balanced_eval.jsonl",
             "balanced_eval_20": output_dir / "balanced_eval_20.jsonl",
             "balanced_eval_50": output_dir / "balanced_eval_50.jsonl",
+            "eai_smoke_eval": output_dir / "eai_smoke_eval.jsonl",
         }
         datasets = {
             "rag_train": rag_train,
@@ -62,6 +79,7 @@ class TaskSetBuilder:
             "balanced_eval": balanced_eval,
             "balanced_eval_20": balanced_eval_20,
             "balanced_eval_50": balanced_eval_50,
+            "eai_smoke_eval": smoke_eval,
         }
         for name, path in files.items():
             dump_jsonl(path, [self._with_difficulty(task).to_dict() for task in datasets[name]])
@@ -76,6 +94,7 @@ class TaskSetBuilder:
                 "balanced_eval": "deterministic length-spread sample per dataset/task_family",
                 "balanced_eval_20": "stratified deterministic sample from balanced_eval by dataset/difficulty",
                 "balanced_eval_50": "larger stratified deterministic sample from balanced_eval by dataset/difficulty",
+                "eai_smoke_eval": "first 8 BEHAVIOR train demonstrations plus first executable BEHAVIOR and VirtualHome evaluation tasks",
             },
             "exclusions": {
                 "missing_gold_plan": sum(not task.gold_plan for task in self.tasks),

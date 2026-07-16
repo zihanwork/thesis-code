@@ -24,9 +24,10 @@ def run(args: argparse.Namespace) -> int:
             output_dir=args.out,
             max_retries=args.max_retries,
         )
-    _, _, summary = ExperimentRunner(config).run()
+    runner = ExperimentRunner(config)
+    _, _, summary = runner.run()
     print(summary_to_markdown(summary))
-    print(f"\nWrote experiment artifacts to {config.output_dir}")
+    print(f"\nWrote experiment artifacts to {runner.output_dir}")
     return 0
 
 
@@ -81,7 +82,7 @@ def run_model_matrix(args: argparse.Namespace) -> int:
         for model_id, payload in summary["models"].items()
     }
     print(json.dumps(compact, ensure_ascii=False, indent=2, sort_keys=True))
-    print(f"\nWrote model matrix artifacts to {matrix_config.base_experiment.output_dir}")
+    print(f"\nWrote model matrix artifacts to {summary['output_dir']}")
     return 0
 
 

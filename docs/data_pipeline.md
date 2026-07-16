@@ -122,6 +122,11 @@ Generated task sets:
 | `balanced_eval.jsonl` | 202 | Family-balanced main experiment set |
 | `balanced_eval_20.jsonl` | 20 | Cost-controlled pilot sampled by dataset and difficulty |
 | `balanced_eval_50.jsonl` | 50 | Medium pilot sampled by dataset and difficulty |
+| `eai_smoke_eval.jsonl` | 10 | Eight BEHAVIOR RAG examples plus one BEHAVIOR and one VirtualHome evaluation task |
+
+These tasksets are version-controlled because committed experiment configs use
+them directly. All stored resource references are relative to the project-local
+EAI submodule; machine-specific `/Users/...` paths are rejected by CI.
 
 The task set builder also annotates each record with a deterministic difficulty
 label based on gold-plan length, goal count, and object count. Current
