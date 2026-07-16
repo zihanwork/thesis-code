@@ -172,6 +172,10 @@ New runs also generate `analysis.json` with confidence intervals, task-paired
 tests, stratified outcomes, failure counts, and cost/search summaries. See
 `docs/statistical_analysis.md`.
 
+The verified public benchmark comparison and literature positioning are in
+`docs/benchmark_literature_review.md`; machine-readable evidence and the strict
+custom-versus-official comparison boundary are in `docs/benchmark_evidence.json`.
+
 The data-use boundary is frozen in `docs/data_split_protocol.md`: 202 tasks are
 development-only and 119 VirtualHome tasks are reserved for one-shot local
 held-out evaluation.

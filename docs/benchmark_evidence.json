@@ -1,0 +1,50 @@
+{
+  "last_verified": "2026-07-16",
+  "comparison_policy": {
+    "custom_202_result": "development-only custom PDDL final-state evaluation; not leaderboard comparable",
+    "local_heldout_result": "local generalization evidence; not an official challenge score",
+    "official_comparison_requirement": "official hidden test and evaluator with all required outputs"
+  },
+  "official_protocol": {
+    "datasets": ["VirtualHome", "BEHAVIOR"],
+    "modules": [
+      "goal_interpretation",
+      "subgoal_decomposition",
+      "action_sequencing",
+      "transition_modeling"
+    ],
+    "required_output_files": 8,
+    "hidden_final_test": true,
+    "rules_url": "https://eai-challenge-cvpr2026.github.io/rules"
+  },
+  "public_work": [
+    {
+      "team": "AxisTilted2",
+      "recognition": "NeurIPS 2025 first place",
+      "reported_overall_score": null,
+      "methods": ["evaluator-guided distillation", "fine-tuning", "retrieval", "voting", "learned evaluator"],
+      "source": "https://openreview.net/attachment?id=gABfrJI5ni&name=pdf"
+    },
+    {
+      "team": "SingaX",
+      "recognition": "NeurIPS 2025 second place",
+      "reported_overall_score": 84.32,
+      "methods": ["training-free prompt induction", "verifier-log feedback", "validation"],
+      "source": "https://www.a-star.edu.sg/cfar/news/features/news/features/singax-team-wins-second-place-in-eai-challenge"
+    },
+    {
+      "team": "CtrlAct",
+      "recognition": "NeurIPS 2025 third place",
+      "reported_overall_score": null,
+      "methods": ["constraint prompting", "supervised fine-tuning", "Best-of-N"],
+      "source": "https://openreview.net/forum?id=0dt9Ho6dXA"
+    },
+    {
+      "team": "nju-lamda12 / Re2 Agent",
+      "recognition": "NeurIPS 2025 most innovative approach",
+      "reported_overall_score": 81.36,
+      "methods": ["reflection", "re-execution", "failure-rule extraction"],
+      "source": "https://openreview.net/pdf/7816fcb9b33d7b6f1d534d35c90209e7b68dd1da.pdf"
+    }
+  ]
+}
