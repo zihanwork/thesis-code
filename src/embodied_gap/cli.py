@@ -9,6 +9,7 @@ from embodied_gap.datasets.taskset_builder import TaskSetBuilder
 from embodied_gap.datasets.split_freezer import freeze_heldout_split
 from embodied_gap.experiments.config import ExperimentConfig
 from embodied_gap.experiments.model_matrix import ModelMatrixConfig, MultiModelExperimentRunner
+from embodied_gap.experiments.pilot_budget import inspect_model_matrix
 from embodied_gap.experiments.runner import ExperimentRunner
 from embodied_gap.evaluation.pddl_gold_validator import PDDLGoldPlanValidator
 from embodied_gap.knowledge.corpus_builder import KnowledgeCorpusBuilder
@@ -103,6 +104,12 @@ def run_model_matrix(args: argparse.Namespace) -> int:
     }
     print(json.dumps(compact, ensure_ascii=False, indent=2, sort_keys=True))
     print(f"\nWrote model matrix artifacts to {summary['output_dir']}")
+    return 0
+
+
+def inspect_matrix(args: argparse.Namespace) -> int:
+    report = inspect_model_matrix(args.config)
+    print(json.dumps(report, ensure_ascii=False, indent=2, sort_keys=True))
     return 0
 
 
@@ -213,6 +220,13 @@ def main(argv: list[str] | None = None) -> int:
     )
     model_matrix_parser.add_argument("--config", required=True)
     model_matrix_parser.set_defaults(func=run_model_matrix)
+
+    inspect_matrix_parser = subparsers.add_parser(
+        "inspect-model-matrix",
+        help="Validate a model matrix and estimate its worst-case API-call budget.",
+    )
+    inspect_matrix_parser.add_argument("--config", required=True)
+    inspect_matrix_parser.set_defaults(func=inspect_matrix)
 
     knowledge_parser = subparsers.add_parser(
         "build-knowledge",

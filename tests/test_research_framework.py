@@ -20,6 +20,7 @@ from embodied_gap.datasets.taskset_builder import TaskSetBuilder, classify_diffi
 from embodied_gap.datasets.resource_paths import resolve_domain_path, resolve_problem_path
 from embodied_gap.datasets.split_freezer import freeze_heldout_split
 from embodied_gap.experiments.model_matrix import ModelMatrixConfig, ModelSpec, MultiModelExperimentRunner
+from embodied_gap.experiments.pilot_budget import inspect_model_matrix
 from embodied_gap.knowledge.corpus_builder import KnowledgeCorpusBuilder
 from embodied_gap.knowledge.failure_memory import classify_failure_patterns
 from embodied_gap.knowledge.failure_memory_store import (
@@ -114,6 +115,22 @@ class ResearchFrameworkTests(unittest.TestCase):
         self.assertEqual(plan.metadata["retrieval_top_k"], 2)
         self.assertEqual(plan.metadata["retrieval_method"], "structured")
         self.assertIn("Retrieved demonstration 2:", plan.prompt)
+
+    def test_pilot_preflight_counts_calls_and_excludes_heldout(self) -> None:
+        prompt_report = inspect_model_matrix(
+            "configs/experiments/pilot_prompt_deepseek_20.json"
+        )
+        self.assertEqual(prompt_report["task_count"], 20)
+        self.assertEqual(prompt_report["run_record_count"], 60)
+        self.assertEqual(prompt_report["worst_case_total_llm_call_count"], 60)
+        self.assertTrue(prompt_report["safe_for_development_selection"])
+
+        rag_report = inspect_model_matrix(
+            "configs/experiments/pilot_rag_bm25_deepseek_20.json"
+        )
+        self.assertEqual(rag_report["run_record_count"], 20)
+        self.assertEqual(rag_report["worst_case_total_llm_call_count"], 20)
+        self.assertFalse(rag_report["uses_frozen_heldout"])
 
     def test_graph_grounded_planner_solves_preconditions(self) -> None:
         task = self.eval_tasks["eval_clean_plate"]

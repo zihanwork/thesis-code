@@ -164,6 +164,10 @@ See `docs/experiment_matrix.md` for the historical pilot results. The revised
 planning/recovery/generalization design is documented in
 `docs/revised_experiment_design.md`.
 
+Before a paid model-matrix run, use `inspect-model-matrix` to validate paths and
+review the task, record, and worst-case LLM-call counts. The staged 20-task
+development procedure is documented in `docs/pilot_protocol.md`.
+
 The data-use boundary is frozen in `docs/data_split_protocol.md`: 202 tasks are
 development-only and 119 VirtualHome tasks are reserved for one-shot local
 held-out evaluation.

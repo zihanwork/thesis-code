@@ -1,0 +1,30 @@
+{
+  "name": "pilot_prompt_deepseek_20",
+  "continue_on_error": false,
+  "base_experiment": {
+    "name": "pilot_prompt_deepseek_20",
+    "tasks_path": "data/processed/tasksets/balanced_eval_20.jsonl",
+    "output_dir": "runs/pilot_prompt_deepseek_20",
+    "planners": [
+      "B0_minimal_prompt",
+      "P0_structured_prompt",
+      "P0_engineered_prompt"
+    ],
+    "harness_modes": ["H0_open_loop"],
+    "seed": 13,
+    "max_retries": 0,
+    "llm_backend": "one_api",
+    "use_llm_for_planners": true,
+    "llm_temperature": 0.0,
+    "llm_max_tokens": 1024,
+    "metadata": {
+      "phase": "development_pilot",
+      "research_question": "Prompt engineering baseline selection",
+      "selection_policy": "DeepSeek first; promote selected methods to GPT only after pilot review.",
+      "data_policy": "balanced_eval_20_is_development_only; never use frozen held-out data"
+    }
+  },
+  "models": [
+    {"id": "deepseek_v4_flash", "provider": "one_api", "model": "DeepSeek-V4-Flash"}
+  ]
+}
