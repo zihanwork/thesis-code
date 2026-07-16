@@ -11,10 +11,13 @@ jobs:
   unit-tests:
     runs-on: ubuntu-latest
     steps:
-      - name: Check out repository and pinned EAI submodule
+      - name: Check out repository
         uses: actions/checkout@v6
         with:
-          submodules: true
+          persist-credentials: false
+
+      - name: Check out pinned EAI submodule without broken nested gitlinks
+        run: git submodule update --init --depth=1 external/embodied-agent-interface
 
       - name: Set up Python 3.12
         uses: actions/setup-python@v6
