@@ -7,6 +7,11 @@ import unittest
 from unittest import mock
 
 from embodied_gap.core.plan_schema import PlanCandidate
+from embodied_gap.analysis.research_report import (
+    build_research_analysis,
+    exact_mcnemar,
+    wilson_interval,
+)
 from embodied_gap.core.task_schema import Task
 from embodied_gap.core.task_schema import dump_jsonl
 from embodied_gap.core.task_schema import load_tasks
@@ -138,6 +143,7 @@ class ResearchFrameworkTests(unittest.TestCase):
         record = evaluate_run(task, run)
         self.assertTrue(record.task_success)
         self.assertFalse(record.risk)
+        self.assertIn("search_seconds", run.initial_plan.metadata)
 
     def test_full_harness_rejects_hazard(self) -> None:
         task = self.eval_tasks["eval_heat_phone_hazard"]
@@ -210,6 +216,7 @@ class ResearchFrameworkTests(unittest.TestCase):
 
         self.assertEqual(local.patches[0].source, "local_patch_repair")
         self.assertEqual(pddl.patches[0].source, "symbolic_replan")
+        self.assertIn("search_seconds", pddl.patches[0].metadata)
 
     def test_error_specific_and_frozen_memory_repair_prompts_are_distinct(self) -> None:
         class RepairClient:
@@ -358,8 +365,84 @@ class ResearchFrameworkTests(unittest.TestCase):
             self.assertEqual(manifest["data"]["tasks"]["task_count"], 5)
             self.assertIn("eval_move_apple", manifest["data"]["tasks"]["evaluation_task_ids"])
             self.assertIn("sha256", manifest["prompts"]["template"])
+            analysis = json.loads(
+                (runner.output_dir / "analysis.json").read_text(encoding="utf-8")
+            )
+            self.assertEqual(analysis["record_count"], 36)
+            self.assertEqual(analysis["method_count"], 12)
+            self.assertIn("dataset", analysis["stratified"])
+            self.assertTrue(analysis["paired_comparisons"])
             eai = manifest["code"]["submodules"]["external/embodied-agent-interface"]
             self.assertEqual(eai["pinned_commit"], eai["checked_out_commit"])
+
+    def test_research_analysis_reports_ci_mcnemar_cost_and_search(self) -> None:
+        low, high = wilson_interval(5, 10)
+        self.assertLess(low, 0.5)
+        self.assertGreater(high, 0.5)
+
+        mcnemar = exact_mcnemar(
+            {"a": False, "b": False, "c": True},
+            {"a": True, "b": True, "c": True},
+        )
+        self.assertEqual(mcnemar["right_only_success"], 2)
+        self.assertEqual(mcnemar["left_only_success"], 0)
+        self.assertEqual(mcnemar["exact_two_sided_p_value"], 0.5)
+
+        metrics = [
+            {
+                "task_id": "a",
+                "method_id": "method_a",
+                "task_success": True,
+                "safe_success": True,
+                "execution_success": True,
+                "risk": False,
+                "attempts": 1,
+                "patch_count": 0,
+                "error_counts": {},
+                "metadata": {"dataset": "virtualhome", "difficulty": "easy"},
+            },
+            {
+                "task_id": "a",
+                "method_id": "method_b",
+                "task_success": False,
+                "safe_success": False,
+                "execution_success": False,
+                "risk": False,
+                "attempts": 2,
+                "patch_count": 1,
+                "error_counts": {"missing_step": 1},
+                "metadata": {"dataset": "virtualhome", "difficulty": "easy"},
+            },
+        ]
+        runs = [
+            {
+                "task_id": "a",
+                "method_id": "method_a",
+                "initial_plan": {
+                    "metadata": {
+                        "llm_call": {
+                            "prompt_tokens": 100,
+                            "completion_tokens": 20,
+                            "total_tokens": 120,
+                            "latency_seconds": 1.5,
+                            "estimated_cost_usd": 0.01,
+                        },
+                        "explored_states": 7,
+                        "search_seconds": 0.2,
+                    }
+                },
+                "patches": [],
+            }
+        ]
+        report = build_research_analysis(metrics, runs)
+        cost = report["cost_and_search"]["method_a"]
+        self.assertEqual(cost["total_tokens"], 120)
+        self.assertEqual(cost["symbolic_explored_states"], 7)
+        self.assertEqual(cost["estimated_cost_per_success_usd"], 0.01)
+        self.assertEqual(
+            report["methods"]["method_b"]["failure_type_counts"]["missing_step"],
+            1,
+        )
 
     def test_one_api_client_records_usage_cost_and_prompt_fingerprint(self) -> None:
         class FakeResponse:

@@ -4,6 +4,7 @@ from pathlib import Path
 from typing import Any
 
 from embodied_gap.core.task_schema import load_tasks
+from embodied_gap.analysis.research_report import build_research_analysis
 from embodied_gap.evaluation.metrics import EvaluationRecord, aggregate_records, evaluate_run
 from embodied_gap.harness.controller import HarnessController, HarnessRun
 from embodied_gap.llm.clients import client_telemetry
@@ -85,9 +86,14 @@ class ExperimentRunner:
                         records.append(evaluate_run(task, run))
 
             summary = aggregate_records(records)
+            analysis = build_research_analysis(
+                [record.to_dict() for record in records],
+                [run.to_dict() for run in runs],
+            )
             logger.write_runs(runs)
             logger.write_records(records)
             logger.write_summary(summary)
+            logger.write_analysis(analysis)
             context.finalize(
                 "succeeded",
                 results={
@@ -95,7 +101,13 @@ class ExperimentRunner:
                     "run_record_count": len(runs),
                     "method_count": len(summary),
                     "summary": summary,
-                    "artifacts": ["config.json", "runs.jsonl", "metrics.jsonl", "summary.json"],
+                    "artifacts": [
+                        "config.json",
+                        "runs.jsonl",
+                        "metrics.jsonl",
+                        "summary.json",
+                        "analysis.json",
+                    ],
                 },
                 telemetry=_planner_telemetry(planner_registry),
             )

@@ -28,6 +28,9 @@ class ExperimentLogger:
     def write_summary(self, summary: dict[str, Any]) -> None:
         self._write_json("summary.json", summary)
 
+    def write_analysis(self, analysis: dict[str, Any]) -> None:
+        self._write_json("analysis.json", analysis)
+
     def _write_json(self, filename: str, payload: dict[str, Any]) -> None:
         atomic_write_json(self.output_dir / filename, payload)
 

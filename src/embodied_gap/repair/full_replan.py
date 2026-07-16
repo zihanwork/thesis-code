@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import time
+
 from embodied_gap.core.patch_schema import PatchType, PlanPatch
 from embodied_gap.core.plan_schema import PlanCandidate
 from embodied_gap.core.task_schema import Task
@@ -21,7 +23,9 @@ class FullReplanRepair:
 
     def repair(self, task: Task, plan: PlanCandidate, violation: Violation | None) -> PlanPatch:
         if self.pddl_search.can_search(task):
+            started = time.perf_counter()
             result = self.pddl_search.search(task)
+            search_seconds = time.perf_counter() - started
             if result.solved:
                 return PlanPatch(
                     patch_type=PatchType.FULL_REPLAN,
@@ -32,6 +36,7 @@ class FullReplanRepair:
                     metadata={
                         "engine": "pddl_grounded_search",
                         "explored_states": result.explored_states,
+                        "search_seconds": round(search_seconds, 6),
                         "candidate_count": result.candidate_count,
                         "reason": result.reason,
                         "failure_memory_patterns": result.memory_patterns,
@@ -39,7 +44,9 @@ class FullReplanRepair:
                     },
                 )
 
+        started = time.perf_counter()
         result = self.graph.search(task)
+        search_seconds = time.perf_counter() - started
         if not result.solved:
             return PlanPatch(
                 patch_type=PatchType.NONE,
@@ -47,7 +54,11 @@ class FullReplanRepair:
                 before=plan.actions,
                 after=plan.actions,
                 explanation="Graph search could not find a valid repair.",
-                metadata={"explored_states": result.explored_states, "reason": result.reason},
+                metadata={
+                    "explored_states": result.explored_states,
+                    "search_seconds": round(search_seconds, 6),
+                    "reason": result.reason,
+                },
             )
         return PlanPatch(
             patch_type=PatchType.FULL_REPLAN,
@@ -58,6 +69,7 @@ class FullReplanRepair:
             metadata={
                 "engine": "symbolic_action_model_search",
                 "explored_states": result.explored_states,
+                "search_seconds": round(search_seconds, 6),
                 "reason": result.reason,
             },
         )

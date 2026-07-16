@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import time
+
 from embodied_gap.core.plan_schema import PlanCandidate
 from embodied_gap.core.task_schema import Task
 from embodied_gap.knowledge.graph_store import ActionKnowledgeGraph
@@ -23,7 +25,9 @@ class GraphGroundedPlanner:
     def plan(self, task: Task) -> PlanCandidate:
         prompt = render_planning_prompt(task, strategy="symbolic_reference")
         if not task.action_model and self.pddl_search.can_search(task):
+            started = time.perf_counter()
             result = self.pddl_search.search(task)
+            search_seconds = time.perf_counter() - started
             return PlanCandidate(
                 planner_name=self.name,
                 actions=result.actions,
@@ -37,13 +41,16 @@ class GraphGroundedPlanner:
                     "model_independent": True,
                     "solved": result.solved,
                     "explored_states": result.explored_states,
+                    "search_seconds": round(search_seconds, 6),
                     "candidate_count": result.candidate_count,
                     "reason": result.reason,
                     "failure_memory_patterns": result.memory_patterns,
                 },
             )
 
+        started = time.perf_counter()
         result = self.graph.search(task)
+        search_seconds = time.perf_counter() - started
         return PlanCandidate(
             planner_name=self.name,
             actions=result.actions,
@@ -57,6 +64,7 @@ class GraphGroundedPlanner:
                 "model_independent": True,
                 "solved": result.solved,
                 "explored_states": result.explored_states,
+                "search_seconds": round(search_seconds, 6),
                 "reason": result.reason,
             },
         )

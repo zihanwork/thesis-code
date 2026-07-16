@@ -4,6 +4,7 @@ import argparse
 import json
 
 from embodied_gap.analysis.make_tables import summary_to_markdown
+from embodied_gap.analysis.research_report import export_research_analysis
 from embodied_gap.datasets.eai_adapter import EmbodiedAgentInterfaceAdapter
 from embodied_gap.datasets.taskset_builder import TaskSetBuilder
 from embodied_gap.datasets.split_freezer import freeze_heldout_split
@@ -110,6 +111,28 @@ def run_model_matrix(args: argparse.Namespace) -> int:
 def inspect_matrix(args: argparse.Namespace) -> int:
     report = inspect_model_matrix(args.config)
     print(json.dumps(report, ensure_ascii=False, indent=2, sort_keys=True))
+    return 0
+
+
+def analyze_run(args: argparse.Namespace) -> int:
+    report = export_research_analysis(
+        metrics_path=args.metrics,
+        runs_path=args.runs,
+        output_path=args.out,
+    )
+    print(
+        json.dumps(
+            {
+                "record_count": report["record_count"],
+                "method_count": report["method_count"],
+                "comparison_count": len(report["paired_comparisons"]),
+                "output_path": args.out,
+            },
+            ensure_ascii=False,
+            indent=2,
+            sort_keys=True,
+        )
+    )
     return 0
 
 
@@ -227,6 +250,15 @@ def main(argv: list[str] | None = None) -> int:
     )
     inspect_matrix_parser.add_argument("--config", required=True)
     inspect_matrix_parser.set_defaults(func=inspect_matrix)
+
+    analysis_parser = subparsers.add_parser(
+        "analyze-run",
+        help="Generate confidence intervals, paired tests, strata, and cost summaries.",
+    )
+    analysis_parser.add_argument("--metrics", required=True)
+    analysis_parser.add_argument("--runs")
+    analysis_parser.add_argument("--out", required=True)
+    analysis_parser.set_defaults(func=analyze_run)
 
     knowledge_parser = subparsers.add_parser(
         "build-knowledge",
