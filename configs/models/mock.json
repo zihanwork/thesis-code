@@ -1,0 +1,6 @@
+{
+  "provider": "mock",
+  "model": "mock-planner",
+  "temperature": 0,
+  "purpose": "Offline deterministic development model"
+}

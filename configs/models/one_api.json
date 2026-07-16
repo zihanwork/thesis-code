@@ -1,0 +1,10 @@
+{
+  "provider": "one_api",
+  "env": {
+    "api_key": "ONE_API_KEY",
+    "base_url": "ONE_API_BASE_URL",
+    "model": "ONE_API_MODEL"
+  },
+  "temperature": 0,
+  "max_tokens": 1024
+}

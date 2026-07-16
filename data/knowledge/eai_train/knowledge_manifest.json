@@ -1,0 +1,32 @@
+{
+  "files": {
+    "kg_edges": "data/knowledge/eai_train/kg_edges.jsonl",
+    "retrieval_corpus": "data/knowledge/eai_train/retrieval_corpus.jsonl"
+  },
+  "kg_edge_count": 7321,
+  "policy": {
+    "default_source": "rag_train split",
+    "leakage_note": "Use train-split artifacts for planner RAG/KG in final experiments."
+  },
+  "retrieval_doc_count": 75,
+  "summary": {
+    "edges_by_dataset": {
+      "behavior": 2335,
+      "virtualhome": 4986
+    },
+    "relations": {
+      "belongs_to_dataset": 75,
+      "belongs_to_family": 75,
+      "calls_action": 449,
+      "has_goal_fact": 166,
+      "has_gold_action": 449,
+      "has_initial_fact": 1813,
+      "has_object": 485,
+      "has_type": 485,
+      "next_action": 374,
+      "uses_object": 971,
+      "uses_predicate": 1979
+    }
+  },
+  "task_count": 75
+}

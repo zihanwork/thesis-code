@@ -1,0 +1,693 @@
+from __future__ import annotations
+
+import json
+from pathlib import Path
+import tempfile
+import unittest
+from unittest import mock
+
+from embodied_gap.core.plan_schema import PlanCandidate
+from embodied_gap.core.task_schema import Task
+from embodied_gap.core.task_schema import dump_jsonl
+from embodied_gap.core.task_schema import load_tasks
+from embodied_gap.datasets.eai_adapter import (
+    EAIAdapterError,
+    EmbodiedAgentInterfaceAdapter,
+    format_plan_step,
+    parse_pddl_problem,
+)
+from embodied_gap.datasets.taskset_builder import TaskSetBuilder, classify_difficulty
+from embodied_gap.datasets.resource_paths import resolve_domain_path, resolve_problem_path
+from embodied_gap.experiments.model_matrix import ModelMatrixConfig, ModelSpec, MultiModelExperimentRunner
+from embodied_gap.knowledge.corpus_builder import KnowledgeCorpusBuilder
+from embodied_gap.knowledge.failure_memory import classify_failure_patterns
+from embodied_gap.knowledge.pddl_grounded_search import PDDLGroundedSearch
+from embodied_gap.evaluation.metrics import evaluate_run
+from embodied_gap.experiments.config import ExperimentConfig
+from embodied_gap.experiments.runner import ExperimentRunner
+from embodied_gap.evaluation.pddl_gold_validator import PDDLGoldPlanValidator
+from embodied_gap.execution.symbolic_executor import SymbolicExecutor
+from embodied_gap.harness.controller import HarnessController
+from embodied_gap.harness.recovery_policy import HarnessMode
+from embodied_gap.llm.parsers import parse_action_list
+from embodied_gap.llm.prompts import render_planning_prompt
+from embodied_gap.planners.graph_grounded import GraphGroundedPlanner
+from embodied_gap.planners.prompt_only import PromptOnlyPlanner
+from embodied_gap.planners.retrieval_augmented import RetrievalAugmentedPlanner
+
+
+class ResearchFrameworkTests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls) -> None:
+        tasks = load_tasks("data/sample_tasks.jsonl")
+        cls.examples = [task for task in tasks if task.split == "train"]
+        cls.eval_tasks = {task.id: task for task in tasks if task.split != "train"}
+
+    def test_open_loop_prompt_exposes_missing_step(self) -> None:
+        task = self.eval_tasks["eval_move_apple"]
+        run = HarnessController().run(task, PromptOnlyPlanner(), HarnessMode.H0_OPEN_LOOP)
+        record = evaluate_run(task, run)
+        self.assertFalse(record.execution_success)
+        self.assertIn("missing_step", record.error_counts)
+
+    def test_retrieval_planner_adapts_successful_plan(self) -> None:
+        task = self.eval_tasks["eval_move_apple"]
+        run = HarnessController().run(
+            task,
+            RetrievalAugmentedPlanner(self.examples),
+            HarnessMode.H0_OPEN_LOOP,
+        )
+        record = evaluate_run(task, run)
+        self.assertTrue(record.task_success)
+        self.assertEqual(run.final_plan.metadata["retrieved"], "train_move_mug")
+
+    def test_graph_grounded_planner_solves_preconditions(self) -> None:
+        task = self.eval_tasks["eval_clean_plate"]
+        run = HarnessController().run(task, GraphGroundedPlanner(), HarnessMode.H0_OPEN_LOOP)
+        record = evaluate_run(task, run)
+        self.assertTrue(record.task_success)
+        self.assertFalse(record.risk)
+
+    def test_full_harness_rejects_hazard(self) -> None:
+        task = self.eval_tasks["eval_heat_phone_hazard"]
+        run = HarnessController().run(task, PromptOnlyPlanner(), HarnessMode.H2_FULL_RECOVERY)
+        record = evaluate_run(task, run)
+        self.assertEqual(run.final_plan.actions, ("reject()",))
+        self.assertTrue(record.safe_success)
+        self.assertFalse(record.risk)
+
+    def test_runner_writes_complete_matrix(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            config = ExperimentConfig(
+                name="unit_matrix",
+                tasks_path="data/sample_tasks.jsonl",
+                output_dir=tmpdir,
+            )
+            runs, records, summary = ExperimentRunner(config).run()
+            self.assertEqual(len(runs), 27)
+            self.assertEqual(len(records), 27)
+            self.assertEqual(len(summary), 9)
+
+    def test_runner_uses_external_retrieval_examples(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            tasks = load_tasks("data/sample_tasks.jsonl")
+            train_path = Path(tmpdir) / "rag_train.jsonl"
+            eval_path = Path(tmpdir) / "eval.jsonl"
+            dump_jsonl(train_path, [task.to_dict() for task in tasks if task.split == "train"])
+            dump_jsonl(
+                eval_path,
+                [task.to_dict() for task in tasks if task.id == "eval_move_apple"],
+            )
+            config = ExperimentConfig(
+                name="unit_external_rag",
+                tasks_path=str(eval_path),
+                output_dir=str(Path(tmpdir) / "runs"),
+                retrieval_examples_path=str(train_path),
+                planners=("P1_retrieval_augmented",),
+                harness_modes=("H0_open_loop",),
+            )
+            runs, records, _ = ExperimentRunner(config).run()
+            self.assertTrue(records[0].task_success)
+            self.assertEqual(runs[0].final_plan.metadata["retrieved"], "train_move_mug")
+
+    def test_eai_pddl_parser_preserves_clean_problem_state(self) -> None:
+        problem = parse_pddl_problem(
+            """
+            (define (problem Turn_on_light)
+              (:domain virtualhome)
+              (:objects character - character light room - object)
+              (:init (off light) (inside character room) (not (on light)))
+              (:goal (and (on light) (plugged_in light)))
+            )
+            """
+        )
+        self.assertEqual(problem.problem_name, "Turn_on_light")
+        self.assertEqual(problem.objects["light"], "object")
+        self.assertIn("off(light)", problem.init_facts)
+        self.assertIn("not(on(light))", problem.init_facts)
+        self.assertEqual(problem.goal_facts, ("on(light)", "plugged_in(light)"))
+        self.assertEqual(format_plan_step("plug_in character light"), "plug_in(character, light)")
+
+    def test_eai_adapter_imports_only_raw_source_resources(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            root = Path(tmpdir)
+            dataset_root = root / "src" / "virtualhome_eval" / "resources" / "virtualhome"
+            problem_dir = dataset_root / "problem_pddl" / "Turn_on_light"
+            problem_dir.mkdir(parents=True)
+            (problem_dir / "11_1.pddl").write_text(
+                """
+                (define (problem Turn_on_light)
+                  (:domain virtualhome)
+                  (:objects character - character light room - object)
+                  (:init (off light) (inside character room))
+                  (:goal (and (on light)))
+                )
+                """,
+                encoding="utf-8",
+            )
+            fixtures = {
+                "id2task.json": {"11_1": "Turn on light"},
+                "gold_pddl_plan.json": {
+                    "11_1": ["walk_towards character light", "switch_on character light"]
+                },
+                "id2action.json": {"11_1": ["walk_towards", "switch_on"]},
+                "id2predicate.json": {"11_1": ["off", "on", "inside"]},
+                "success_task.json": ["11_1"],
+                "failed_task.json": [],
+            }
+            for name, payload in fixtures.items():
+                (dataset_root / name).write_text(json.dumps(payload), encoding="utf-8")
+            (dataset_root / "virtualhome.pddl").write_text(
+                "(define (domain virtualhome))",
+                encoding="utf-8",
+            )
+
+            tasks = EmbodiedAgentInterfaceAdapter(root).load("virtualhome", train_ratio=0)
+            self.assertEqual(len(tasks), 1)
+            self.assertEqual(tasks[0].source, "eai_raw_virtualhome")
+            self.assertEqual(tasks[0].instruction, "Turn on light")
+            self.assertEqual(tasks[0].gold_plan[-1], "switch_on(character, light)")
+            self.assertEqual(tasks[0].metadata["executor_status"], "pddl_semantics_not_flattened")
+            self.assertFalse(Path(tasks[0].metadata["source_root"]).is_absolute())
+            self.assertEqual(
+                tasks[0].metadata["domain_relative_path"],
+                "src/virtualhome_eval/resources/virtualhome/virtualhome.pddl",
+            )
+            self.assertEqual(
+                tasks[0].metadata["problem_relative_path"],
+                "src/virtualhome_eval/resources/virtualhome/problem_pddl/Turn_on_light/11_1.pddl",
+            )
+
+    def test_resource_paths_replace_stale_absolute_metadata(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            root = Path(tmpdir) / "embodied-agent-interface"
+            dataset_root = root / "src" / "virtualhome_eval" / "resources" / "virtualhome"
+            problem_path = dataset_root / "problem_pddl" / "Turn_on_light" / "11_1.pddl"
+            problem_path.parent.mkdir(parents=True)
+            problem_path.write_text("(define (problem Turn_on_light))", encoding="utf-8")
+            domain_path = dataset_root / "virtualhome.pddl"
+            domain_path.write_text("(define (domain virtualhome))", encoding="utf-8")
+            task = Task.from_dict(
+                {
+                    "id": "portable_virtualhome",
+                    "instruction": "Turn on light",
+                    "initial_facts": [],
+                    "goal_facts": [],
+                    "allowed_actions": [],
+                    "action_model": {},
+                    "slots": {
+                        "dataset": "virtualhome",
+                        "task_family": "Turn_on_light",
+                        "file_id": "11_1",
+                    },
+                    "metadata": {
+                        "source_root": "/Users/another-user/stale/eai",
+                        "domain_pddl_path": "/Users/another-user/stale/virtualhome.pddl",
+                        "domain_relative_path": "src/virtualhome_eval/resources/virtualhome/virtualhome.pddl",
+                        "problem_relative_path": "src/virtualhome_eval/resources/virtualhome/problem_pddl/Turn_on_light/11_1.pddl",
+                    },
+                }
+            )
+            with mock.patch.dict("os.environ", {"EAI_SOURCE_ROOT": str(root)}):
+                self.assertEqual(resolve_domain_path(task), domain_path.resolve())
+                self.assertEqual(resolve_problem_path(task), problem_path.resolve())
+
+    def test_behavior_resource_paths_support_original_layout_fallback(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            root = Path(tmpdir) / "embodied-agent-interface"
+            resources = (
+                root
+                / "src"
+                / "behavior_eval"
+                / "evaluation"
+                / "transition_modeling"
+                / "resources"
+            )
+            resources.mkdir(parents=True)
+            domain_path = resources / "behavior_new.pddl"
+            domain_path.write_text("(define (domain igibson))", encoding="utf-8")
+            problem_path = resources / "pddl_behavior" / "cleaning_test.pddl"
+            problem_path.parent.mkdir()
+            problem_path.write_text("(define (problem cleaning_test))", encoding="utf-8")
+            task = Task.from_dict(
+                {
+                    "id": "portable_behavior",
+                    "instruction": "Clean",
+                    "initial_facts": [],
+                    "goal_facts": [],
+                    "allowed_actions": [],
+                    "action_model": {},
+                    "slots": {
+                        "dataset": "behavior",
+                        "task_family": "cleaning_test",
+                        "file_id": "cleaning_test",
+                    },
+                    "metadata": {"source_root": "/Users/another-user/stale/eai"},
+                }
+            )
+            with mock.patch.dict("os.environ", {"EAI_SOURCE_ROOT": str(root)}):
+                self.assertEqual(resolve_domain_path(task), domain_path.resolve())
+                self.assertEqual(resolve_problem_path(task), problem_path.resolve())
+
+    def test_eai_adapter_refuses_historical_output_directories(self) -> None:
+        with self.assertRaises(EAIAdapterError):
+            EmbodiedAgentInterfaceAdapter("/tmp/output/diagnostics").load("virtualhome")
+
+    def test_pddl_backed_executor_runs_grounded_plan(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            domain_path = Path(tmpdir) / "mini.pddl"
+            domain_path.write_text(
+                """
+                (define (domain mini)
+                  (:requirements :typing)
+                  (:types object)
+                  (:predicates (next_to ?obj - object) (on ?obj - object) (open ?obj - object))
+                  (:action switch_on
+                    :parameters (?obj - object)
+                    :precondition (next_to ?obj)
+                    :effect (on ?obj))
+                  (:action close
+                    :parameters (?obj - object)
+                    :precondition (open ?obj)
+                    :effect (not (open ?obj)))
+                )
+                """,
+                encoding="utf-8",
+            )
+            task = Task.from_dict(
+                {
+                    "id": "mini_pddl",
+                    "instruction": "Turn on light",
+                    "initial_facts": ["next_to(light)", "open(light)"],
+                    "goal_facts": ["on(light)", "not(open(light))"],
+                    "allowed_actions": ["switch_on(light)", "close(light)"],
+                    "action_model": {},
+                    "metadata": {
+                        "executor_status": "pddl_semantics_not_flattened",
+                        "domain_pddl_path": str(domain_path),
+                        "objects": {"light": "object"},
+                    },
+                }
+            )
+            trace = SymbolicExecutor().execute(
+                task,
+                PlanCandidate("unit", ("switch_on(light)", "close(light)")),
+            )
+            self.assertEqual(trace.status, "success")
+            self.assertEqual(trace.metadata["engine"], "pddl_backed")
+            self.assertTrue(task.goal.is_satisfied(trace.final_state))
+
+    def test_pddl_gold_validator_exports_summary(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            domain_path = Path(tmpdir) / "mini.pddl"
+            tasks_path = Path(tmpdir) / "tasks.jsonl"
+            out_dir = Path(tmpdir) / "validation"
+            domain_path.write_text(
+                """
+                (define (domain mini)
+                  (:types object)
+                  (:predicates (ready ?obj - object) (done ?obj - object))
+                  (:action finish
+                    :parameters (?obj - object)
+                    :precondition (ready ?obj)
+                    :effect (done ?obj))
+                )
+                """,
+                encoding="utf-8",
+            )
+            tasks_path.write_text(
+                json.dumps(
+                    {
+                        "id": "mini_gold",
+                        "instruction": "finish item",
+                        "initial_facts": ["ready(item)"],
+                        "goal_facts": ["done(item)"],
+                        "allowed_actions": ["finish(item)"],
+                        "gold_plan": ["finish(item)"],
+                        "action_model": {},
+                        "slots": {"dataset": "unit", "task_family": "mini"},
+                        "metadata": {
+                            "executor_status": "pddl_semantics_not_flattened",
+                            "domain_pddl_path": str(domain_path),
+                            "objects": {"item": "object"},
+                        },
+                    }
+                )
+                + "\n",
+                encoding="utf-8",
+            )
+            summary = PDDLGoldPlanValidator().export(tasks_path, out_dir)
+            self.assertEqual(summary["overall"]["success_rate"], 1.0)
+            self.assertTrue((out_dir / "gold_plan_validation.jsonl").exists())
+
+    def test_graph_grounded_planner_solves_pddl_inside_goal(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            domain_path = Path(tmpdir) / "behavior_like.pddl"
+            domain_path.write_text(
+                """
+                (define (domain behavior_like)
+                  (:types object agent)
+                  (:predicates
+                    (inside ?obj - object ?container - object)
+                    (open ?obj - object)
+                    (holding ?obj - object)
+                    (handsfull ?agent - agent)
+                    (in_reach_of_agent ?obj - object))
+                  (:action navigate_to
+                    :parameters (?obj - object ?agent - agent)
+                    :precondition (not (in_reach_of_agent ?obj))
+                    :effect (in_reach_of_agent ?obj))
+                  (:action open
+                    :parameters (?obj - object ?agent - agent)
+                    :precondition (and (in_reach_of_agent ?obj) (not (open ?obj)) (not (handsfull ?agent)))
+                    :effect (open ?obj))
+                  (:action grasp
+                    :parameters (?obj - object ?agent - agent)
+                    :precondition (and (in_reach_of_agent ?obj) (not (holding ?obj)) (not (handsfull ?agent)))
+                    :effect (and (holding ?obj) (handsfull ?agent)))
+                  (:action place_inside
+                    :parameters (?obj - object ?container - object ?agent - agent)
+                    :precondition (and (holding ?obj) (in_reach_of_agent ?container) (open ?container))
+                    :effect (and (inside ?obj ?container) (not (holding ?obj)) (not (handsfull ?agent))))
+                )
+                """,
+                encoding="utf-8",
+            )
+            task = Task.from_dict(
+                {
+                    "id": "mini_inside",
+                    "instruction": "put gift in basket",
+                    "initial_facts": [],
+                    "goal_facts": ["inside(gift, basket)"],
+                    "allowed_actions": ["navigate_to", "open", "grasp", "place_inside"],
+                    "action_model": {},
+                    "slots": {"dataset": "behavior", "task_family": "mini"},
+                    "metadata": {
+                        "executor_status": "pddl_semantics_not_flattened",
+                        "domain_pddl_path": str(domain_path),
+                        "objects": {"agent": "agent", "gift": "object", "basket": "object"},
+                    },
+                }
+            )
+            plan = GraphGroundedPlanner().plan(task)
+            trace = SymbolicExecutor().execute(task, plan)
+            self.assertTrue(plan.metadata["solved"])
+            self.assertTrue(task.goal.is_satisfied(trace.final_state))
+
+    def test_pddl_grounded_search_fallback_uses_priority(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            domain_path = Path(tmpdir) / "search_only.pddl"
+            domain_path.write_text(
+                """
+                (define (domain search_only)
+                  (:types object)
+                  (:predicates (ready ?obj - object) (done ?obj - object))
+                  (:action prepare
+                    :parameters (?obj - object)
+                    :precondition ()
+                    :effect (ready ?obj))
+                  (:action finish
+                    :parameters (?obj - object)
+                    :precondition (ready ?obj)
+                    :effect (done ?obj))
+                )
+                """,
+                encoding="utf-8",
+            )
+            task = Task.from_dict(
+                {
+                    "id": "mini_search_only",
+                    "instruction": "finish item",
+                    "initial_facts": [],
+                    "goal_facts": ["done(item)"],
+                    "allowed_actions": ["prepare", "finish"],
+                    "action_model": {},
+                    "slots": {"dataset": "unit", "task_family": "search_only"},
+                    "metadata": {
+                        "executor_status": "pddl_semantics_not_flattened",
+                        "domain_pddl_path": str(domain_path),
+                        "objects": {"item": "object"},
+                    },
+                }
+            )
+            result = PDDLGroundedSearch(max_depth=3, max_expansions=20).search(task)
+            self.assertTrue(result.solved)
+            self.assertEqual(result.actions, ("prepare(item)", "finish(item)"))
+
+    def test_failure_memory_patterns_label_balanced_failures(self) -> None:
+        tasks = {
+            task.slots.get("task_family"): task
+            for task in load_tasks("data/processed/tasksets/balanced_eval_20.jsonl")
+        }
+        cleaning_patterns = {
+            pattern.name for pattern in classify_failure_patterns(tasks["cleaning_microwave_oven"])
+        }
+        coffee_patterns = {
+            pattern.name for pattern in classify_failure_patterns(tasks["Make_coffee"])
+        }
+        self.assertIn("behavior_negative_cleaning", cleaning_patterns)
+        self.assertIn("virtualhome_appliance_surface_activation", coffee_patterns)
+
+        planner = GraphGroundedPlanner()
+        run = HarnessController().run(
+            tasks["Make_coffee"],
+            planner,
+            HarnessMode.H2_FULL_RECOVERY,
+        )
+        record = evaluate_run(tasks["Make_coffee"], run)
+        self.assertTrue(record.task_success)
+        self.assertIn(
+            "virtualhome_appliance_surface_activation",
+            run.final_plan.metadata["failure_memory_patterns"],
+        )
+
+    def test_h2_replans_failed_pddl_plan_with_grounded_search(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            domain_path = Path(tmpdir) / "behavior_like.pddl"
+            domain_path.write_text(
+                """
+                (define (domain behavior_like)
+                  (:types object agent)
+                  (:predicates
+                    (inside ?obj - object ?container - object)
+                    (open ?obj - object)
+                    (holding ?obj - object)
+                    (handsfull ?agent - agent)
+                    (in_reach_of_agent ?obj - object))
+                  (:action navigate_to
+                    :parameters (?obj - object ?agent - agent)
+                    :precondition (not (in_reach_of_agent ?obj))
+                    :effect (in_reach_of_agent ?obj))
+                  (:action open
+                    :parameters (?obj - object ?agent - agent)
+                    :precondition (and (in_reach_of_agent ?obj) (not (open ?obj)) (not (handsfull ?agent)))
+                    :effect (open ?obj))
+                  (:action grasp
+                    :parameters (?obj - object ?agent - agent)
+                    :precondition (and (in_reach_of_agent ?obj) (not (holding ?obj)) (not (handsfull ?agent)))
+                    :effect (and (holding ?obj) (handsfull ?agent)))
+                  (:action place_inside
+                    :parameters (?obj - object ?container - object ?agent - agent)
+                    :precondition (and (holding ?obj) (in_reach_of_agent ?container) (open ?container))
+                    :effect (and (inside ?obj ?container) (not (holding ?obj)) (not (handsfull ?agent))))
+                )
+                """,
+                encoding="utf-8",
+            )
+            task = Task.from_dict(
+                {
+                    "id": "mini_h2_repair",
+                    "instruction": "put gift in basket",
+                    "initial_facts": [],
+                    "goal_facts": ["inside(gift, basket)"],
+                    "allowed_actions": ["navigate_to", "open", "grasp", "place_inside"],
+                    "action_model": {},
+                    "slots": {"dataset": "behavior", "task_family": "mini"},
+                    "metadata": {
+                        "executor_status": "pddl_semantics_not_flattened",
+                        "domain_pddl_path": str(domain_path),
+                        "objects": {"agent": "agent", "gift": "object", "basket": "object"},
+                    },
+                }
+            )
+            run = HarnessController().run(task, PromptOnlyPlanner(), HarnessMode.H2_FULL_RECOVERY)
+            record = evaluate_run(task, run)
+            self.assertTrue(record.task_success)
+            self.assertTrue(run.patches)
+            self.assertEqual(run.patches[-1].metadata["engine"], "pddl_grounded_search")
+
+            broken_initial_plan = PlanCandidate(
+                planner_name="P0_prompt_only",
+                actions=(),
+                raw_response="```json\n[]\n```",
+                metadata={"parse_error": "invalid syntax"},
+            )
+            repaired_run = HarnessController().run(
+                task,
+                PromptOnlyPlanner(),
+                HarnessMode.H2_FULL_RECOVERY,
+                initial_plan=broken_initial_plan,
+            )
+            repaired_record = evaluate_run(task, repaired_run)
+            self.assertTrue(repaired_record.task_success)
+            self.assertNotIn("parse_error", repaired_run.final_plan.metadata)
+            self.assertEqual(
+                repaired_run.final_plan.metadata["repaired_from_parse_error"],
+                "invalid syntax",
+            )
+
+    def test_taskset_builder_exports_balanced_sets(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            manifest = TaskSetBuilder(list(self.eval_tasks.values()) + self.examples).export(
+                tmpdir,
+                per_family=1,
+            )
+            self.assertIn("balanced_eval", manifest["files"])
+            self.assertIn("balanced_eval_20", manifest["files"])
+            self.assertIn("balanced_eval_50", manifest["files"])
+            self.assertTrue((Path(tmpdir) / "balanced_eval.jsonl").exists())
+            self.assertTrue((Path(tmpdir) / "balanced_eval_20.jsonl").exists())
+            self.assertTrue((Path(tmpdir) / "balanced_eval_50.jsonl").exists())
+            self.assertGreaterEqual(manifest["files"]["full_eval"]["rows"], 1)
+            difficulty = classify_difficulty(self.eval_tasks["eval_clean_plate"])
+            self.assertIn(difficulty.label, {"easy", "medium", "hard"})
+
+    def test_pddl_prompt_includes_action_signatures_without_gold_plan(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            domain_path = Path(tmpdir) / "behavior_like.pddl"
+            domain_path.write_text(
+                """
+                (define (domain behavior_like)
+                  (:types object agent)
+                  (:predicates
+                    (inside ?obj - object ?container - object)
+                    (holding ?obj - object)
+                    (in_reach_of_agent ?obj - object))
+                  (:action navigate_to
+                    :parameters (?obj - object ?agent - agent)
+                    :precondition (not (in_reach_of_agent ?obj))
+                    :effect (in_reach_of_agent ?obj))
+                  (:action place_inside
+                    :parameters (?obj - object ?container - object ?agent - agent)
+                    :precondition (holding ?obj)
+                    :effect (inside ?obj ?container))
+                )
+                """,
+                encoding="utf-8",
+            )
+            task = Task.from_dict(
+                {
+                    "id": "mini_prompt_schema",
+                    "instruction": "put gift in basket",
+                    "initial_facts": ["holding(gift)"],
+                    "goal_facts": ["inside(gift, basket)"],
+                    "allowed_actions": ["navigate_to", "place_inside"],
+                    "gold_plan": ["place_inside(gift, basket, agent)"],
+                    "action_model": {},
+                    "metadata": {
+                        "executor_status": "pddl_semantics_not_flattened",
+                        "domain_pddl_path": str(domain_path),
+                        "objects": {"agent": "agent", "gift": "object", "basket": "object"},
+                    },
+                }
+            )
+            prompt = render_planning_prompt(task, strategy="unit_test")
+            self.assertIn("PDDL action signatures:", prompt)
+            self.assertIn("navigate_to(obj:object, agent:agent)", prompt)
+            self.assertIn("place_inside(obj:object, container:object, agent:agent)", prompt)
+            self.assertIn("agent in [agent]", prompt)
+            self.assertNotIn("place_inside(gift, basket, agent)", prompt)
+            self.assertNotIn("gold_plan", prompt)
+
+    def test_model_matrix_config_parses_model_overrides(self) -> None:
+        config = ModelMatrixConfig.from_json("configs/experiments/sample_multimodel_one_api.json")
+        self.assertEqual(config.name, "sample_multimodel_one_api")
+        self.assertEqual(len(config.models), 3)
+        self.assertEqual(config.models[0].model, "DeepSeek-V4-Flash")
+        self.assertTrue(config.base_experiment.use_llm_for_planners)
+        eai_config = ModelMatrixConfig.from_json(
+            "configs/experiments/eai_balanced_20_multimodel_one_api.json"
+        )
+        self.assertEqual(eai_config.base_experiment.tasks_path, "data/processed/tasksets/balanced_eval_20.jsonl")
+        self.assertEqual(eai_config.base_experiment.retrieval_examples_path, "data/processed/tasksets/rag_train.jsonl")
+        self.assertEqual(len(eai_config.models), 2)
+
+    def test_model_matrix_removes_stale_error_after_success(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            model_dir = Path(tmpdir) / "local_model"
+            model_dir.mkdir()
+            error_path = model_dir / "error.json"
+            error_path.write_text('{"status":"failed"}', encoding="utf-8")
+            config = ModelMatrixConfig(
+                name="unit_model_matrix_cleanup",
+                base_experiment=ExperimentConfig(
+                    name="unit_model_matrix_cleanup",
+                    tasks_path="data/sample_tasks.jsonl",
+                    output_dir=tmpdir,
+                    use_llm_for_planners=False,
+                ),
+                models=(ModelSpec(id="local_model", model="deterministic"),),
+            )
+            summary = MultiModelExperimentRunner(config).run()
+            self.assertEqual(summary["failed"], 0)
+            self.assertEqual(summary["succeeded"], 1)
+            self.assertFalse(error_path.exists())
+
+    def test_model_matrix_removes_stale_success_artifacts_after_failure(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            model_dir = Path(tmpdir) / "broken_model"
+            model_dir.mkdir()
+            for filename in ("config.json", "runs.jsonl", "metrics.jsonl", "summary.json", "summary.md"):
+                (model_dir / filename).write_text("stale", encoding="utf-8")
+            config = ModelMatrixConfig(
+                name="unit_model_matrix_failure_cleanup",
+                base_experiment=ExperimentConfig(
+                    name="unit_model_matrix_failure_cleanup",
+                    tasks_path="data/processed/tasksets/does_not_exist.jsonl",
+                    output_dir=tmpdir,
+                    use_llm_for_planners=False,
+                ),
+                models=(ModelSpec(id="broken_model", model="deterministic"),),
+            )
+            summary = MultiModelExperimentRunner(config).run()
+            self.assertEqual(summary["failed"], 1)
+            self.assertEqual(summary["succeeded"], 0)
+            self.assertTrue((model_dir / "error.json").exists())
+            self.assertFalse((model_dir / "summary.json").exists())
+            self.assertFalse((model_dir / "summary.md").exists())
+            self.assertFalse((model_dir / "metrics.jsonl").exists())
+            self.assertFalse((model_dir / "runs.jsonl").exists())
+
+    def test_knowledge_builder_exports_rag_docs_and_kg_edges(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            manifest = KnowledgeCorpusBuilder(self.examples).export(tmpdir)
+            self.assertGreater(manifest["retrieval_doc_count"], 0)
+            self.assertGreater(manifest["kg_edge_count"], 0)
+            self.assertTrue((Path(tmpdir) / "retrieval_corpus.jsonl").exists())
+            self.assertTrue((Path(tmpdir) / "kg_edges.jsonl").exists())
+
+    def test_parser_accepts_action_dictionary_formats(self) -> None:
+        self.assertEqual(
+            parse_action_list('[{"action":"grasp","args":["cup","agent"]}]'),
+            ("grasp(cup, agent)",),
+        )
+        self.assertEqual(
+            parse_action_list('[{"action":"grasp","object":"cup, agent"}]'),
+            ("grasp(cup, agent)",),
+        )
+        self.assertEqual(
+            parse_action_list('```json\n["grasp(cup, agent)"]\n```'),
+            ("grasp(cup, agent)",),
+        )
+        self.assertEqual(
+            parse_action_list('[["grasp","cup","agent"]]'),
+            ("grasp(cup, agent)",),
+        )
+        self.assertEqual(
+            parse_action_list('[["grasp",["cup","agent"]]]'),
+            ("grasp(cup, agent)",),
+        )
+
+
+if __name__ == "__main__":
+    unittest.main()

@@ -1,0 +1,3 @@
+[submodule "external/embodied-agent-interface"]
+	path = external/embodied-agent-interface
+	url = https://github.com/embodied-agent-interface/embodied-agent-interface

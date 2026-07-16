@@ -1,0 +1,5 @@
+{
+  "name": "sample_symbolic_tasks",
+  "adapter": "jsonl",
+  "path": "data/sample_tasks.jsonl"
+}

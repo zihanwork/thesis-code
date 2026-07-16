@@ -1,0 +1,18 @@
+[project]
+name = "embodied-goal-action-gap"
+version = "0.1.0"
+description = "Experimental framework for diagnosing and improving LLM embodied planning across prompt, retrieval, graph grounding, and harness-guided methods."
+requires-python = ">=3.11"
+dependencies = [
+  "certifi>=2024.0.0",
+]
+
+[project.scripts]
+embodied-gap = "embodied_gap.cli:main"
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]
