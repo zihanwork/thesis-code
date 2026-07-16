@@ -184,6 +184,8 @@ class ResearchFrameworkTests(unittest.TestCase):
         self.assertTrue(record.recovered)
         self.assertEqual(run.patches[0].source, "llm_feedback_replan")
         self.assertIn("missing_preconditions", client.prompt)
+        self.assertNotIn("Error-specific repair guidance:", client.prompt)
+        self.assertNotIn("Frozen failure memory:", client.prompt)
         self.assertNotEqual(run.patches[0].source, "symbolic_replan")
 
     def test_recovery_modes_are_separate(self) -> None:
@@ -262,6 +264,7 @@ class ResearchFrameworkTests(unittest.TestCase):
         )
         self.assertTrue(evaluate_run(task, error_run).task_success)
         self.assertIn("Insert actions that establish", error_client.prompts[0])
+        self.assertNotIn("Frozen failure memory:", error_client.prompts[0])
 
         memory_client = RepairClient()
         memory_planner = PromptOnlyPlanner(llm_client=memory_client)
@@ -273,10 +276,27 @@ class ResearchFrameworkTests(unittest.TestCase):
         )
         self.assertTrue(evaluate_run(task, memory_run).task_success)
         self.assertIn("Memory ID: memory-1", memory_client.prompts[0])
+        self.assertNotIn("Error-specific repair guidance:", memory_client.prompts[0])
         self.assertEqual(
             memory_run.patches[0].metadata["failure_memory_sha256"],
             "frozen-unit-hash",
         )
+
+    def test_recovery_pilot_budget_keeps_mechanisms_separate(self) -> None:
+        isolated = inspect_model_matrix(
+            "configs/experiments/pilot_recovery_deepseek_20.json"
+        )
+        self.assertEqual(isolated["run_record_count"], 120)
+        self.assertEqual(isolated["initial_llm_call_count"], 20)
+        self.assertEqual(isolated["worst_case_repair_llm_call_count"], 60)
+        self.assertNotIn("H2_full_recovery", isolated["harness_modes"])
+
+        combined = inspect_model_matrix(
+            "configs/experiments/pilot_recovery_combined_deepseek_20.json"
+        )
+        self.assertEqual(combined["run_record_count"], 80)
+        self.assertEqual(combined["worst_case_total_llm_call_count"], 100)
+        self.assertNotIn("H2_pddl_recovery", combined["harness_modes"])
 
     def test_failure_memory_builder_freezes_only_successful_repairs(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:
