@@ -20,13 +20,18 @@
     "llm_backend": "one_api",
     "use_llm_for_planners": true,
     "llm_temperature": 0.0,
-    "llm_max_tokens": 1024,
+    "llm_max_tokens": 2048,
+    "llm_timeout_seconds": 180,
+    "llm_max_attempts": 2,
+    "llm_backoff_seconds": 2.0,
     "metadata": {
       "phase": "development_pilot",
       "research_question": "Isolated recovery mechanism comparison",
       "memory_policy": "frozen development memory; symbolic-PDDL teacher; report provenance explicitly",
       "mechanism_policy": "No mixed legacy H2; PDDL recovery is a separate reference",
-      "data_policy": "balanced_eval_20_is_development_only; never use frozen held-out data"
+      "data_policy": "balanced_eval_20_is_development_only; never use frozen held-out data",
+      "budget_policy": "20 tasks; one shared P0 initial plan per task; at most 80 LLM calls; one repair maximum; 2048 output-token cap",
+      "promotion_rule": "Select final recovery cells using conditional recovery, paired outcomes, failure type, calls, tokens, latency, and truncation."
     }
   },
   "models": [

@@ -47,11 +47,14 @@ After selecting the prompt baseline, compare open loop, local repair, plain LLM
 reflection, error-specific LLM repair, frozen-memory LLM repair, and symbolic
 PDDL recovery with `pilot_recovery_deepseek_20.json`. These are separate rows;
 the legacy mixed `H2_full_recovery` is excluded. With one retry, the preflight
-upper bound is 80 LLM calls for 120 execution records.
+upper bound is 80 LLM calls for 120 execution records. The final Stage 10
+resource-matched output cap of 2048 tokens is reused, and length-truncated calls
+must be reported.
 
 Only after the isolated comparison is interpretable, run
 `pilot_recovery_combined_deepseek_20.json` for the combined method and its three
 leave-one-component-out variants. Its upper bound is 100 LLM calls for 80
 execution records. The frozen memory contains 357 development repairs generated
 by a symbolic PDDL teacher; it must not be described as purely self-generated
-LLM memory.
+LLM memory. Do not run this second pilot unless the isolated comparison provides
+a concrete reason to test the combined mechanism.
