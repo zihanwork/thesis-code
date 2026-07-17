@@ -1,0 +1,35 @@
+{
+  "name": "final_generalization_heldout_v1",
+  "continue_on_error": false,
+  "base_experiment": {
+    "name": "final_generalization_heldout_v1",
+    "tasks_path": "data/processed/tasksets/heldout_virtualhome_119.jsonl",
+    "retrieval_examples_path": "data/processed/tasksets/rag_train.jsonl",
+    "retrieval_method": "lexical",
+    "retrieval_field_profile": "instruction_state_goal_schema",
+    "retrieval_top_k": 1,
+    "retrieval_min_score": 0.0,
+    "output_dir": "runs/final_generalization_heldout_v1",
+    "planners": ["P0_engineered_prompt", "P1_rag"],
+    "harness_modes": ["H0_open_loop"],
+    "seed": 13,
+    "max_retries": 0,
+    "llm_backend": "one_api",
+    "use_llm_for_planners": true,
+    "llm_temperature": 0.0,
+    "llm_max_tokens": 2048,
+    "llm_timeout_seconds": 180,
+    "llm_max_attempts": 2,
+    "llm_backoff_seconds": 2.0,
+    "metadata": {
+      "phase": "final_local_heldout",
+      "research_question": "RQ4 cross-family P0-to-P1 generalization",
+      "data_policy": "one-shot frozen VirtualHome-only heldout",
+      "model_policy": "GLM-5-Turbo only; promoted by the capped development canary and pilot",
+      "claim_limit": "Selected key cells only; not a third full-grid model."
+    }
+  },
+  "models": [
+    {"id": "glm_5_turbo", "provider": "one_api", "model": "GLM-5-Turbo"}
+  ]
+}

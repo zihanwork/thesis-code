@@ -16,6 +16,7 @@ from embodied_gap.datasets.safety_set import (
     verify_frozen_safety_set,
 )
 from embodied_gap.experiments.config import ExperimentConfig
+from embodied_gap.experiments.final_protocol import verify_final_protocol
 from embodied_gap.experiments.model_matrix import ModelMatrixConfig, MultiModelExperimentRunner
 from embodied_gap.experiments.pilot_budget import inspect_model_matrix
 from embodied_gap.experiments.runner import ExperimentRunner
@@ -169,6 +170,17 @@ def summarize_model_generalization(args: argparse.Namespace) -> int:
         )
     )
     return 0
+
+
+def verify_final(args: argparse.Namespace) -> int:
+    report = verify_final_protocol(
+        args.protocol,
+        require_git_tag=not args.allow_missing_tag,
+        require_clean_worktree=not args.allow_dirty,
+        require_unrun=not args.allow_existing_runs,
+    )
+    print(json.dumps(report, ensure_ascii=False, indent=2, sort_keys=True))
+    return 0 if report["valid"] else 1
 
 
 def build_knowledge(args: argparse.Namespace) -> int:
@@ -381,6 +393,19 @@ def main(argv: list[str] | None = None) -> int:
         default="analysis_v2.json",
     )
     generalization_parser.set_defaults(func=summarize_model_generalization)
+
+    final_parser = subparsers.add_parser(
+        "verify-final-protocol",
+        help="Verify frozen final artifacts, Git tag, clean state, and one-shot outputs.",
+    )
+    final_parser.add_argument(
+        "--protocol",
+        default="configs/experiments/final_protocol_v1.json",
+    )
+    final_parser.add_argument("--allow-missing-tag", action="store_true")
+    final_parser.add_argument("--allow-dirty", action="store_true")
+    final_parser.add_argument("--allow-existing-runs", action="store_true")
+    final_parser.set_defaults(func=verify_final)
 
     knowledge_parser = subparsers.add_parser(
         "build-knowledge",

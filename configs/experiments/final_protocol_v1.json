@@ -1,0 +1,115 @@
+{
+  "schema_version": 1,
+  "protocol_id": "final_protocol_v1",
+  "required_git_tag": "final-protocol-v1",
+  "required_clean_worktree": true,
+  "one_shot_local_heldout": true,
+  "claim_scope": "Frozen local VirtualHome-only heldout evaluation; not an official EAI challenge score and not a BEHAVIOR estimate.",
+  "artifacts": [
+    {
+      "role": "heldout_tasks",
+      "path": "data/processed/tasksets/heldout_virtualhome_119.jsonl",
+      "sha256": "4a01bdb4ce499fdc20fc2d11ad4b4139296bf5a9b936525bc730d214776b3bb9"
+    },
+    {
+      "role": "rag_examples",
+      "path": "data/processed/tasksets/rag_train.jsonl",
+      "sha256": "ca33c0d16a403d49e3f53e9b05fadbd77e92ea819ad0292d50aae58783cb374f"
+    },
+    {
+      "role": "frozen_symbolic_teacher_memory",
+      "path": "data/knowledge/failure_memory_dev.jsonl",
+      "sha256": "ec5ad98b7730b706b8b13186dc9caa76f2ee34dabd7bc1b49bb174a1d78d5099"
+    },
+    {
+      "role": "prompt_templates",
+      "path": "src/embodied_gap/llm/prompts.py",
+      "sha256": "9d671a099e5495c92c69aaa03a83e90fe8623cf92b439c2efca75aec189b6f60"
+    },
+    {
+      "role": "planning_config",
+      "path": "configs/experiments/final_planning_heldout_v1.json",
+      "sha256": "fda023fc66bb00501baef7d8229d2531be09f414d66770b9d25856e1fefecde5"
+    },
+    {
+      "role": "recovery_config",
+      "path": "configs/experiments/final_recovery_heldout_v1.json",
+      "sha256": "b60053c89c6aed048362954d1ba709a60e7b4f23d7197f354b0695d6058f0c4a"
+    },
+    {
+      "role": "generalization_config",
+      "path": "configs/experiments/final_generalization_heldout_v1.json",
+      "sha256": "b394667fcf78345552a652f29f0e233f7c1161b3a5b62522620954c508e58dca"
+    },
+    {
+      "role": "symbolic_config",
+      "path": "configs/experiments/final_symbolic_heldout_v1.json",
+      "sha256": "a1957259b4bbadc72dfbd87228791987ff107bcc677ccff2dfba2ee48c04a482"
+    }
+  ],
+  "experiments": [
+    {
+      "id": "planning",
+      "runner": "model_matrix",
+      "config": "configs/experiments/final_planning_heldout_v1.json",
+      "output_root": "runs/final_planning_heldout_v1",
+      "record_count": 714,
+      "worst_case_llm_calls": 714
+    },
+    {
+      "id": "recovery",
+      "runner": "model_matrix",
+      "config": "configs/experiments/final_recovery_heldout_v1.json",
+      "output_root": "runs/final_recovery_heldout_v1",
+      "record_count": 952,
+      "worst_case_llm_calls": 714
+    },
+    {
+      "id": "generalization",
+      "runner": "model_matrix",
+      "config": "configs/experiments/final_generalization_heldout_v1.json",
+      "output_root": "runs/final_generalization_heldout_v1",
+      "record_count": 238,
+      "worst_case_llm_calls": 238
+    },
+    {
+      "id": "symbolic",
+      "runner": "experiment",
+      "config": "configs/experiments/final_symbolic_heldout_v1.json",
+      "output_root": "runs/final_symbolic_heldout_v1",
+      "record_count": 119,
+      "worst_case_llm_calls": 0
+    }
+  ],
+  "totals": {
+    "record_count": 2023,
+    "worst_case_llm_calls": 1666
+  },
+  "models": {
+    "full_grid": ["DeepSeek-V4-Flash", "gpt-5.5"],
+    "generalization_key_cells": ["GLM-5-Turbo"],
+    "excluded": ["DeepSeek-V4-Pro", "MiniMax-M3", "Kimi-K2.6"]
+  },
+  "decoding": {
+    "temperature": 0.0,
+    "max_tokens": 2048,
+    "timeout_seconds": 180,
+    "max_attempts": 2,
+    "resource_matching": "The same 2048 output-token cap is used for all reported LLM models; length truncations are reported."
+  },
+  "reporting": {
+    "confidence_interval": "Wilson 95%",
+    "paired_test": "exact two-sided McNemar",
+    "paired_uplift_interval": "task-paired bootstrap, 2000 samples, seed 13",
+    "strata": ["dataset", "difficulty", "task_family", "failure_type"],
+    "cost_fields": ["calls", "input_tokens", "output_tokens", "latency", "estimated_cost_if_pricing_available", "length_truncations"],
+    "official_policy": "Export compatible selected VirtualHome runs and report official evaluator results separately from custom PDDL evaluation."
+  },
+  "stopping_rules": [
+    "Do not inspect per-task heldout failures until every frozen experiment has completed.",
+    "Do not change prompts, retrieval, memory, planner code, recovery code, models, decoding, or statistics after the first final run starts.",
+    "Do not rerun failed tasks selectively.",
+    "If an external API failure interrupts a matrix, preserve the failed run and seek an explicit protocol amendment before any rerun.",
+    "Do not add final failures to RAG or memory."
+  ]
+}

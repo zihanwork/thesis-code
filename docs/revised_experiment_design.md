@@ -142,3 +142,10 @@ uv run embodied-gap build-failure-memory \
   --runs <development-runs.jsonl> \
   --out data/knowledge/failure_memory_dev.jsonl
 ```
+
+The completed isolated Recovery/Memory development pilot and final mechanism
+selection are documented in `docs/recovery_pilot_protocol.md`. Plain reflection
+and error-specific repair tied at 60% task success, memory reached 55%, local
+repair remained at the 20% H0 baseline, and PDDL recovery reached 100% as a
+separately labelled symbolic reference. The combined leave-one-out pilot is not
+run because the isolated results do not justify it.

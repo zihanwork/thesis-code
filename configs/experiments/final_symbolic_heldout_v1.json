@@ -1,0 +1,17 @@
+{
+  "name": "final_symbolic_heldout_v1",
+  "tasks_path": "data/processed/tasksets/heldout_virtualhome_119.jsonl",
+  "output_dir": "runs/final_symbolic_heldout_v1",
+  "planners": ["P2_symbolic_pddl"],
+  "harness_modes": ["H0_open_loop"],
+  "seed": 13,
+  "max_retries": 0,
+  "llm_backend": "deterministic",
+  "use_llm_for_planners": false,
+  "metadata": {
+    "phase": "final_local_heldout",
+    "research_role": "model-independent symbolic PDDL reference run once",
+    "data_policy": "one-shot frozen VirtualHome-only heldout",
+    "claim_boundary": "Not a knowledge-graph method and not described as an upper bound."
+  }
+}

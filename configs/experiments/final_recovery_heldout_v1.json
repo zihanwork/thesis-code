@@ -1,0 +1,44 @@
+{
+  "name": "final_recovery_heldout_v1",
+  "continue_on_error": false,
+  "base_experiment": {
+    "name": "final_recovery_heldout_v1",
+    "tasks_path": "data/processed/tasksets/heldout_virtualhome_119.jsonl",
+    "retrieval_examples_path": "data/processed/tasksets/rag_train.jsonl",
+    "retrieval_method": "lexical",
+    "retrieval_field_profile": "instruction_state_goal_schema",
+    "retrieval_top_k": 1,
+    "retrieval_min_score": 0.0,
+    "failure_memory_path": "data/knowledge/failure_memory_dev.jsonl",
+    "output_dir": "runs/final_recovery_heldout_v1",
+    "planners": ["P1_rag"],
+    "harness_modes": [
+      "H0_open_loop",
+      "H2_llm_reflection",
+      "H2_memory",
+      "H2_pddl_recovery"
+    ],
+    "seed": 13,
+    "max_retries": 1,
+    "llm_backend": "one_api",
+    "use_llm_for_planners": true,
+    "llm_temperature": 0.0,
+    "llm_max_tokens": 2048,
+    "llm_timeout_seconds": 180,
+    "llm_max_attempts": 2,
+    "llm_backoff_seconds": 2.0,
+    "metadata": {
+      "phase": "final_local_heldout",
+      "research_question": "RQ2 isolated recovery and RQ3 RAG-recovery complementarity",
+      "data_policy": "one-shot frozen VirtualHome-only heldout",
+      "memory_policy": "read-only frozen symbolic-PDDL teacher memory",
+      "cell_policy": "P1 initial plans reused across H0, plain LLM reflection, memory, and separately labelled PDDL recovery.",
+      "excluded_after_development": "H2-local, H2-error-specific, and combined modes",
+      "claim_limit": "PDDL is a symbolic recovery reference, not an LLM harness contribution."
+    }
+  },
+  "models": [
+    {"id": "deepseek_v4_flash", "provider": "one_api", "model": "DeepSeek-V4-Flash"},
+    {"id": "gpt_5_5", "provider": "one_api", "model": "gpt-5.5"}
+  ]
+}

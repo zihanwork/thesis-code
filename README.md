@@ -180,6 +180,14 @@ PYTHONPATH=src python3 -m embodied_gap.cli summarize-model-generalization \
 The completed Stage 10 development evidence and its claim limits are documented
 in `docs/model_generalization_protocol.md`.
 
+The one-shot final held-out cells, 1,666-call worst-case budget, Git-tag gate,
+artifact hashes, and stopping rules are frozen in
+`docs/final_experiment_protocol.md`. Before any final run, execute:
+
+```bash
+PYTHONPATH=src python3 -m embodied_gap.cli verify-final-protocol
+```
+
 Before a paid model-matrix run, use `inspect-model-matrix` to validate paths and
 review the task, record, and worst-case LLM-call counts. The staged 20-task
 development procedure is documented in `docs/pilot_protocol.md`.

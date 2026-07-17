@@ -1,0 +1,127 @@
+{
+  "schema_version": 1,
+  "kind": "development_recovery_mechanism_pilot",
+  "claim_scope": "Development-only evidence; not held-out and not an official benchmark score.",
+  "source": {
+    "run_dir": "runs/pilot_recovery_deepseek_20/20260717T043432879063Z_9d8b5ba3",
+    "run_id": "20260717T043432879063Z_9d8b5ba3",
+    "status": "succeeded",
+    "commit": "34d0bb5931081b5044b7993c947b182a22ef24e6",
+    "dirty_worktree": false,
+    "config_sha256": "930afa6a105e16a4470d14bfb23f8e7d4b9edc75460809bf4cbad78f2b1bc265",
+    "tasks_sha256": "0fba7d3e9d3d1220167155b8d844cc9c6440ef186d57d4ac53c0e1d23d3fb2ec",
+    "failure_memory_sha256": "ec5ad98b7730b706b8b13186dc9caa76f2ee34dabd7bc1b49bb174a1d78d5099",
+    "model": "DeepSeek-V4-Flash",
+    "task_count": 20,
+    "initial_failure_count": 16
+  },
+  "methods": {
+    "H0_open_loop": {
+      "task_success_count": 4,
+      "task_success_rate": 0.2,
+      "task_success_ci95": [0.08065766257979806, 0.41601743225189364],
+      "recovered_count": 0,
+      "conditional_recovery_success_rate": 0.0,
+      "llm_call_count_with_shared_initial_attribution": 20,
+      "total_tokens_with_shared_initial_attribution": 63927,
+      "paired_uplift_vs_h0": 0.0,
+      "mcnemar_p_vs_h0": 1.0
+    },
+    "H2_local_recovery": {
+      "task_success_count": 4,
+      "task_success_rate": 0.2,
+      "task_success_ci95": [0.08065766257979806, 0.41601743225189364],
+      "recovered_count": 0,
+      "conditional_recovery_success_rate": 0.0,
+      "llm_call_count_with_shared_initial_attribution": 20,
+      "total_tokens_with_shared_initial_attribution": 63927,
+      "paired_uplift_vs_h0": 0.0,
+      "mcnemar_p_vs_h0": 1.0
+    },
+    "H2_llm_reflection": {
+      "task_success_count": 12,
+      "task_success_rate": 0.6,
+      "task_success_ci95": [0.3865815007622531, 0.781193467627183],
+      "recovered_count": 8,
+      "conditional_recovery_success_rate": 0.5,
+      "llm_call_count_with_shared_initial_attribution": 36,
+      "total_tokens_with_shared_initial_attribution": 115206,
+      "paired_uplift_vs_h0": 0.4,
+      "paired_uplift_ci95_vs_h0": [0.2, 0.6],
+      "mcnemar_p_vs_h0": 0.0078125
+    },
+    "H2_error_specific": {
+      "task_success_count": 12,
+      "task_success_rate": 0.6,
+      "task_success_ci95": [0.3865815007622531, 0.781193467627183],
+      "recovered_count": 8,
+      "conditional_recovery_success_rate": 0.5,
+      "llm_call_count_with_shared_initial_attribution": 36,
+      "total_tokens_with_shared_initial_attribution": 116850,
+      "paired_uplift_vs_h0": 0.4,
+      "paired_uplift_ci95_vs_h0": [0.2, 0.6],
+      "mcnemar_p_vs_h0": 0.0078125,
+      "mcnemar_p_vs_llm_reflection": 1.0
+    },
+    "H2_memory": {
+      "task_success_count": 11,
+      "task_success_rate": 0.55,
+      "task_success_ci95": [0.34208534245034233, 0.7418021417443759],
+      "recovered_count": 7,
+      "conditional_recovery_success_rate": 0.4375,
+      "llm_call_count_with_shared_initial_attribution": 36,
+      "total_tokens_with_shared_initial_attribution": 125076,
+      "paired_uplift_vs_h0": 0.35,
+      "paired_uplift_ci95_vs_h0": [0.15, 0.55],
+      "mcnemar_p_vs_h0": 0.015625,
+      "paired_uplift_vs_llm_reflection": -0.05,
+      "mcnemar_p_vs_llm_reflection": 1.0,
+      "memory_provenance": "frozen symbolic-PDDL teacher memory"
+    },
+    "H2_pddl_recovery": {
+      "task_success_count": 20,
+      "task_success_rate": 1.0,
+      "task_success_ci95": [0.8388748419471806, 1.0],
+      "recovered_count": 16,
+      "conditional_recovery_success_rate": 1.0,
+      "llm_call_count_with_shared_initial_attribution": 20,
+      "total_tokens_with_shared_initial_attribution": 63927,
+      "symbolic_explored_states": 14,
+      "symbolic_search_seconds": 0.107723,
+      "paired_uplift_vs_h0": 0.8,
+      "paired_uplift_ci95_vs_h0": [0.6, 0.95],
+      "mcnemar_p_vs_h0": 0.000030517578125,
+      "claim_role": "symbolic recovery reference, not an LLM harness contribution"
+    }
+  },
+  "telemetry": {
+    "actual_unique_llm_calls": 68,
+    "successful_calls": 68,
+    "failed_calls": 0,
+    "prompt_tokens": 159570,
+    "completion_tokens": 69708,
+    "total_tokens": 229278,
+    "latency_seconds": 690.145227,
+    "length_truncated_calls": 11,
+    "monetary_cost_status": "pricing_not_configured"
+  },
+  "selection": {
+    "final_confirmatory_recovery_cells": [
+      "H0_open_loop",
+      "H2_llm_reflection",
+      "H2_memory",
+      "H2_pddl_recovery"
+    ],
+    "development_only_cells": [
+      "H2_local_recovery",
+      "H2_error_specific"
+    ],
+    "not_run": [
+      "H2_combined",
+      "H2_combined_no_local",
+      "H2_combined_no_error",
+      "H2_combined_no_memory"
+    ],
+    "rationale": "Local repair had no task-success gain; error-specific repair duplicated plain reflection; memory remains as a required mechanism contrast despite slightly lower performance and higher token use; combined modes lack a development justification; PDDL remains a separately labelled symbolic reference."
+  }
+}
