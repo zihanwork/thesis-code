@@ -19,6 +19,24 @@ The smoke fixture is:
 
 `data/official_eai_smoke/virtualhome/action_sequencing/smoke_outputs.json`
 
+## Final held-out compatible-subset diagnostic
+
+After all four frozen final matrices completed, the selected non-symbolic
+method (`gpt-5.5`, `P1_rag`, `H2_llm_reflection`) was passed through the strict
+exporter. Of the 119 frozen VirtualHome tasks, 83 converted without guessing;
+30 were rejected because the pinned evaluator does not execute
+`PLUGIN/PLUGOUT`, and 6 were rejected because an object class had multiple
+official scene IDs.
+
+The pinned official evaluator ran on the 83 compatible tasks. All 83
+trajectories were executable, while 43 satisfied the complete task criterion.
+The official goal results were state 67/69, relation 64/69, action 1/38, and
+combined 132/176. This is a compatibility-selected diagnostic rather than a
+full held-out or leaderboard score. In particular, the action-goal result
+proves that the custom PDDL final-state metric and official action/LTL metric
+are not interchangeable. Exact hashes and exclusions are recorded in
+`docs/final_official_virtualhome_evidence.json`.
+
 It deliberately contains multiple tasks whose combined goals cover state,
 relation, and action metrics. A single task can have zero goals in one or more
 categories, and the pinned upstream evaluator divides by each category count
@@ -59,9 +77,10 @@ embodied-gap export-official-virtualhome \
 ```
 
 Strict mode writes no official response unless every expected VirtualHome task
-can be converted. `--allow-partial` is for integration diagnosis only and still
-returns a non-zero status when tasks are skipped. It must not be used to claim
-a full benchmark result. `--overwrite` must be explicit because official export
+can be converted; it still writes an audit manifest describing every rejection.
+`--allow-partial` is for integration diagnosis only and marks the manifest
+`complete: false` when tasks are skipped. It must not be used to claim a full
+benchmark result. `--overwrite` must be explicit because official export
 artifacts are non-overwriting by default.
 
 The exporter intentionally refuses:

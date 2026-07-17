@@ -284,6 +284,12 @@ Completed research infrastructure now also includes:
 - A 30-task frozen controlled safety set and dedicated H0/H1/H2-Local metrics;
   see `docs/safety_evaluation.md`.
 
-Remaining experiment stages are model-family expansion and the final frozen
-experiment matrix. Fine-tuning remains an optional control rather than a
-prerequisite.
+The model-family expansion and one-shot final frozen matrix are complete. The
+final local results, paired statistics, resource telemetry, and official
+VirtualHome compatibility diagnostic are documented in
+`docs/final_results.md` and `docs/final_results_evidence.json`.
+
+The remaining external-scope limitations are not hidden: the project has no
+official BEHAVIOR simulator score without the separately licensed iGibson
+assets, and it does not implement all eight official challenge output slots.
+Fine-tuning remains an optional control rather than a prerequisite.
