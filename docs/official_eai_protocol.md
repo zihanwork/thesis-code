@@ -1,6 +1,7 @@
 # Official EAI evaluation protocol
 
-Status: VirtualHome action-sequencing evaluator verified locally on 2026-07-17.
+Status: VirtualHome action-sequencing evaluator and automatic export from a
+real project run verified locally on 2026-07-17.
 The BEHAVIOR evaluator and iGibson runtime import successfully, but official
 execution is blocked until the separately licensed iGibson dataset is present.
 The full eight-slot official submission is not yet ready.
@@ -40,6 +41,58 @@ conda run -n eai-eval python -m eai_eval.cli \
 
 The smoke score is only an integration check and must not be reported as an
 experimental result.
+
+## Exporting a real project method
+
+The exporter selects one exact planner/harness pair from a run JSONL, restores
+task-specific object IDs only from the pinned official prompts, validates the
+pinned evaluator's action vocabulary and writes a non-overwriting official
+response file plus an audit manifest:
+
+```bash
+embodied-gap export-official-virtualhome \
+  --runs runs/<experiment>/<model>/runs.jsonl \
+  --tasks data/processed/tasksets/<taskset>.jsonl \
+  --planner P0_structured_prompt \
+  --harness H0_open_loop \
+  --out runs/<official-export>/virtualhome/action_sequencing/<model>_outputs.json
+```
+
+Strict mode writes no official response unless every expected VirtualHome task
+can be converted. `--allow-partial` is for integration diagnosis only and still
+returns a non-zero status when tasks are skipped. It must not be used to claim
+a full benchmark result. `--overwrite` must be explicit because official export
+artifacts are non-overwriting by default.
+
+The exporter intentionally refuses:
+
+- an object class with more than one relevant scene ID;
+- a canonical action without a reviewed semantic projection;
+- actions advertised by prompt prose but absent from the pinned evaluator;
+- a missing, duplicate, empty, or rejected selected run.
+
+For example, canonical `put_on(character, object, surface)` becomes official
+`PUTBACK(object, surface)`, while PDDL-only character arguments are removed.
+No action is silently dropped.
+
+### Real historical-run integration result
+
+The historical GPT-5.5 `P0_prompt_only/H0_open_loop` run on
+`balanced_eval_20.jsonl` contained 12 VirtualHome tasks. Eight converted without
+guessing and passed the local format preflight. Four were correctly rejected:
+
+- task `232_2`: `light` maps to three relevant official object IDs;
+- tasks `327_2`, `819_1`, and `962_1`: `plug_in` maps to `PLUGIN`, which is in
+  the prompt but missing from the pinned evaluator's executable action table.
+
+The official evaluator ran successfully on the eight-record diagnostic file.
+It then excluded tasks `496_1`, `540_1`, and `764_2` because their official gold
+trajectories failed the evaluator's own gold-state gate, leaving an effective
+denominator of five. On those five tasks it reported 100% execution success,
+60% task success, 100% state goal, 100% relation goal, 0% action goal, and
+81.8182% total goal. These numbers prove the end-to-end adapter path only. They
+are a partial historical pilot with an upstream-filtered denominator and are
+not a thesis result or leaderboard score.
 
 The BEHAVIOR smoke fixture is:
 
@@ -82,6 +135,11 @@ The default location is `external/iGibson/igibson/data/ig_dataset`. To keep the
 large licensed data outside Git, set `IGIBSON_DATASET_PATH` to another local
 directory; both iGibson and the project preflight respect that environment
 variable.
+
+The current thesis does not require downloading these assets to continue. Its
+BEHAVIOR numbers remain labelled `custom PDDL evaluation`; an official
+BEHAVIOR score is an optional later run on a machine where the licensed assets
+are available.
 
 ## Pinned-format discrepancy
 

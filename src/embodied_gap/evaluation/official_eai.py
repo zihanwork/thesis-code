@@ -3,7 +3,10 @@ from __future__ import annotations
 import json
 import os
 from pathlib import Path
+import re
 from typing import Any
+
+from embodied_gap.core.action_schema import parse_call
 
 
 OFFICIAL_DATASETS = ("virtualhome", "behavior")
@@ -12,6 +15,98 @@ OFFICIAL_MODULES = (
     "subgoal_decomposition",
     "action_sequencing",
     "transition_modeling",
+)
+
+# This mirrors valid_actions in the evaluator at the pinned EAI commit. It is
+# deliberately not expanded from the prompt prose: PLUGIN and PLUGOUT are
+# advertised there but absent from the executable evaluator dictionary.
+VIRTUALHOME_OFFICIAL_ACTION_ARITY = {
+    "CLOSE": 1,
+    "CUT": 1,
+    "DRINK": 1,
+    "DROP": 1,
+    "EAT": 1,
+    "FIND": 1,
+    "GRAB": 1,
+    "GREET": 1,
+    "LIE": 1,
+    "LOOKAT": 1,
+    "LOOKAT_LONG": 1,
+    "LOOKAT_MEDIUM": 1,
+    "LOOKAT_SHORT": 1,
+    "MOVE": 1,
+    "OPEN": 1,
+    "POINTAT": 1,
+    "POUR": 2,
+    "PULL": 1,
+    "PUSH": 1,
+    "PUTBACK": 2,
+    "PUTIN": 2,
+    "PUTOBJBACK": 1,
+    "PUTOFF": 1,
+    "PUTON": 1,
+    "READ": 1,
+    "RINSE": 1,
+    "RUN": 1,
+    "SCRUB": 1,
+    "SIT": 1,
+    "SLEEP": 0,
+    "SQUEEZE": 1,
+    "STANDUP": 0,
+    "SWITCHOFF": 1,
+    "SWITCHON": 1,
+    "TOUCH": 1,
+    "TURNTO": 1,
+    "TYPE": 1,
+    "WAKEUP": 0,
+    "WALK": 1,
+    "WASH": 1,
+    "WATCH": 1,
+    "WIPE": 1,
+}
+
+# Source PDDL action -> (official action, indices of canonical PDDL arguments
+# retained after removing the implicit character and other PDDL-only context).
+VIRTUALHOME_PDDL_TO_OFFICIAL = {
+    "close": ("CLOSE", (1,)),
+    "cut": ("CUT", (1,)),
+    "drink": ("DRINK", (1,)),
+    "drop": ("DROP", (1,)),
+    "eat": ("EAT", (1,)),
+    "find": ("FIND", (1,)),
+    "grab": ("GRAB", (1,)),
+    "lie": ("LIE", (1,)),
+    "look_at": ("LOOKAT", (1,)),
+    "move": ("MOVE", (1,)),
+    "open": ("OPEN", (1,)),
+    "plug_in": ("PLUGIN", (1,)),
+    "plug_out": ("PLUGOUT", (1,)),
+    "pour": ("POUR", (1, 2)),
+    "put_inside": ("PUTIN", (1, 2)),
+    "put_on": ("PUTBACK", (1, 2)),
+    "put_on_character": ("PUTON", (1,)),
+    "read": ("READ", (1,)),
+    "sit": ("SIT", (1,)),
+    "sleep": ("SLEEP", ()),
+    "squeeze": ("SQUEEZE", (1,)),
+    "standup": ("STANDUP", ()),
+    "switch_off": ("SWITCHOFF", (1,)),
+    "switch_on": ("SWITCHON", (1,)),
+    "touch": ("TOUCH", (1,)),
+    "turn_to": ("TURNTO", (1,)),
+    "type": ("TYPE", (1,)),
+    "wake_up": ("WAKEUP", ()),
+    "walk_into": ("WALK", (1,)),
+    "walk_towards": ("WALK", (1,)),
+    "wash": ("WASH", (1,)),
+    "watch": ("WATCH", (1,)),
+    # The official WIPE action has one target; the PDDL's second object is the
+    # cleaning implement and is implicit in the official primitive.
+    "wipe": ("WIPE", (1,)),
+}
+
+_VIRTUALHOME_OBJECT_LINE = re.compile(
+    r"^\s*([^,\n]+),\s*id:\s*(\d+),\s*properties:", re.MULTILINE
 )
 
 
@@ -108,6 +203,40 @@ def validate_action_sequencing_records(
                             identifier=identifier,
                         )
                     )
+                    continue
+                if action not in VIRTUALHOME_OFFICIAL_ACTION_ARITY:
+                    issues.append(
+                        _issue(
+                            "virtualhome_unsupported_action",
+                            f"Step {step_index} action {action!r} is not supported by the pinned evaluator.",
+                            identifier=identifier,
+                        )
+                    )
+                    continue
+                expected_pairs = VIRTUALHOME_OFFICIAL_ACTION_ARITY[action]
+                if len(arguments) // 2 != expected_pairs:
+                    issues.append(
+                        _issue(
+                            "virtualhome_action_arity",
+                            f"Step {step_index} action {action} expects {expected_pairs} object pair(s).",
+                            identifier=identifier,
+                        )
+                    )
+                for pair_index in range(0, len(arguments), 2):
+                    name = arguments[pair_index]
+                    object_id = arguments[pair_index + 1]
+                    if not isinstance(name, str) or not (
+                        isinstance(object_id, int)
+                        or (isinstance(object_id, str) and object_id.isdigit())
+                    ):
+                        issues.append(
+                            _issue(
+                                "virtualhome_name_id_types",
+                                f"Step {step_index} requires string names and numeric IDs.",
+                                identifier=identifier,
+                            )
+                        )
+                        break
             else:
                 if set(step) != {"action", "object"}:
                     issues.append(
@@ -147,6 +276,242 @@ def validate_action_sequencing_file(path: str | Path, *, dataset: str) -> dict[s
     result = validate_action_sequencing_records(records, dataset=dataset)
     result["path"] = str(path)
     return result
+
+
+def load_virtualhome_prompt_object_ids(
+    prompt_path: str | Path,
+) -> dict[str, dict[str, tuple[int, ...]]]:
+    """Load task-specific object name/ID candidates from official prompts."""
+
+    records = json.loads(Path(prompt_path).read_text(encoding="utf-8"))
+    if not isinstance(records, list):
+        raise ValueError("Official VirtualHome prompt file must contain a list.")
+    task_objects: dict[str, dict[str, tuple[int, ...]]] = {}
+    for record in records:
+        if not isinstance(record, dict):
+            continue
+        identifier = record.get("identifier")
+        prompt = record.get("llm_prompt")
+        if not isinstance(identifier, str) or not isinstance(prompt, str):
+            continue
+        candidates: dict[str, list[int]] = {}
+        for name, raw_id in _VIRTUALHOME_OBJECT_LINE.findall(prompt):
+            candidates.setdefault(name.strip(), []).append(int(raw_id))
+        task_objects[identifier] = {
+            name: tuple(dict.fromkeys(ids)) for name, ids in candidates.items()
+        }
+    return task_objects
+
+
+def _read_jsonl(path: str | Path) -> list[dict[str, Any]]:
+    rows: list[dict[str, Any]] = []
+    with Path(path).open("r", encoding="utf-8") as handle:
+        for line_number, line in enumerate(handle, start=1):
+            if not line.strip():
+                continue
+            try:
+                row = json.loads(line)
+            except json.JSONDecodeError as exc:
+                raise ValueError(f"Invalid JSON on line {line_number} of {path}: {exc}") from exc
+            if not isinstance(row, dict):
+                raise ValueError(f"Line {line_number} of {path} is not a JSON object.")
+            rows.append(row)
+    return rows
+
+
+def _atomic_write_json_value(path: Path, payload: Any) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    temporary = path.with_name(f".{path.name}.tmp")
+    temporary.write_text(
+        json.dumps(payload, ensure_ascii=False, indent=2) + "\n",
+        encoding="utf-8",
+    )
+    temporary.replace(path)
+
+
+def _translate_virtualhome_action(
+    action_text: str,
+    object_ids: dict[str, tuple[int, ...]],
+) -> tuple[dict[str, list[Any]] | None, dict[str, str] | None]:
+    call = parse_call(action_text)
+    mapping = VIRTUALHOME_PDDL_TO_OFFICIAL.get(call.name)
+    if mapping is None:
+        return None, _issue(
+            "source_action_unmapped",
+            f"Canonical action {call.name!r} has no reviewed official mapping.",
+        )
+    official_action, argument_indices = mapping
+    if official_action not in VIRTUALHOME_OFFICIAL_ACTION_ARITY:
+        return None, _issue(
+            "unsupported_at_pinned_commit",
+            f"{call.name} maps to {official_action}, which the pinned evaluator does not execute.",
+        )
+    if any(index >= len(call.args) for index in argument_indices):
+        return None, _issue(
+            "source_action_arity",
+            f"Canonical action {action_text!r} does not contain the expected arguments.",
+        )
+
+    arguments: list[Any] = []
+    for index in argument_indices:
+        name = call.args[index]
+        candidates = object_ids.get(name, ())
+        if not candidates:
+            return None, _issue(
+                "official_object_missing",
+                f"Object {name!r} is absent from the task-specific official prompt.",
+            )
+        if len(candidates) != 1:
+            return None, _issue(
+                "official_object_ambiguous",
+                f"Object {name!r} has multiple official IDs: {list(candidates)}.",
+            )
+        arguments.extend((name, candidates[0]))
+    return {official_action: arguments}, None
+
+
+def export_virtualhome_action_sequencing(
+    *,
+    runs_path: str | Path,
+    tasks_path: str | Path,
+    prompts_path: str | Path,
+    output_path: str | Path,
+    planner_name: str,
+    harness_mode: str,
+    allow_partial: bool = False,
+    overwrite: bool = False,
+) -> dict[str, Any]:
+    """Export one exact project method to pinned official VirtualHome format.
+
+    The exporter never guesses object IDs. A strict export writes the official
+    output only when every expected VirtualHome task has one selected run and
+    every action can be translated without ambiguity.
+    """
+
+    output_path = Path(output_path)
+    manifest_path = output_path.with_suffix(".manifest.json")
+    existing = [path for path in (output_path, manifest_path) if path.exists()]
+    if existing and not overwrite:
+        raise FileExistsError(
+            "Official export is non-overwriting; already exists: "
+            + ", ".join(str(path) for path in existing)
+        )
+
+    tasks = _read_jsonl(tasks_path)
+    runs = _read_jsonl(runs_path)
+    prompt_objects = load_virtualhome_prompt_object_ids(prompts_path)
+    virtualhome_tasks = [
+        task
+        for task in tasks
+        if task.get("slots", {}).get("dataset") == "virtualhome"
+        or task.get("metadata", {}).get("dataset") == "virtualhome"
+    ]
+    expected_task_ids = {str(task.get("id", "")) for task in virtualhome_tasks}
+    selected: dict[str, list[dict[str, Any]]] = {}
+    for run in runs:
+        if (
+            str(run.get("task_id")) in expected_task_ids
+            and run.get("planner_name") == planner_name
+            and run.get("harness_mode") == harness_mode
+        ):
+            selected.setdefault(str(run.get("task_id")), []).append(run)
+
+    outputs: list[dict[str, str]] = []
+    issues: list[dict[str, str]] = []
+    for task in virtualhome_tasks:
+        task_id = str(task.get("id", ""))
+        identifier = str(task.get("slots", {}).get("file_id", ""))
+        task_runs = selected.get(task_id, [])
+        if len(task_runs) != 1:
+            code = "selected_run_missing" if not task_runs else "selected_run_duplicate"
+            issues.append(
+                _issue(
+                    code,
+                    f"Expected exactly one {planner_name}/{harness_mode} run; found {len(task_runs)}.",
+                    identifier=identifier or task_id,
+                )
+            )
+            continue
+        if not identifier or identifier not in prompt_objects:
+            issues.append(
+                _issue(
+                    "official_prompt_missing",
+                    "Task has no matching official VirtualHome action-sequencing prompt.",
+                    identifier=identifier or task_id,
+                )
+            )
+            continue
+        actions = task_runs[0].get("final_plan", {}).get("actions")
+        if not isinstance(actions, list) or not actions or actions == ["reject()"]:
+            issues.append(
+                _issue(
+                    "final_plan_not_exportable",
+                    "Selected run has no non-rejected final plan.",
+                    identifier=identifier,
+                )
+            )
+            continue
+
+        translated: list[dict[str, list[Any]]] = []
+        task_failed = False
+        for action_index, action_text in enumerate(actions):
+            if not isinstance(action_text, str):
+                issue = _issue(
+                    "source_action_not_string",
+                    f"Action {action_index} is not a string.",
+                    identifier=identifier,
+                )
+                issues.append(issue)
+                task_failed = True
+                break
+            step, issue = _translate_virtualhome_action(
+                action_text,
+                prompt_objects[identifier],
+            )
+            if issue is not None:
+                issue["identifier"] = identifier
+                issue["action_index"] = str(action_index)
+                issues.append(issue)
+                task_failed = True
+                break
+            assert step is not None
+            translated.append(step)
+        if not task_failed:
+            outputs.append(
+                {
+                    "identifier": identifier,
+                    "llm_output": json.dumps(translated, ensure_ascii=False, separators=(",", ":")),
+                }
+            )
+
+    outputs.sort(key=lambda row: row["identifier"])
+    complete = len(outputs) == len(virtualhome_tasks) and not issues
+    manifest: dict[str, Any] = {
+        "format_version": 1,
+        "dataset": "virtualhome",
+        "module": "action_sequencing",
+        "runs_path": str(runs_path),
+        "tasks_path": str(tasks_path),
+        "prompts_path": str(prompts_path),
+        "output_path": str(output_path),
+        "planner_name": planner_name,
+        "harness_mode": harness_mode,
+        "expected_task_count": len(virtualhome_tasks),
+        "selected_run_count": sum(len(value) for value in selected.values()),
+        "exported_task_count": len(outputs),
+        "skipped_task_count": len(virtualhome_tasks) - len(outputs),
+        "complete": complete,
+        "partial_output_written": bool(allow_partial and outputs and not complete),
+        "issues": issues,
+        "notes": [
+            "Object IDs come only from each task's pinned official prompt; ambiguous IDs are never guessed.",
+            "A successful export is an input artifact, not an official score; run the pinned evaluator separately.",
+        ],
+    }
+    _atomic_write_json_value(manifest_path, manifest)
+    if complete or (allow_partial and outputs):
+        _atomic_write_json_value(output_path, outputs)
+    return manifest
 
 
 def inspect_official_response_tree(

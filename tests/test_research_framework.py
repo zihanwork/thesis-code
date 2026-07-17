@@ -40,7 +40,9 @@ from embodied_gap.experiments.config import ExperimentConfig
 from embodied_gap.experiments.runner import ExperimentRunner
 from embodied_gap.evaluation.pddl_gold_validator import PDDLGoldPlanValidator
 from embodied_gap.evaluation.official_eai import (
+    export_virtualhome_action_sequencing,
     inspect_official_response_tree,
+    load_virtualhome_prompt_object_ids,
     validate_action_sequencing_records,
 )
 from embodied_gap.execution.symbolic_executor import SymbolicExecutor
@@ -151,6 +153,155 @@ class ResearchFrameworkTests(unittest.TestCase):
             dataset="virtualhome",
         )
         self.assertTrue(valid["valid"])
+
+        unsupported = validate_action_sequencing_records(
+            [
+                {
+                    "identifier": "11_1",
+                    "llm_output": '[{"PLUGIN":["computer",417]}]',
+                }
+            ],
+            dataset="virtualhome",
+        )
+        self.assertFalse(unsupported["valid"])
+        self.assertEqual(
+            unsupported["issues"][0]["code"],
+            "virtualhome_unsupported_action",
+        )
+
+    def test_official_virtualhome_export_resolves_task_specific_ids(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            tasks_path = root / "tasks.jsonl"
+            runs_path = root / "runs.jsonl"
+            prompts_path = root / "prompts.json"
+            output_path = root / "responses" / "unit_outputs.json"
+            tasks_path.write_text(
+                json.dumps(
+                    {
+                        "id": "eai_virtualhome__Turn_on_light__11_1",
+                        "slots": {
+                            "dataset": "virtualhome",
+                            "file_id": "11_1",
+                        },
+                    }
+                )
+                + "\n",
+                encoding="utf-8",
+            )
+            runs_path.write_text(
+                json.dumps(
+                    {
+                        "task_id": "eai_virtualhome__Turn_on_light__11_1",
+                        "planner_name": "P0_structured_prompt",
+                        "harness_mode": "H0_open_loop",
+                        "final_plan": {
+                            "actions": [
+                                "walk_towards(character, floor_lamp)",
+                                "switch_on(character, floor_lamp)",
+                            ]
+                        },
+                    }
+                )
+                + "\n",
+                encoding="utf-8",
+            )
+            prompts_path.write_text(
+                json.dumps(
+                    [
+                        {
+                            "identifier": "11_1",
+                            "llm_prompt": (
+                                "Objects in the scene:\n"
+                                "character, id: 65, properties: []\n"
+                                "floor_lamp, id: 1000, properties: ['HAS_SWITCH']\n"
+                            ),
+                        }
+                    ]
+                ),
+                encoding="utf-8",
+            )
+
+            object_ids = load_virtualhome_prompt_object_ids(prompts_path)
+            manifest = export_virtualhome_action_sequencing(
+                runs_path=runs_path,
+                tasks_path=tasks_path,
+                prompts_path=prompts_path,
+                output_path=output_path,
+                planner_name="P0_structured_prompt",
+                harness_mode="H0_open_loop",
+            )
+            output = json.loads(output_path.read_text(encoding="utf-8"))
+            parsed = json.loads(output[0]["llm_output"])
+
+        self.assertEqual(object_ids["11_1"]["floor_lamp"], (1000,))
+        self.assertTrue(manifest["complete"])
+        self.assertEqual(
+            parsed,
+            [
+                {"WALK": ["floor_lamp", 1000]},
+                {"SWITCHON": ["floor_lamp", 1000]},
+            ],
+        )
+
+    def test_official_virtualhome_export_never_guesses_ambiguous_ids(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            tasks_path = root / "tasks.jsonl"
+            runs_path = root / "runs.jsonl"
+            prompts_path = root / "prompts.json"
+            output_path = root / "unit_outputs.json"
+            tasks_path.write_text(
+                json.dumps(
+                    {
+                        "id": "task",
+                        "slots": {"dataset": "virtualhome", "file_id": "ambiguous"},
+                    }
+                )
+                + "\n",
+                encoding="utf-8",
+            )
+            runs_path.write_text(
+                json.dumps(
+                    {
+                        "task_id": "task",
+                        "planner_name": "P0",
+                        "harness_mode": "H0",
+                        "final_plan": {"actions": ["switch_on(character, walllamp)"]},
+                    }
+                )
+                + "\n",
+                encoding="utf-8",
+            )
+            prompts_path.write_text(
+                json.dumps(
+                    [
+                        {
+                            "identifier": "ambiguous",
+                            "llm_prompt": (
+                                "walllamp, id: 10, properties: []\n"
+                                "walllamp, id: 11, properties: []\n"
+                            ),
+                        }
+                    ]
+                ),
+                encoding="utf-8",
+            )
+
+            manifest = export_virtualhome_action_sequencing(
+                runs_path=runs_path,
+                tasks_path=tasks_path,
+                prompts_path=prompts_path,
+                output_path=output_path,
+                planner_name="P0",
+                harness_mode="H0",
+                allow_partial=True,
+            )
+            output_exists = output_path.exists()
+
+        self.assertFalse(manifest["complete"])
+        self.assertEqual(manifest["issues"][0]["code"], "official_object_ambiguous")
+        self.assertFalse(output_exists)
 
     def test_official_behavior_contract_accepts_action_object_steps(self) -> None:
         valid = validate_action_sequencing_records(

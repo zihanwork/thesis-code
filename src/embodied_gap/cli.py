@@ -13,7 +13,10 @@ from embodied_gap.experiments.model_matrix import ModelMatrixConfig, MultiModelE
 from embodied_gap.experiments.pilot_budget import inspect_model_matrix
 from embodied_gap.experiments.runner import ExperimentRunner
 from embodied_gap.evaluation.pddl_gold_validator import PDDLGoldPlanValidator
-from embodied_gap.evaluation.official_eai import export_official_preflight
+from embodied_gap.evaluation.official_eai import (
+    export_official_preflight,
+    export_virtualhome_action_sequencing,
+)
 from embodied_gap.knowledge.corpus_builder import KnowledgeCorpusBuilder
 from embodied_gap.knowledge.failure_memory_store import build_frozen_failure_memory
 from embodied_gap.llm.clients import OneAPIChatClient
@@ -203,6 +206,21 @@ def check_official_eai(args: argparse.Namespace) -> int:
     return 0 if report["action_sequencing_shapes_valid"] else 1
 
 
+def export_official_virtualhome(args: argparse.Namespace) -> int:
+    manifest = export_virtualhome_action_sequencing(
+        runs_path=args.runs,
+        tasks_path=args.tasks,
+        prompts_path=args.prompts,
+        output_path=args.out,
+        planner_name=args.planner,
+        harness_mode=args.harness,
+        allow_partial=args.allow_partial,
+        overwrite=args.overwrite,
+    )
+    print(json.dumps(manifest, ensure_ascii=False, indent=2, sort_keys=True))
+    return 0 if manifest["complete"] else 1
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(prog="embodied-gap")
     subparsers = parser.add_subparsers(dest="command", required=True)
@@ -335,6 +353,26 @@ def main(argv: list[str] | None = None) -> int:
     )
     official_parser.add_argument("--out", required=True)
     official_parser.set_defaults(func=check_official_eai)
+
+    export_vh_parser = subparsers.add_parser(
+        "export-official-virtualhome",
+        help="Export one exact project method to official VirtualHome action-sequencing format.",
+    )
+    export_vh_parser.add_argument("--runs", required=True)
+    export_vh_parser.add_argument("--tasks", required=True)
+    export_vh_parser.add_argument(
+        "--prompts",
+        default=(
+            "external/embodied-agent-interface/src/virtualhome_eval/evaluation/"
+            "action_sequencing/prompts/helm_prompts.json"
+        ),
+    )
+    export_vh_parser.add_argument("--planner", required=True)
+    export_vh_parser.add_argument("--harness", required=True)
+    export_vh_parser.add_argument("--out", required=True)
+    export_vh_parser.add_argument("--allow-partial", action="store_true")
+    export_vh_parser.add_argument("--overwrite", action="store_true")
+    export_vh_parser.set_defaults(func=export_official_virtualhome)
 
     args = parser.parse_args(argv)
     return args.func(args)
