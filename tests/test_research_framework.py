@@ -152,6 +152,34 @@ class ResearchFrameworkTests(unittest.TestCase):
         )
         self.assertTrue(valid["valid"])
 
+    def test_official_behavior_contract_accepts_action_object_steps(self) -> None:
+        valid = validate_action_sequencing_records(
+            [
+                {
+                    "identifier": "behavior-demo",
+                    "llm_output": (
+                        '[{"action":"RIGHT_GRASP","object":"carton_0"},'
+                        '{"action":"RIGHT_PLACE_ONTOP",'
+                        '"object":"breakfast_table_19"}]'
+                    ),
+                }
+            ],
+            dataset="behavior",
+        )
+        self.assertTrue(valid["valid"])
+
+        invalid = validate_action_sequencing_records(
+            [
+                {
+                    "identifier": "behavior-demo",
+                    "llm_output": '[{"RIGHT_GRASP":["carton_0"]}]',
+                }
+            ],
+            dataset="behavior",
+        )
+        self.assertFalse(invalid["valid"])
+        self.assertEqual(invalid["issues"][0]["code"], "behavior_step_shape")
+
     def test_official_preflight_does_not_promote_partial_output_to_submission(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
             action_dir = Path(temp_dir) / "virtualhome" / "action_sequencing"
@@ -172,7 +200,24 @@ class ResearchFrameworkTests(unittest.TestCase):
         self.assertEqual(report["required_slot_count"], 8)
         self.assertEqual(report["present_slot_count"], 1)
         self.assertTrue(report["action_sequencing_shapes_valid"])
+        self.assertFalse(report["structurally_ready"])
         self.assertFalse(report["submission_ready"])
+
+    def test_official_preflight_checks_igibson_assets_separately(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            external_root = Path(temp_dir) / "external" / "embodied-agent-interface"
+            (external_root / "src" / "virtualhome_eval").mkdir(parents=True)
+            (external_root / "src" / "behavior_eval").mkdir(parents=True)
+            (external_root.parent / "iGibson" / "igibson").mkdir(parents=True)
+
+            report = inspect_official_response_tree(
+                Path(temp_dir) / "responses",
+                external_root=external_root,
+            )
+
+        self.assertTrue(report["runtime_sources"]["igibson_source_present"])
+        self.assertFalse(report["runtime_sources"]["igibson_dataset_present"])
+        self.assertFalse(report["official_runtime_ready"])
 
     def test_pilot_preflight_counts_calls_and_excludes_heldout(self) -> None:
         prompt_report = inspect_model_matrix(

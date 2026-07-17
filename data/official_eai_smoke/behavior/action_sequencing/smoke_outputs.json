@@ -1,0 +1,6 @@
+[
+  {
+    "identifier": "picking_up_take-out_food_0_Ihlen_1_int_0_2021-06-10_22-09-43",
+    "llm_output": "[{\"action\":\"RIGHT_GRASP\",\"object\":\"carton_0\"},{\"action\":\"RIGHT_PLACE_ONTOP\",\"object\":\"breakfast_table_19\"}]"
+  }
+]

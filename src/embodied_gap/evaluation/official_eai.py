@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import os
 from pathlib import Path
 from typing import Any
 
@@ -178,6 +179,25 @@ def inspect_official_response_tree(
     action_shapes_valid = bool(validations) and all(item["valid"] for item in validations)
     behavior_runtime_marker = external_root / "src" / "behavior_eval"
     virtualhome_runtime_marker = external_root / "src" / "virtualhome_eval"
+    igibson_root = external_root.parent / "iGibson"
+    igibson_dataset_root = Path(
+        os.environ.get(
+            "IGIBSON_DATASET_PATH",
+            str(igibson_root / "igibson" / "data" / "ig_dataset"),
+        )
+    ).expanduser()
+    igibson_source_present = (igibson_root / "igibson").is_dir()
+    igibson_dataset_present = all(
+        (igibson_dataset_root / component).is_dir()
+        for component in ("scenes", "objects")
+    )
+    official_runtime_ready = (
+        virtualhome_runtime_marker.is_dir()
+        and behavior_runtime_marker.is_dir()
+        and igibson_source_present
+        and igibson_dataset_present
+    )
+    structurally_ready = present_count == len(slots) and action_shapes_valid
     return {
         "protocol": "official-eai-four-modules-two-datasets",
         "response_root": str(response_root),
@@ -186,11 +206,15 @@ def inspect_official_response_tree(
         "present_slot_count": present_count,
         "all_slots_present": present_count == len(slots),
         "action_sequencing_shapes_valid": action_shapes_valid,
-        "submission_ready": present_count == len(slots) and action_shapes_valid,
+        "structurally_ready": structurally_ready,
+        "official_runtime_ready": official_runtime_ready,
+        "submission_ready": structurally_ready and official_runtime_ready,
         "runtime_sources": {
             "virtualhome_present": virtualhome_runtime_marker.is_dir(),
             "behavior_present": behavior_runtime_marker.is_dir(),
-            "behavior_requires_igibson": True,
+            "igibson_source_present": igibson_source_present,
+            "igibson_dataset_path": str(igibson_dataset_root),
+            "igibson_dataset_present": igibson_dataset_present,
         },
         "slots": slots,
         "notes": [
@@ -198,6 +222,7 @@ def inspect_official_response_tree(
             "A custom PDDL final-state score is not an official EAI score.",
             "The pinned VirtualHome evaluator requires object name/ID pairs despite conflicting prompt prose.",
             "Use a multi-task smoke set covering state, relation, and action goals to avoid zero-denominator failures.",
+            "BEHAVIOR evaluation requires the separately licensed iGibson scenes and objects dataset.",
         ],
     }
 

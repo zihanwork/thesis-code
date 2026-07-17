@@ -190,6 +190,8 @@ def check_official_eai(args: argparse.Namespace) -> int:
                 "present_slot_count": report["present_slot_count"],
                 "required_slot_count": report["required_slot_count"],
                 "action_sequencing_shapes_valid": report["action_sequencing_shapes_valid"],
+                "structurally_ready": report["structurally_ready"],
+                "official_runtime_ready": report["official_runtime_ready"],
                 "submission_ready": report["submission_ready"],
                 "output_path": args.out,
             },

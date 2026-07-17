@@ -1,0 +1,24 @@
+name: eai-eval
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.8.20
+  - pip=24.2
+  - cmake=4.2.3
+  # The osx-arm64 build replaces the obsolete pybullet-svl dependency.
+  - pybullet=3.25=py38h3c4795e_2
+  - pip:
+      - eai-eval==1.0.5
+      - aenum==3.1.17
+      - freetype-py==2.5.1
+      - future==1.0.0
+      - gitpython==3.1.52
+      - GPUtil==1.4.0
+      - h5py==3.11.0
+      - opencv-python-headless==5.0.0.93
+      - pandas==2.0.3
+      - progressbar2==4.5.0
+      - py360convert==0.1.0
+      - transforms3d==0.4.2
+      - trimesh==4.12.2

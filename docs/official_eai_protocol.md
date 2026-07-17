@@ -1,7 +1,9 @@
 # Official EAI evaluation protocol
 
-Status: VirtualHome action-sequencing evaluator verified locally on 2026-07-17;
-full eight-slot official submission is not yet ready.
+Status: VirtualHome action-sequencing evaluator verified locally on 2026-07-17.
+The BEHAVIOR evaluator and iGibson runtime import successfully, but official
+execution is blocked until the separately licensed iGibson dataset is present.
+The full eight-slot official submission is not yet ready.
 
 ## What has been verified
 
@@ -38,6 +40,48 @@ conda run -n eai-eval python -m eai_eval.cli \
 
 The smoke score is only an integration check and must not be reported as an
 experimental result.
+
+The BEHAVIOR smoke fixture is:
+
+`data/official_eai_smoke/behavior/action_sequencing/smoke_outputs.json`
+
+It passes the pinned input-shape validator. The official command reaches
+`ActionSequenceEvaluator` and attempts to construct the scene, proving that the
+CLI, response lookup, parser, PyBullet, and iGibson imports are connected. It
+then stops because `ig_dataset/scenes` is absent; no BEHAVIOR score has been
+produced.
+
+## Separate official-evaluator environment
+
+The main thesis package remains locked by `uv.lock`. The official evaluator is
+isolated because its pinned stack requires Python 3.8 and an old simulator
+toolchain. Its direct dependencies are pinned in `environment.eai-eval.yml`,
+while the exact source revisions are fixed by Git submodules.
+
+Create the environment and install the pinned iGibson source with:
+
+```bash
+conda env create -f environment.eai-eval.yml
+CMAKE_POLICY_VERSION_MINIMUM=3.5 \
+  conda run -n eai-eval python -m pip install --no-deps -e external/iGibson
+```
+
+The CMake compatibility setting is required because the pinned iGibson build
+predates CMake 4. On Apple Silicon, the conda-forge `pybullet` binary is used in
+place of `pybullet-svl`, which has no compatible wheel and fails to compile.
+
+BEHAVIOR evaluation additionally requires the iGibson scenes and BEHAVIOR
+objects dataset. Stanford's official instructions require completing the
+license form, placing the received `igibson.key`, and downloading approximately
+20 GB of data. This project does not accept that agreement or download those
+assets on a user's behalf. Follow the official dataset instructions:
+
+<https://stanfordVL.github.io/iGibson/dataset.html>
+
+The default location is `external/iGibson/igibson/data/ig_dataset`. To keep the
+large licensed data outside Git, set `IGIBSON_DATASET_PATH` to another local
+directory; both iGibson and the project preflight respect that environment
+variable.
 
 ## Pinned-format discrepancy
 
@@ -81,17 +125,21 @@ The report distinguishes:
 
 - `action_sequencing_shapes_valid`: files that satisfy the pinned input shape;
 - `all_slots_present`: all four modules for both environments are present;
-- `submission_ready`: both conditions hold.
+- `structurally_ready`: all slots are present and action shapes are valid;
+- `official_runtime_ready`: both evaluator sources and required iGibson assets
+  are present;
+- `submission_ready`: both structural and runtime conditions hold.
 
-The current smoke tree has only the VirtualHome action-sequencing slot, so it is
-correctly marked `submission_ready: false`.
+The current smoke tree has validated action-sequencing fixtures for both
+VirtualHome and BEHAVIOR, so two of the eight protocol slots are present. It is
+still correctly marked `submission_ready: false`: the BEHAVIOR dataset is not
+installed, and the other six module/environment slots are absent.
 
 ## Remaining blockers
 
-1. Importing the official BEHAVIOR evaluator currently fails because `igibson`
-   is not installed in the `eai-eval` environment. The official installer is a
-   separate, potentially heavy dependency step and has not been run
-   automatically.
+1. The official BEHAVIOR evaluator imports and starts, but simulation requires
+   the separately licensed, approximately 20 GB iGibson dataset. The user must
+   complete Stanford's license process before it can be downloaded and tested.
 2. The current thesis system produces plans for action sequencing. It does not
    yet produce official outputs for goal interpretation, subgoal decomposition,
    and transition modeling.
