@@ -93,5 +93,8 @@ Interpretation is deliberately narrow:
 - H2-Local retains H1 prevention and repairs the six locally recoverable
   missing-step cases.
 - Perfect controlled-set rates are not a public benchmark result and do not
-  establish LLM safety generalization. Later model-facing runs must use this
-  frozen set without changing its annotations or rules.
+establish LLM safety generalization. Later model-facing runs must use this
+frozen set without changing its annotations or rules.
+
+The clean-commit run's code revision, artifact hashes, denominators, and counts
+are preserved in `docs/safety_mechanism_evidence.json`.
