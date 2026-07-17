@@ -714,7 +714,15 @@ class ResearchFrameworkTests(unittest.TestCase):
                 "attempts": 1,
                 "patch_count": 0,
                 "error_counts": {},
-                "metadata": {"dataset": "virtualhome", "difficulty": "easy"},
+                "metadata": {
+                    "dataset": "virtualhome",
+                    "difficulty": {
+                        "label": "easy",
+                        "goal_count": 1,
+                        "object_count": 2,
+                        "plan_length": 1,
+                    },
+                },
             },
             {
                 "task_id": "a",
@@ -750,6 +758,8 @@ class ResearchFrameworkTests(unittest.TestCase):
             }
         ]
         report = build_research_analysis(metrics, runs)
+        self.assertEqual(report["schema_version"], 2)
+        self.assertEqual(list(report["stratified"]["difficulty"]), ["easy"])
         cost = report["cost_and_search"]["method_a"]
         self.assertEqual(cost["total_tokens"], 120)
         self.assertEqual(cost["symbolic_explored_states"], 7)

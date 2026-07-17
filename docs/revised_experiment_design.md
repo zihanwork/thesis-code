@@ -88,19 +88,28 @@ top-1/3/5, and four query field profiles. The staged protocol is defined in
 ## One API Model Policy
 
 The account model directory and smoke results are recorded in
-`configs/models/one_api_catalog.json`. As of 2026-07-16:
+`configs/models/one_api_catalog.json`. As of 2026-07-17:
 
 - Verified existing models: `DeepSeek-V4-Flash`, `gpt-5.5`.
-- Newly verified: `DeepSeek-V4-Pro`, `GLM-5-Turbo`.
+- Promoted cross-family model: `GLM-5-Turbo`.
+- API-compatible but not promoted after the realistic output-budget canary:
+  `DeepSeek-V4-Pro`.
 - Conditional: `MiniMax-M3`, `Kimi-K2.6`.
 - Listed but unavailable through the current chat route: tested Claude models
   and `grok-4.5`.
 
 The primary generalization addition is `GLM-5-Turbo` because it adds a new
-model family. `DeepSeek-V4-Pro` is a useful within-family capability comparison.
+model family. `DeepSeek-V4-Pro` is excluded from the current pilot because one
+of two realistic 2048-token canary calls ended by length.
 Qwen and Llama are not exposed by this One API account. A LoRA/PEFT experiment
 therefore requires a separate local open-weight backend. Fine-tuning is an
 optional appendix/future-work experiment and does not block the main thesis.
+
+The completed 20-task development pilot compares only P0/H0 with P1/H0 across
+DeepSeek-V4-Flash, gpt-5.5, and GLM-5-Turbo. RAG improved task success by 45,
+25, and 50 percentage points respectively. See
+`docs/model_generalization_protocol.md`. These are development results, not
+held-out or official scores.
 
 ## Reporting Guardrails
 

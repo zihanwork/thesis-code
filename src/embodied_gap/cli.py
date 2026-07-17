@@ -4,6 +4,9 @@ import argparse
 import json
 
 from embodied_gap.analysis.make_tables import summary_to_markdown
+from embodied_gap.analysis.model_generalization import (
+    export_model_generalization_summary,
+)
 from embodied_gap.analysis.research_report import export_research_analysis
 from embodied_gap.datasets.eai_adapter import EmbodiedAgentInterfaceAdapter
 from embodied_gap.datasets.taskset_builder import TaskSetBuilder
@@ -136,6 +139,28 @@ def analyze_run(args: argparse.Namespace) -> int:
                 "record_count": report["record_count"],
                 "method_count": report["method_count"],
                 "comparison_count": len(report["paired_comparisons"]),
+                "output_path": args.out,
+            },
+            ensure_ascii=False,
+            indent=2,
+            sort_keys=True,
+        )
+    )
+    return 0
+
+
+def summarize_model_generalization(args: argparse.Namespace) -> int:
+    report = export_model_generalization_summary(
+        run_dir=args.run_dir,
+        output_path=args.out,
+        analysis_filename=args.analysis_filename,
+    )
+    print(
+        json.dumps(
+            {
+                "model_count": report["matrix"]["model_count"],
+                "run_id": report["source"]["run_id"],
+                "dirty_worktree": report["source"]["dirty_worktree"],
                 "output_path": args.out,
             },
             ensure_ascii=False,
@@ -344,6 +369,18 @@ def main(argv: list[str] | None = None) -> int:
     analysis_parser.add_argument("--runs")
     analysis_parser.add_argument("--out", required=True)
     analysis_parser.set_defaults(func=analyze_run)
+
+    generalization_parser = subparsers.add_parser(
+        "summarize-model-generalization",
+        help="Summarize a completed multi-model development run.",
+    )
+    generalization_parser.add_argument("--run-dir", required=True)
+    generalization_parser.add_argument("--out", required=True)
+    generalization_parser.add_argument(
+        "--analysis-filename",
+        default="analysis_v2.json",
+    )
+    generalization_parser.set_defaults(func=summarize_model_generalization)
 
     knowledge_parser = subparsers.add_parser(
         "build-knowledge",

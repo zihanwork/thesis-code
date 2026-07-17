@@ -1,6 +1,6 @@
 {
-  "as_of": "2026-07-16",
-  "source": "GET /v1/models plus minimal chat-completions smoke checks",
+  "as_of": "2026-07-17",
+  "source": "GET /v1/models, minimal chat-completions checks, and capped EAI development canaries",
   "listed_models": [
     "Fable 5",
     "MiniMax-M3",
@@ -36,11 +36,15 @@
     },
     "DeepSeek-V4-Pro": {
       "status": "verified",
-      "response": "valid_json"
+      "response": "valid_json",
+      "generalization_status": "not_promoted",
+      "notes": "Minimal JSON check succeeded, but one of two realistic EAI calls still ended by length at the 2048-token canary cap."
     },
     "GLM-5-Turbo": {
       "status": "verified",
-      "response": "valid_json"
+      "response": "valid_json",
+      "generalization_status": "promoted_for_development_pilot",
+      "notes": "Passed the two-task 2048-token EAI output-budget canary with zero length truncations and completed the preregistered 20-task development pilot."
     },
     "MiniMax-M3": {
       "status": "conditional",
@@ -71,5 +75,20 @@
       "status": "unavailable",
       "notes": "The route rejected POST /v1/chat/completions."
     }
+  },
+  "generalization_selection": {
+    "primary_models": ["DeepSeek-V4-Flash", "gpt-5.5"],
+    "promoted_cross_family_model": "GLM-5-Turbo",
+    "not_promoted": ["DeepSeek-V4-Pro", "MiniMax-M3", "Kimi-K2.6"],
+    "not_exposed": ["Qwen", "Llama"],
+    "route_unavailable": [
+      "Claude Sonnet 4.6",
+      "Claude Sonnet 5",
+      "Claude Opus 4.6",
+      "Claude Haiku 4.5",
+      "grok-4.5"
+    ],
+    "evidence": "docs/model_generalization_evidence.json",
+    "policy": "Model count is not a goal; include only models that pass realistic prompt, parsing, telemetry, and fixed-budget gates."
   }
 }

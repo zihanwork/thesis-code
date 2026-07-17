@@ -164,6 +164,22 @@ See `docs/experiment_matrix.md` for the historical pilot results. The revised
 planning/recovery/generalization design is documented in
 `docs/revised_experiment_design.md`.
 
+Inspect and run the preregistered model-generalization pilot, then export its
+auditable summary:
+
+```bash
+PYTHONPATH=src python3 -m embodied_gap.cli inspect-model-matrix \
+  --config configs/experiments/eai_model_generalization_dev20.json
+PYTHONPATH=src python3 -m embodied_gap.cli run-model-matrix \
+  --config configs/experiments/eai_model_generalization_dev20.json
+PYTHONPATH=src python3 -m embodied_gap.cli summarize-model-generalization \
+  --run-dir runs/eai_model_generalization_dev20/<run-id> \
+  --out docs/model_generalization_evidence.json
+```
+
+The completed Stage 10 development evidence and its claim limits are documented
+in `docs/model_generalization_protocol.md`.
+
 Before a paid model-matrix run, use `inspect-model-matrix` to validate paths and
 review the task, record, and worst-case LLM-call counts. The staged 20-task
 development procedure is documented in `docs/pilot_protocol.md`.

@@ -16,10 +16,17 @@
     "max_retries": 1,
     "llm_backend": "one_api",
     "use_llm_for_planners": true,
+    "llm_max_tokens": 1024,
+    "llm_timeout_seconds": 180,
+    "llm_max_attempts": 2,
+    "llm_backoff_seconds": 2.0,
     "metadata": {
       "phase": "compatibility_smoke",
       "research_question": "RQ4 cross-family generalization",
-      "promotion_rule": "Promote only models with valid parseable plans and stable telemetry."
+      "data_policy": "development_only_no_frozen_heldout",
+      "budget_policy": "2 evaluation tasks; 32 worst-case calls; 1024 output-token cap; one repair maximum",
+      "claim_limit": "Compatibility evidence only; this run is too small for a generalization claim.",
+      "promotion_rule": "Promote only models whose full model run succeeds with parseable plans, complete telemetry, and no length-truncated calls after output-budget calibration."
     }
   },
   "models": [

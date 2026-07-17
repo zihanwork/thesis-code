@@ -109,7 +109,7 @@ def build_research_analysis(
         }
 
     return {
-        "schema_version": 1,
+        "schema_version": 2,
         "record_count": len(metric_rows),
         "method_count": len(methods),
         "methods": methods,
@@ -181,7 +181,7 @@ def _stratify(
     result: dict[str, Any] = {}
     values = sorted(
         {
-            str(row.get("metadata", {}).get(field) or "unknown")
+            _stratum_value(row, field)
             for rows in by_method.values()
             for row in rows
         }
@@ -192,16 +192,23 @@ def _stratify(
                 [
                     row
                     for row in rows
-                    if str(row.get("metadata", {}).get(field) or "unknown") == value
+                    if _stratum_value(row, field) == value
                 ]
             )
             for method, rows in sorted(by_method.items())
             if any(
-                str(row.get("metadata", {}).get(field) or "unknown") == value
+                _stratum_value(row, field) == value
                 for row in rows
             )
         }
     return result
+
+
+def _stratum_value(row: dict[str, Any], field: str) -> str:
+    value = row.get("metadata", {}).get(field)
+    if field == "difficulty" and isinstance(value, dict):
+        value = value.get("label")
+    return str(value or "unknown")
 
 
 def _summarize_run_costs(
