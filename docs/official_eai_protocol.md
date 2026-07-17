@@ -92,7 +92,9 @@ denominator of five. On those five tasks it reported 100% execution success,
 60% task success, 100% state goal, 100% relation goal, 0% action goal, and
 81.8182% total goal. These numbers prove the end-to-end adapter path only. They
 are a partial historical pilot with an upstream-filtered denominator and are
-not a thesis result or leaderboard score.
+not a thesis result or leaderboard score. The immutable hashes, exact code
+revisions, exclusions, denominator, and metrics are recorded in
+`docs/official_virtualhome_pilot_evidence.json`.
 
 The BEHAVIOR smoke fixture is:
 
