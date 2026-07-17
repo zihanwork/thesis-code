@@ -39,6 +39,10 @@ from embodied_gap.evaluation.metrics import evaluate_run
 from embodied_gap.experiments.config import ExperimentConfig
 from embodied_gap.experiments.runner import ExperimentRunner
 from embodied_gap.evaluation.pddl_gold_validator import PDDLGoldPlanValidator
+from embodied_gap.evaluation.official_eai import (
+    inspect_official_response_tree,
+    validate_action_sequencing_records,
+)
 from embodied_gap.execution.symbolic_executor import SymbolicExecutor
 from embodied_gap.harness.controller import HarnessController
 from embodied_gap.harness.recovery_policy import HarnessMode
@@ -120,6 +124,55 @@ class ResearchFrameworkTests(unittest.TestCase):
         self.assertEqual(plan.metadata["retrieval_top_k"], 2)
         self.assertEqual(plan.metadata["retrieval_method"], "structured")
         self.assertIn("Retrieved demonstration 2:", plan.prompt)
+
+    def test_official_virtualhome_contract_requires_name_id_pairs(self) -> None:
+        invalid = validate_action_sequencing_records(
+            [
+                {
+                    "identifier": "11_1",
+                    "llm_output": '[{"WALK":["floor_lamp"]}]',
+                }
+            ],
+            dataset="virtualhome",
+        )
+        self.assertFalse(invalid["valid"])
+        self.assertEqual(
+            invalid["issues"][0]["code"],
+            "virtualhome_name_id_pairs_required",
+        )
+
+        valid = validate_action_sequencing_records(
+            [
+                {
+                    "identifier": "11_1",
+                    "llm_output": '[{"WALK":["floor_lamp",1000]}]',
+                }
+            ],
+            dataset="virtualhome",
+        )
+        self.assertTrue(valid["valid"])
+
+    def test_official_preflight_does_not_promote_partial_output_to_submission(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            action_dir = Path(temp_dir) / "virtualhome" / "action_sequencing"
+            action_dir.mkdir(parents=True)
+            (action_dir / "unit_outputs.json").write_text(
+                json.dumps(
+                    [
+                        {
+                            "identifier": "11_1",
+                            "llm_output": '[{"WALK":["floor_lamp",1000]}]',
+                        }
+                    ]
+                ),
+                encoding="utf-8",
+            )
+            report = inspect_official_response_tree(temp_dir)
+
+        self.assertEqual(report["required_slot_count"], 8)
+        self.assertEqual(report["present_slot_count"], 1)
+        self.assertTrue(report["action_sequencing_shapes_valid"])
+        self.assertFalse(report["submission_ready"])
 
     def test_pilot_preflight_counts_calls_and_excludes_heldout(self) -> None:
         prompt_report = inspect_model_matrix(

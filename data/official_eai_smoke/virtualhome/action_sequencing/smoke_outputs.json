@@ -1,0 +1,10 @@
+[
+  {
+    "identifier": "11_1",
+    "llm_output": "[{\"WALK\":[\"floor_lamp\",1000]},{\"SWITCHON\":[\"floor_lamp\",1000]}]"
+  },
+  {
+    "identifier": "411_1",
+    "llm_output": "[{\"WALK\":[\"television\",410]},{\"TURNTO\":[\"television\",410]},{\"SWITCHON\":[\"television\",410]},{\"LOOKAT\":[\"television\",410]}]"
+  }
+]

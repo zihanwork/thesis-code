@@ -13,6 +13,7 @@ from embodied_gap.experiments.model_matrix import ModelMatrixConfig, MultiModelE
 from embodied_gap.experiments.pilot_budget import inspect_model_matrix
 from embodied_gap.experiments.runner import ExperimentRunner
 from embodied_gap.evaluation.pddl_gold_validator import PDDLGoldPlanValidator
+from embodied_gap.evaluation.official_eai import export_official_preflight
 from embodied_gap.knowledge.corpus_builder import KnowledgeCorpusBuilder
 from embodied_gap.knowledge.failure_memory_store import build_frozen_failure_memory
 from embodied_gap.llm.clients import OneAPIChatClient
@@ -177,6 +178,29 @@ def freeze_heldout(args: argparse.Namespace) -> int:
     return 0
 
 
+def check_official_eai(args: argparse.Namespace) -> int:
+    report = export_official_preflight(
+        args.responses,
+        args.out,
+        external_root=args.external_root,
+    )
+    print(
+        json.dumps(
+            {
+                "present_slot_count": report["present_slot_count"],
+                "required_slot_count": report["required_slot_count"],
+                "action_sequencing_shapes_valid": report["action_sequencing_shapes_valid"],
+                "submission_ready": report["submission_ready"],
+                "output_path": args.out,
+            },
+            ensure_ascii=False,
+            indent=2,
+            sort_keys=True,
+        )
+    )
+    return 0 if report["action_sequencing_shapes_valid"] else 1
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(prog="embodied-gap")
     subparsers = parser.add_subparsers(dest="command", required=True)
@@ -297,6 +321,18 @@ def main(argv: list[str] | None = None) -> int:
     heldout_parser.add_argument("--expected-count", required=True, type=int)
     heldout_parser.add_argument("--expected-dataset")
     heldout_parser.set_defaults(func=freeze_heldout)
+
+    official_parser = subparsers.add_parser(
+        "check-official-eai",
+        help="Check official EAI response slots and action-sequencing formats.",
+    )
+    official_parser.add_argument("--responses", required=True)
+    official_parser.add_argument(
+        "--external-root",
+        default="external/embodied-agent-interface",
+    )
+    official_parser.add_argument("--out", required=True)
+    official_parser.set_defaults(func=check_official_eai)
 
     args = parser.parse_args(argv)
     return args.func(args)

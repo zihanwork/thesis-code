@@ -14,6 +14,7 @@ runs/*
 reports/*
 !reports/.gitkeep
 notebooks/.ipynb_checkpoints/
+logs/
 data/raw/*
 !data/raw/.gitkeep
 data/processed/*
