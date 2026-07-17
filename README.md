@@ -251,10 +251,15 @@ Implemented:
 - Unit/integration tests for the sample matrix.
 - One API-compatible LLM client.
 
-Next planned integrations:
+Completed research infrastructure now also includes:
 
-- Cost-controlled development runs for the new recovery and leave-one-out ablations.
-- Cost-controlled lexical/BM25/structured, field-profile, and top-k RAG selection.
-- Official EAI output/evaluator integration and a separate frozen safety set.
-- Confidence intervals, paired tests, cost aggregation, and failure analysis.
-- A local open-weight backend for the optional LoRA/PEFT comparison.
+- Cost-controlled recovery, memory, prompt, and RAG pilot configurations.
+- Wilson confidence intervals, paired tests, cost aggregation, and failure analysis.
+- Automatic real-run export to the pinned official VirtualHome evaluator, with
+  ambiguity/upstream exclusions recorded separately from benchmark claims.
+- A 30-task frozen controlled safety set and dedicated H0/H1/H2-Local metrics;
+  see `docs/safety_evaluation.md`.
+
+Remaining experiment stages are model-family expansion and the final frozen
+experiment matrix. Fine-tuning remains an optional control rather than a
+prerequisite.

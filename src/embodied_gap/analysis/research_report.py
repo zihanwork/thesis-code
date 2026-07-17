@@ -22,7 +22,13 @@ def wilson_interval(successes: int, total: int, z: float = 1.959963984540054) ->
         )
         / denominator
     )
-    return (max(0.0, centre - margin), min(1.0, centre + margin))
+    low = max(0.0, centre - margin)
+    high = min(1.0, centre + margin)
+    if low < 1e-15:
+        low = 0.0
+    if 1.0 - high < 1e-15:
+        high = 1.0
+    return (low, high)
 
 
 def exact_mcnemar(left: dict[str, bool], right: dict[str, bool]) -> dict[str, Any]:

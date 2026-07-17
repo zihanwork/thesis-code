@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 import json
 from pathlib import Path
 import tempfile
@@ -24,6 +25,11 @@ from embodied_gap.datasets.eai_adapter import (
 from embodied_gap.datasets.taskset_builder import TaskSetBuilder, classify_difficulty
 from embodied_gap.datasets.resource_paths import resolve_domain_path, resolve_problem_path
 from embodied_gap.datasets.split_freezer import freeze_heldout_split
+from embodied_gap.datasets.safety_set import (
+    build_safety_tasks,
+    export_frozen_safety_set,
+    verify_frozen_safety_set,
+)
 from embodied_gap.experiments.model_matrix import ModelMatrixConfig, ModelSpec, MultiModelExperimentRunner
 from embodied_gap.experiments.pilot_budget import inspect_model_matrix
 from embodied_gap.knowledge.corpus_builder import KnowledgeCorpusBuilder
@@ -45,6 +51,7 @@ from embodied_gap.evaluation.official_eai import (
     load_virtualhome_prompt_object_ids,
     validate_action_sequencing_records,
 )
+from embodied_gap.evaluation.safety_benchmark import run_safety_benchmark
 from embodied_gap.execution.symbolic_executor import SymbolicExecutor
 from embodied_gap.harness.controller import HarnessController
 from embodied_gap.harness.recovery_policy import HarnessMode
@@ -369,6 +376,65 @@ class ResearchFrameworkTests(unittest.TestCase):
         self.assertTrue(report["runtime_sources"]["igibson_source_present"])
         self.assertFalse(report["runtime_sources"]["igibson_dataset_present"])
         self.assertFalse(report["official_runtime_ready"])
+
+    def test_frozen_safety_set_is_balanced_and_non_overwriting(self) -> None:
+        tasks = build_safety_tasks()
+        counts: dict[str, int] = {}
+        for task in tasks:
+            case_type = task["metadata"]["safety_case_type"]
+            counts[case_type] = counts.get(case_type, 0) + 1
+        self.assertEqual(len(tasks), 30)
+        self.assertEqual(
+            counts,
+            {
+                "explicit_hazard": 6,
+                "safe_near_miss": 6,
+                "recoverable_missing_step": 6,
+                "invalid_operation": 6,
+                "unrecoverable_error": 6,
+            },
+        )
+
+        with tempfile.TemporaryDirectory() as temp_dir:
+            first = export_frozen_safety_set(temp_dir)
+            with self.assertRaises(FileExistsError):
+                export_frozen_safety_set(temp_dir)
+            task_file = Path(temp_dir) / first["task_file"]
+            manifest_file = Path(temp_dir) / "safety_frozen_v1_manifest.json"
+            verification = verify_frozen_safety_set(task_file, manifest_file)
+            digest = hashlib.sha256(task_file.read_bytes()).hexdigest()
+        self.assertEqual(first["task_count"], 30)
+        self.assertEqual(first["sha256"], digest)
+        self.assertTrue(verification["valid"])
+
+    def test_safety_benchmark_separates_gate_and_local_recovery(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            manifest = export_frozen_safety_set(root / "data")
+            task_path = root / "data" / manifest["task_file"]
+            output_dir, summary = run_safety_benchmark(
+                tasks_path=task_path,
+                output_root=root / "runs",
+            )
+            artifacts = {path.name for path in output_dir.iterdir()}
+
+        self.assertEqual(summary["record_count"], 90)
+        self.assertEqual(summary["method_count"], 3)
+        self.assertTrue(
+            {"runs.jsonl", "safety_metrics.jsonl", "safety_summary.json", "run_manifest.json"}
+            <= artifacts
+        )
+        h0 = summary["methods"]["safety_injected_plan__H0_open_loop"]
+        h1 = summary["methods"]["safety_injected_plan__H1_verifier_gated"]
+        h2 = summary["methods"]["safety_injected_plan__H2_local_recovery"]
+        self.assertEqual(h0["dangerous_behavior_detection"]["rate"], 0.0)
+        self.assertEqual(h0["hazardous_execution"]["rate"], 1.0)
+        self.assertEqual(h1["dangerous_behavior_detection"]["rate"], 1.0)
+        self.assertEqual(h1["false_interception"]["rate"], 0.0)
+        self.assertEqual(h1["post_interception_recovery"]["rate"], 0.0)
+        self.assertEqual(h2["dangerous_behavior_detection"]["rate"], 1.0)
+        self.assertEqual(h2["safe_task_completion"]["rate"], 1.0)
+        self.assertEqual(h2["post_interception_recovery"]["rate"], 1.0)
 
     def test_pilot_preflight_counts_calls_and_excludes_heldout(self) -> None:
         prompt_report = inspect_model_matrix(

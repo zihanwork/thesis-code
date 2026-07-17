@@ -8,6 +8,10 @@ from embodied_gap.analysis.research_report import export_research_analysis
 from embodied_gap.datasets.eai_adapter import EmbodiedAgentInterfaceAdapter
 from embodied_gap.datasets.taskset_builder import TaskSetBuilder
 from embodied_gap.datasets.split_freezer import freeze_heldout_split
+from embodied_gap.datasets.safety_set import (
+    export_frozen_safety_set,
+    verify_frozen_safety_set,
+)
 from embodied_gap.experiments.config import ExperimentConfig
 from embodied_gap.experiments.model_matrix import ModelMatrixConfig, MultiModelExperimentRunner
 from embodied_gap.experiments.pilot_budget import inspect_model_matrix
@@ -17,6 +21,8 @@ from embodied_gap.evaluation.official_eai import (
     export_official_preflight,
     export_virtualhome_action_sequencing,
 )
+from embodied_gap.evaluation.safety_benchmark import run_safety_benchmark
+from embodied_gap.harness.recovery_policy import HarnessMode
 from embodied_gap.knowledge.corpus_builder import KnowledgeCorpusBuilder
 from embodied_gap.knowledge.failure_memory_store import build_frozen_failure_memory
 from embodied_gap.llm.clients import OneAPIChatClient
@@ -221,6 +227,41 @@ def export_official_virtualhome(args: argparse.Namespace) -> int:
     return 0 if manifest["complete"] else 1
 
 
+def build_safety_set(args: argparse.Namespace) -> int:
+    manifest = export_frozen_safety_set(args.out_dir)
+    print(json.dumps(manifest, ensure_ascii=False, indent=2, sort_keys=True))
+    return 0
+
+
+def verify_safety_set(args: argparse.Namespace) -> int:
+    report = verify_frozen_safety_set(args.tasks, args.manifest)
+    print(json.dumps(report, ensure_ascii=False, indent=2, sort_keys=True))
+    return 0 if report["valid"] else 1
+
+
+def evaluate_safety_set(args: argparse.Namespace) -> int:
+    modes = tuple(HarnessMode(item.strip()) for item in args.harness_modes.split(","))
+    output_dir, summary = run_safety_benchmark(
+        tasks_path=args.tasks,
+        output_root=args.out,
+        modes=modes,
+        max_retries=args.max_retries,
+    )
+    print(
+        json.dumps(
+            {
+                "output_dir": str(output_dir),
+                "record_count": summary["record_count"],
+                "method_count": summary["method_count"],
+            },
+            ensure_ascii=False,
+            indent=2,
+            sort_keys=True,
+        )
+    )
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(prog="embodied-gap")
     subparsers = parser.add_subparsers(dest="command", required=True)
@@ -373,6 +414,46 @@ def main(argv: list[str] | None = None) -> int:
     export_vh_parser.add_argument("--allow-partial", action="store_true")
     export_vh_parser.add_argument("--overwrite", action="store_true")
     export_vh_parser.set_defaults(func=export_official_virtualhome)
+
+    safety_set_parser = subparsers.add_parser(
+        "build-safety-set",
+        help="Create the non-overwriting frozen controlled safety set v1.",
+    )
+    safety_set_parser.add_argument(
+        "--out-dir",
+        default="data/processed/tasksets",
+    )
+    safety_set_parser.set_defaults(func=build_safety_set)
+
+    safety_verify_parser = subparsers.add_parser(
+        "verify-safety-set",
+        help="Verify the frozen safety set against its hash, manifest, and v1 definition.",
+    )
+    safety_verify_parser.add_argument(
+        "--tasks",
+        default="data/processed/tasksets/safety_frozen_v1.jsonl",
+    )
+    safety_verify_parser.add_argument(
+        "--manifest",
+        default="data/processed/tasksets/safety_frozen_v1_manifest.json",
+    )
+    safety_verify_parser.set_defaults(func=verify_safety_set)
+
+    safety_eval_parser = subparsers.add_parser(
+        "evaluate-safety-set",
+        help="Evaluate verifier and local recovery on frozen injected safety plans.",
+    )
+    safety_eval_parser.add_argument(
+        "--tasks",
+        default="data/processed/tasksets/safety_frozen_v1.jsonl",
+    )
+    safety_eval_parser.add_argument("--out", default="runs/safety_benchmark")
+    safety_eval_parser.add_argument(
+        "--harness-modes",
+        default="H0_open_loop,H1_verifier_gated,H2_local_recovery",
+    )
+    safety_eval_parser.add_argument("--max-retries", type=int, default=3)
+    safety_eval_parser.set_defaults(func=evaluate_safety_set)
 
     args = parser.parse_args(argv)
     return args.func(args)

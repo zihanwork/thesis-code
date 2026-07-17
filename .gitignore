@@ -22,6 +22,7 @@ data/processed/*
 !data/processed/tasksets/
 !data/processed/tasksets/*.jsonl
 !data/processed/tasksets/tasksets_manifest.json
+!data/processed/tasksets/*_manifest.json
 data/knowledge_graphs/*
 !data/knowledge_graphs/.gitkeep
 data/retrieval_corpus/*
