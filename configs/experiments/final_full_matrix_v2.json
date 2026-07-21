@@ -1,0 +1,52 @@
+{
+  "name": "final_full_matrix_v2",
+  "continue_on_error": false,
+  "base_experiment": {
+    "name": "final_full_matrix_v2",
+    "tasks_path": "data/processed/tasksets/official_virtualhome_action_sequencing_v1.jsonl",
+    "retrieval_examples_path": "data/processed/tasksets/rag_train.jsonl",
+    "failure_memory_path": "data/knowledge/failure_memory_dev.jsonl",
+    "graph_path": "data/knowledge/eai_train/kg_edges.jsonl",
+    "graph_top_k": 1,
+    "output_dir": "runs/final_full_matrix_v2",
+    "planners": [
+      "B0_minimal_prompt",
+      "P0_structured_prompt",
+      "P0_engineered_prompt",
+      "P1_rag",
+      "P2_graph_rag"
+    ],
+    "harness_modes": [
+      "H0_open_loop",
+      "H2_llm_reflection",
+      "H2_memory",
+      "H2_pddl_recovery"
+    ],
+    "seed": 13,
+    "max_retries": 1,
+    "llm_backend": "one_api",
+    "use_llm_for_planners": true,
+    "llm_temperature": 0.0,
+    "llm_max_tokens": 2048,
+    "llm_timeout_seconds": 180,
+    "llm_max_attempts": 2,
+    "llm_backoff_seconds": 2.0,
+    "retrieval_method": "structured",
+    "retrieval_field_profile": "instruction_state_goal_schema",
+    "retrieval_top_k": 1,
+    "retrieval_min_score": 0.0,
+    "metadata": {
+      "phase": "uniform_full_factorial_confirmatory",
+      "evaluation_authority": "pinned VirtualHome Action Sequencing evaluator only",
+      "data_policy": "Every planner-harness-model cell uses the same fixed 84-task official cohort.",
+      "model_policy": "Every planner-harness cell runs DeepSeek-V4-Flash, gpt-5.5, and GLM-5-Turbo.",
+      "matrix_policy": "Complete 5 planners x 4 harnesses x 3 models; no empty cells.",
+      "claim_limit": "No outcome claim is valid until all 60 cells complete and are scored by the pinned official evaluator."
+    }
+  },
+  "models": [
+    {"id": "deepseek_v4_flash", "provider": "one_api", "model": "DeepSeek-V4-Flash"},
+    {"id": "gpt_5_5", "provider": "one_api", "model": "gpt-5.5"},
+    {"id": "glm_5_turbo", "provider": "one_api", "model": "GLM-5-Turbo"}
+  ]
+}

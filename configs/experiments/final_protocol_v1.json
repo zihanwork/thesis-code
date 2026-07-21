@@ -3,23 +3,28 @@
   "protocol_id": "final_protocol_v1",
   "required_git_tag": "final-protocol-v1",
   "required_clean_worktree": true,
-  "one_shot_local_heldout": true,
-  "claim_scope": "Frozen local VirtualHome-only heldout evaluation; not an official EAI challenge score and not a BEHAVIOR estimate.",
+  "source_generation_complete": true,
+  "claim_scope": "All outcome claims use the pinned official VirtualHome Action Sequencing evaluator on the fixed 84-task compatible cohort.",
   "artifacts": [
     {
-      "role": "heldout_tasks",
-      "path": "data/processed/tasksets/heldout_virtualhome_119.jsonl",
-      "sha256": "4a01bdb4ce499fdc20fc2d11ad4b4139296bf5a9b936525bc730d214776b3bb9"
+      "role": "official_evaluator_cohort",
+      "path": "data/processed/tasksets/official_virtualhome_action_sequencing_v1.jsonl",
+      "sha256": "c5b6513e6aa38166a192819f6771820bb9793f76b7f62c1fccc9dc4ea6567e5d"
     },
     {
       "role": "rag_examples",
       "path": "data/processed/tasksets/rag_train.jsonl",
-      "sha256": "ca33c0d16a403d49e3f53e9b05fadbd77e92ea819ad0292d50aae58783cb374f"
+      "sha256": "174bfd3b1a7486b43fdb461319f6e34c716f6901eab2156299d456a71d3d53f8"
     },
     {
       "role": "frozen_symbolic_teacher_memory",
       "path": "data/knowledge/failure_memory_dev.jsonl",
-      "sha256": "ec5ad98b7730b706b8b13186dc9caa76f2ee34dabd7bc1b49bb174a1d78d5099"
+      "sha256": "bdde7cac6cb788eb8b21ba8a43d4f1777df9f2e72149de6d4c8fddde3049af7f"
+    },
+    {
+      "role": "knowledge_graph",
+      "path": "data/knowledge/eai_train/kg_edges.jsonl",
+      "sha256": "d881dc840a66033555d50258b8c51694dd725cccae95c3b2b937cd3b6f139bff"
     },
     {
       "role": "prompt_templates",
@@ -27,67 +32,44 @@
       "sha256": "9d671a099e5495c92c69aaa03a83e90fe8623cf92b439c2efca75aec189b6f60"
     },
     {
-      "role": "planning_config",
-      "path": "configs/experiments/final_planning_heldout_v1.json",
-      "sha256": "fda023fc66bb00501baef7d8229d2531be09f414d66770b9d25856e1fefecde5"
+      "role": "full_factorial_model_matrix_config",
+      "path": "configs/experiments/final_full_matrix_v2.json",
+      "sha256": "24e1da57bd9a25f30515cd0e3dbb8b0b9e98370acd909f508ac4ab6789965851"
     },
     {
-      "role": "recovery_config",
-      "path": "configs/experiments/final_recovery_heldout_v1.json",
-      "sha256": "b60053c89c6aed048362954d1ba709a60e7b4f23d7197f354b0695d6058f0c4a"
+      "role": "official_results_machine_evidence",
+      "path": "docs/final_official_virtualhome_results_v4.json",
+      "sha256": "560305d7fd18b540e8347414ddf2c8786dbd9389ddd3c4253b69187d0ef73094"
     },
     {
-      "role": "generalization_config",
-      "path": "configs/experiments/final_generalization_heldout_v1.json",
-      "sha256": "b394667fcf78345552a652f29f0e233f7c1161b3a5b62522620954c508e58dca"
-    },
-    {
-      "role": "symbolic_config",
-      "path": "configs/experiments/final_symbolic_heldout_v1.json",
-      "sha256": "a1957259b4bbadc72dfbd87228791987ff107bcc677ccff2dfba2ee48c04a482"
+      "role": "official_results_report",
+      "path": "docs/final_official_virtualhome_results_v4.md",
+      "sha256": "6774d63606f67a12de6ecaeed2447edce49e631aaf2c5f6f3e7e4a4aa4cdcea7"
     }
   ],
   "experiments": [
     {
-      "id": "planning",
+      "id": "full_factorial_planner_harness_model_matrix",
       "runner": "model_matrix",
-      "config": "configs/experiments/final_planning_heldout_v1.json",
-      "output_root": "runs/final_planning_heldout_v1",
-      "record_count": 714,
-      "worst_case_llm_calls": 714
-    },
-    {
-      "id": "recovery",
-      "runner": "model_matrix",
-      "config": "configs/experiments/final_recovery_heldout_v1.json",
-      "output_root": "runs/final_recovery_heldout_v1",
-      "record_count": 952,
-      "worst_case_llm_calls": 714
-    },
-    {
-      "id": "generalization",
-      "runner": "model_matrix",
-      "config": "configs/experiments/final_generalization_heldout_v1.json",
-      "output_root": "runs/final_generalization_heldout_v1",
-      "record_count": 238,
-      "worst_case_llm_calls": 238
-    },
-    {
-      "id": "symbolic",
-      "runner": "experiment",
-      "config": "configs/experiments/final_symbolic_heldout_v1.json",
-      "output_root": "runs/final_symbolic_heldout_v1",
-      "record_count": 119,
-      "worst_case_llm_calls": 0
+      "config": "configs/experiments/final_full_matrix_v2.json",
+      "output_root": "runs/final_full_matrix_v2",
+      "completed_run_id": "20260720T094747567798Z_4820a444",
+      "official_evaluation_log": "logs/action_sequencing_eval_20260721_015738.log",
+      "planner_count": 5,
+      "harness_count": 4,
+      "model_count": 3,
+      "task_count": 84,
+      "cell_count": 60,
+      "record_count": 5040,
+      "worst_case_llm_calls": 3780
     }
   ],
   "totals": {
-    "record_count": 2023,
-    "worst_case_llm_calls": 1666
+    "record_count": 5040,
+    "worst_case_llm_calls": 3780
   },
   "models": {
-    "full_grid": ["DeepSeek-V4-Flash", "gpt-5.5"],
-    "generalization_key_cells": ["GLM-5-Turbo"],
+    "full_grid": ["DeepSeek-V4-Flash", "gpt-5.5", "GLM-5-Turbo"],
     "excluded": ["DeepSeek-V4-Pro", "MiniMax-M3", "Kimi-K2.6"]
   },
   "decoding": {
@@ -98,15 +80,15 @@
     "resource_matching": "The same 2048 output-token cap is used for all reported LLM models; length truncations are reported."
   },
   "reporting": {
-    "confidence_interval": "Wilson 95%",
+    "primary_metric": "official goal_evaluation.task_success_rate",
+    "confidence_interval": "task-family clustered bootstrap 95%, 10000 samples, seed 13",
     "paired_test": "exact two-sided McNemar",
-    "paired_uplift_interval": "task-paired bootstrap, 2000 samples, seed 13",
-    "strata": ["dataset", "difficulty", "task_family", "failure_type"],
+    "strata": ["task_family", "model", "planner", "harness"],
     "cost_fields": ["calls", "input_tokens", "output_tokens", "latency", "estimated_cost_if_pricing_available", "length_truncations"],
-    "official_policy": "Export compatible selected VirtualHome runs and report official evaluator results separately from custom PDDL evaluation."
+    "official_policy": "The pinned official evaluator is the sole outcome authority; local verifier states are intervention telemetry only."
   },
   "stopping_rules": [
-    "Do not inspect per-task heldout failures until every frozen experiment has completed.",
+    "Do not inspect per-task official-cohort failures until every frozen experiment has completed.",
     "Do not change prompts, retrieval, memory, planner code, recovery code, models, decoding, or statistics after the first final run starts.",
     "Do not rerun failed tasks selectively.",
     "If an external API failure interrupts a matrix, preserve the failed run and seek an explicit protocol amendment before any rerun.",

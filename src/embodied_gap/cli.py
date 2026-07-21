@@ -3,50 +3,28 @@ from __future__ import annotations
 import argparse
 import json
 
-from embodied_gap.analysis.make_tables import summary_to_markdown
 from embodied_gap.analysis.model_generalization import (
     export_model_generalization_summary,
 )
+from embodied_gap.analysis.official_virtualhome_results import export_official_results_report
 from embodied_gap.analysis.research_report import export_research_analysis
+from embodied_gap.core.task_schema import load_tasks
 from embodied_gap.datasets.eai_adapter import EmbodiedAgentInterfaceAdapter
 from embodied_gap.datasets.taskset_builder import TaskSetBuilder
 from embodied_gap.datasets.split_freezer import freeze_heldout_split
-from embodied_gap.datasets.safety_set import (
-    export_frozen_safety_set,
-    verify_frozen_safety_set,
-)
-from embodied_gap.experiments.config import ExperimentConfig
 from embodied_gap.experiments.final_protocol import verify_final_protocol
 from embodied_gap.experiments.model_matrix import ModelMatrixConfig, MultiModelExperimentRunner
 from embodied_gap.experiments.pilot_budget import inspect_model_matrix
-from embodied_gap.experiments.runner import ExperimentRunner
 from embodied_gap.evaluation.pddl_gold_validator import PDDLGoldPlanValidator
 from embodied_gap.evaluation.official_eai import (
+    build_virtualhome_official_cohort,
     export_official_preflight,
     export_virtualhome_action_sequencing,
 )
-from embodied_gap.evaluation.safety_benchmark import run_safety_benchmark
 from embodied_gap.harness.recovery_policy import HarnessMode
 from embodied_gap.knowledge.corpus_builder import KnowledgeCorpusBuilder
 from embodied_gap.knowledge.failure_memory_store import build_frozen_failure_memory
 from embodied_gap.llm.clients import OneAPIChatClient
-
-
-def run(args: argparse.Namespace) -> int:
-    if args.config:
-        config = ExperimentConfig.from_json(args.config)
-    else:
-        config = ExperimentConfig(
-            name=args.name,
-            tasks_path=args.tasks,
-            output_dir=args.out,
-            max_retries=args.max_retries,
-        )
-    runner = ExperimentRunner(config)
-    _, _, summary = runner.run()
-    print(summary_to_markdown(summary))
-    print(f"\nWrote experiment artifacts to {runner.output_dir}")
-    return 0
 
 
 def check_one_api(args: argparse.Namespace) -> int:
@@ -107,6 +85,7 @@ def build_tasksets(args: argparse.Namespace) -> int:
 
 def run_model_matrix(args: argparse.Namespace) -> int:
     matrix_config = ModelMatrixConfig.from_json(args.config)
+    _validate_uniform_final_matrix(matrix_config)
     summary = MultiModelExperimentRunner(matrix_config).run()
     compact = {
         model_id: {
@@ -120,6 +99,50 @@ def run_model_matrix(args: argparse.Namespace) -> int:
     print(json.dumps(compact, ensure_ascii=False, indent=2, sort_keys=True))
     print(f"\nWrote model matrix artifacts to {summary['output_dir']}")
     return 0
+
+
+def _validate_uniform_final_matrix(config: ModelMatrixConfig) -> None:
+    expected_models = {"DeepSeek-V4-Flash", "gpt-5.5", "GLM-5-Turbo"}
+    enabled_models = {model.model for model in config.models if model.enabled}
+    if enabled_models != expected_models:
+        raise ValueError(
+            "Every final experiment must enable exactly DeepSeek-V4-Flash, "
+            "gpt-5.5, and GLM-5-Turbo."
+        )
+    tasks = [task for task in load_tasks(config.base_experiment.tasks_path) if task.split != "train"]
+    if len(tasks) != 84:
+        raise ValueError(
+            f"Every final experiment must contain exactly 84 evaluation tasks; got {len(tasks)}."
+        )
+    expected_task_path = (
+        "data/processed/tasksets/official_virtualhome_action_sequencing_v1.jsonl"
+    )
+    if config.base_experiment.tasks_path != expected_task_path:
+        raise ValueError(
+            "Every final experiment must use the frozen official VirtualHome "
+            "Action Sequencing cohort."
+        )
+    expected_planners = {
+        "B0_minimal_prompt",
+        "P0_structured_prompt",
+        "P0_engineered_prompt",
+        "P1_rag",
+        "P2_graph_rag",
+    }
+    expected_harnesses = {
+        "H0_open_loop",
+        "H2_llm_reflection",
+        "H2_memory",
+        "H2_pddl_recovery",
+    }
+    if set(config.base_experiment.planners) != expected_planners:
+        raise ValueError(
+            "The final matrix must contain exactly the five frozen planner conditions."
+        )
+    if set(config.base_experiment.harness_modes) != expected_harnesses:
+        raise ValueError(
+            "The final matrix must contain exactly the four frozen harness conditions."
+        )
 
 
 def inspect_matrix(args: argparse.Namespace) -> int:
@@ -258,38 +281,40 @@ def export_official_virtualhome(args: argparse.Namespace) -> int:
         planner_name=args.planner,
         harness_mode=args.harness,
         allow_partial=args.allow_partial,
+        include_failed_predictions=args.include_failed_predictions,
         overwrite=args.overwrite,
     )
     print(json.dumps(manifest, ensure_ascii=False, indent=2, sort_keys=True))
     return 0 if manifest["complete"] else 1
 
 
-def build_safety_set(args: argparse.Namespace) -> int:
-    manifest = export_frozen_safety_set(args.out_dir)
-    print(json.dumps(manifest, ensure_ascii=False, indent=2, sort_keys=True))
-    return 0
-
-
-def verify_safety_set(args: argparse.Namespace) -> int:
-    report = verify_frozen_safety_set(args.tasks, args.manifest)
-    print(json.dumps(report, ensure_ascii=False, indent=2, sort_keys=True))
-    return 0 if report["valid"] else 1
-
-
-def evaluate_safety_set(args: argparse.Namespace) -> int:
-    modes = tuple(HarnessMode(item.strip()) for item in args.harness_modes.split(","))
-    output_dir, summary = run_safety_benchmark(
+def build_official_virtualhome_cohort(args: argparse.Namespace) -> int:
+    manifest = build_virtualhome_official_cohort(
         tasks_path=args.tasks,
-        output_root=args.out,
-        modes=modes,
-        max_retries=args.max_retries,
+        prompts_path=args.prompts,
+        output_path=args.out,
+        overwrite=args.overwrite,
+    )
+    print(json.dumps(manifest, ensure_ascii=False, indent=2, sort_keys=True))
+    return 0 if manifest["included_task_count"] else 1
+
+
+def summarize_official_virtualhome(args: argparse.Namespace) -> int:
+    report = export_official_results_report(
+        results_root=args.results,
+        cohort_path=args.cohort,
+        evaluator_log_path=args.log,
+        output_json_path=args.out_json,
+        output_markdown_path=args.out_markdown,
     )
     print(
         json.dumps(
             {
-                "output_dir": str(output_dir),
-                "record_count": summary["record_count"],
-                "method_count": summary["method_count"],
+                "cell_count": len(report["cells"]),
+                "cohort_task_count": report["cohort"]["task_count"],
+                "comparison_count": len(report["paired_comparisons"]),
+                "output_json": args.out_json,
+                "output_markdown": args.out_markdown,
             },
             ensure_ascii=False,
             indent=2,
@@ -302,14 +327,6 @@ def evaluate_safety_set(args: argparse.Namespace) -> int:
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(prog="embodied-gap")
     subparsers = parser.add_subparsers(dest="command", required=True)
-
-    run_parser = subparsers.add_parser("run", help="Run the P/H experimental matrix.")
-    run_parser.add_argument("--config")
-    run_parser.add_argument("--name", default="sample_matrix")
-    run_parser.add_argument("--tasks", default="data/sample_tasks.jsonl")
-    run_parser.add_argument("--out", default="runs/sample_matrix")
-    run_parser.add_argument("--max-retries", type=int, default=3)
-    run_parser.set_defaults(func=run)
 
     check_parser = subparsers.add_parser("check-one-api", help="Check One API connectivity.")
     check_parser.add_argument("--env", default=".env")
@@ -343,8 +360,8 @@ def main(argv: list[str] | None = None) -> int:
     eai_parser.add_argument("--out-dir", default="data/processed/eai_clean")
     eai_parser.add_argument(
         "--datasets",
-        default="virtualhome,behavior",
-        help="Comma-separated EAI datasets to import: virtualhome,behavior.",
+        default="virtualhome",
+        help="Official study dataset to import: virtualhome.",
     )
     eai_parser.add_argument("--train-ratio", type=float, default=0.2)
     eai_parser.add_argument("--no-raw-pddl", action="store_true")
@@ -447,7 +464,7 @@ def main(argv: list[str] | None = None) -> int:
 
     official_parser = subparsers.add_parser(
         "check-official-eai",
-        help="Check official EAI response slots and action-sequencing formats.",
+        help="Check the official VirtualHome action-sequencing response and runtime.",
     )
     official_parser.add_argument("--responses", required=True)
     official_parser.add_argument(
@@ -474,48 +491,40 @@ def main(argv: list[str] | None = None) -> int:
     export_vh_parser.add_argument("--harness", required=True)
     export_vh_parser.add_argument("--out", required=True)
     export_vh_parser.add_argument("--allow-partial", action="store_true")
+    export_vh_parser.add_argument(
+        "--include-failed-predictions",
+        action="store_true",
+        help="Emit [] for untranslatable model predictions to preserve a fixed official denominator.",
+    )
     export_vh_parser.add_argument("--overwrite", action="store_true")
     export_vh_parser.set_defaults(func=export_official_virtualhome)
 
-    safety_set_parser = subparsers.add_parser(
-        "build-safety-set",
-        help="Create the non-overwriting frozen controlled safety set v1.",
+    cohort_parser = subparsers.add_parser(
+        "build-official-virtualhome-cohort",
+        help="Freeze the pre-outcome task cohort compatible with the pinned official evaluator.",
     )
-    safety_set_parser.add_argument(
-        "--out-dir",
-        default="data/processed/tasksets",
+    cohort_parser.add_argument("--tasks", required=True)
+    cohort_parser.add_argument(
+        "--prompts",
+        default=(
+            "external/embodied-agent-interface/src/virtualhome_eval/evaluation/"
+            "action_sequencing/prompts/helm_prompts.json"
+        ),
     )
-    safety_set_parser.set_defaults(func=build_safety_set)
+    cohort_parser.add_argument("--out", required=True)
+    cohort_parser.add_argument("--overwrite", action="store_true")
+    cohort_parser.set_defaults(func=build_official_virtualhome_cohort)
 
-    safety_verify_parser = subparsers.add_parser(
-        "verify-safety-set",
-        help="Verify the frozen safety set against its hash, manifest, and v1 definition.",
+    official_summary_parser = subparsers.add_parser(
+        "summarize-official-virtualhome",
+        help="Summarize pinned official results and family-clustered paired contrasts.",
     )
-    safety_verify_parser.add_argument(
-        "--tasks",
-        default="data/processed/tasksets/safety_frozen_v1.jsonl",
-    )
-    safety_verify_parser.add_argument(
-        "--manifest",
-        default="data/processed/tasksets/safety_frozen_v1_manifest.json",
-    )
-    safety_verify_parser.set_defaults(func=verify_safety_set)
-
-    safety_eval_parser = subparsers.add_parser(
-        "evaluate-safety-set",
-        help="Evaluate verifier and local recovery on frozen injected safety plans.",
-    )
-    safety_eval_parser.add_argument(
-        "--tasks",
-        default="data/processed/tasksets/safety_frozen_v1.jsonl",
-    )
-    safety_eval_parser.add_argument("--out", default="runs/safety_benchmark")
-    safety_eval_parser.add_argument(
-        "--harness-modes",
-        default="H0_open_loop,H1_verifier_gated,H2_local_recovery",
-    )
-    safety_eval_parser.add_argument("--max-retries", type=int, default=3)
-    safety_eval_parser.set_defaults(func=evaluate_safety_set)
+    official_summary_parser.add_argument("--results", required=True)
+    official_summary_parser.add_argument("--cohort", required=True)
+    official_summary_parser.add_argument("--log", required=True)
+    official_summary_parser.add_argument("--out-json", required=True)
+    official_summary_parser.add_argument("--out-markdown", required=True)
+    official_summary_parser.set_defaults(func=summarize_official_virtualhome)
 
     args = parser.parse_args(argv)
     return args.func(args)

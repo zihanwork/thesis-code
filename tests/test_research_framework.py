@@ -25,13 +25,7 @@ from embodied_gap.datasets.eai_adapter import (
 from embodied_gap.datasets.taskset_builder import TaskSetBuilder, classify_difficulty
 from embodied_gap.datasets.resource_paths import resolve_domain_path, resolve_problem_path
 from embodied_gap.datasets.split_freezer import freeze_heldout_split
-from embodied_gap.datasets.safety_set import (
-    build_safety_tasks,
-    export_frozen_safety_set,
-    verify_frozen_safety_set,
-)
 from embodied_gap.experiments.model_matrix import ModelMatrixConfig, ModelSpec, MultiModelExperimentRunner
-from embodied_gap.experiments.pilot_budget import inspect_model_matrix
 from embodied_gap.knowledge.corpus_builder import KnowledgeCorpusBuilder
 from embodied_gap.knowledge.failure_memory import classify_failure_patterns
 from embodied_gap.knowledge.failure_memory_store import (
@@ -46,19 +40,19 @@ from embodied_gap.experiments.config import ExperimentConfig
 from embodied_gap.experiments.runner import ExperimentRunner
 from embodied_gap.evaluation.pddl_gold_validator import PDDLGoldPlanValidator
 from embodied_gap.evaluation.official_eai import (
+    build_virtualhome_official_cohort,
     export_virtualhome_action_sequencing,
     inspect_official_response_tree,
     load_virtualhome_prompt_object_ids,
     validate_action_sequencing_records,
 )
-from embodied_gap.evaluation.safety_benchmark import run_safety_benchmark
 from embodied_gap.execution.symbolic_executor import SymbolicExecutor
 from embodied_gap.harness.controller import HarnessController
 from embodied_gap.harness.recovery_policy import HarnessMode
 from embodied_gap.llm.parsers import parse_action_list
 from embodied_gap.llm.clients import OneAPIChatClient
 from embodied_gap.llm.prompts import render_planning_prompt
-from embodied_gap.planners.graph_grounded import GraphGroundedPlanner
+from embodied_gap.planners.graph_rag import GraphRAGPlanner
 from embodied_gap.planners.prompt_only import (
     EngineeredPromptPlanner,
     MinimalPromptPlanner,
@@ -310,35 +304,101 @@ class ResearchFrameworkTests(unittest.TestCase):
         self.assertEqual(manifest["issues"][0]["code"], "official_object_ambiguous")
         self.assertFalse(output_exists)
 
-    def test_official_behavior_contract_accepts_action_object_steps(self) -> None:
-        valid = validate_action_sequencing_records(
-            [
-                {
-                    "identifier": "behavior-demo",
-                    "llm_output": (
-                        '[{"action":"RIGHT_GRASP","object":"carton_0"},'
-                        '{"action":"RIGHT_PLACE_ONTOP",'
-                        '"object":"breakfast_table_19"}]'
-                    ),
-                }
-            ],
-            dataset="behavior",
-        )
-        self.assertTrue(valid["valid"])
+    def test_official_cohort_is_screened_by_gold_plan_not_model_output(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            tasks_path = root / "tasks.jsonl"
+            prompts_path = root / "prompts.json"
+            cohort_path = root / "cohort.jsonl"
+            dump_jsonl(
+                tasks_path,
+                [
+                    {
+                        "id": "compatible",
+                        "instruction": "turn on lamp",
+                        "slots": {"dataset": "virtualhome", "file_id": "1_1"},
+                        "gold_plan": ["switch_on(character, lamp)"],
+                    },
+                    {
+                        "id": "unsupported",
+                        "instruction": "plug in lamp",
+                        "slots": {"dataset": "virtualhome", "file_id": "2_1"},
+                        "gold_plan": ["plug_in(character, lamp)"],
+                    },
+                ],
+            )
+            prompts_path.write_text(
+                json.dumps(
+                    [
+                        {"identifier": "1_1", "llm_prompt": "lamp, id: 10, properties: []"},
+                        {"identifier": "2_1", "llm_prompt": "lamp, id: 11, properties: []"},
+                    ]
+                ),
+                encoding="utf-8",
+            )
+            manifest = build_virtualhome_official_cohort(
+                tasks_path=tasks_path,
+                prompts_path=prompts_path,
+                output_path=cohort_path,
+            )
+            cohort = load_tasks(cohort_path)
 
-        invalid = validate_action_sequencing_records(
-            [
-                {
-                    "identifier": "behavior-demo",
-                    "llm_output": '[{"RIGHT_GRASP":["carton_0"]}]',
-                }
-            ],
-            dataset="behavior",
-        )
-        self.assertFalse(invalid["valid"])
-        self.assertEqual(invalid["issues"][0]["code"], "behavior_step_shape")
+        self.assertEqual([task.id for task in cohort], ["compatible"])
+        self.assertEqual(manifest["included_task_count"], 1)
+        self.assertEqual(manifest["exclusions"][0]["code"], "unsupported_at_pinned_commit")
 
-    def test_official_preflight_does_not_promote_partial_output_to_submission(self) -> None:
+    def test_official_export_preserves_denominator_for_failed_prediction(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            tasks_path = root / "tasks.jsonl"
+            runs_path = root / "runs.jsonl"
+            prompts_path = root / "prompts.json"
+            output_path = root / "failed_outputs.json"
+            dump_jsonl(
+                tasks_path,
+                [
+                    {
+                        "id": "task",
+                        "instruction": "turn on lamp",
+                        "slots": {"dataset": "virtualhome", "file_id": "1_1"},
+                    }
+                ],
+            )
+            runs_path.write_text(
+                json.dumps(
+                    {
+                        "task_id": "task",
+                        "planner_name": "P0",
+                        "harness_mode": "H0",
+                        "final_plan": {"actions": ["find(lamp)"]},
+                    }
+                )
+                + "\n",
+                encoding="utf-8",
+            )
+            prompts_path.write_text(
+                json.dumps([{"identifier": "1_1", "llm_prompt": "lamp, id: 10, properties: []"}]),
+                encoding="utf-8",
+            )
+            manifest = export_virtualhome_action_sequencing(
+                runs_path=runs_path,
+                tasks_path=tasks_path,
+                prompts_path=prompts_path,
+                output_path=output_path,
+                planner_name="P0",
+                harness_mode="H0",
+                include_failed_predictions=True,
+            )
+            output = json.loads(output_path.read_text(encoding="utf-8"))
+            validation = validate_action_sequencing_records(output, dataset="virtualhome")
+
+        self.assertTrue(manifest["complete"])
+        self.assertEqual(manifest["failed_prediction_count"], 1)
+        self.assertEqual(output[0]["llm_output"], "[]")
+        self.assertTrue(validation["valid"])
+        self.assertEqual(validation["empty_plan_count"], 1)
+
+    def test_official_preflight_requires_virtualhome_runtime(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
             action_dir = Path(temp_dir) / "virtualhome" / "action_sequencing"
             action_dir.mkdir(parents=True)
@@ -353,112 +413,31 @@ class ResearchFrameworkTests(unittest.TestCase):
                 ),
                 encoding="utf-8",
             )
-            report = inspect_official_response_tree(temp_dir)
+            report = inspect_official_response_tree(
+                temp_dir,
+                external_root=Path(temp_dir) / "missing-eai",
+            )
 
-        self.assertEqual(report["required_slot_count"], 8)
+        self.assertEqual(report["required_slot_count"], 1)
         self.assertEqual(report["present_slot_count"], 1)
         self.assertTrue(report["action_sequencing_shapes_valid"])
-        self.assertFalse(report["structurally_ready"])
+        self.assertTrue(report["structurally_ready"])
+        self.assertFalse(report["official_runtime_ready"])
         self.assertFalse(report["submission_ready"])
 
-    def test_official_preflight_checks_igibson_assets_separately(self) -> None:
+    def test_official_preflight_recognizes_virtualhome_runtime(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
             external_root = Path(temp_dir) / "external" / "embodied-agent-interface"
             (external_root / "src" / "virtualhome_eval").mkdir(parents=True)
-            (external_root / "src" / "behavior_eval").mkdir(parents=True)
-            (external_root.parent / "iGibson" / "igibson").mkdir(parents=True)
 
             report = inspect_official_response_tree(
                 Path(temp_dir) / "responses",
                 external_root=external_root,
             )
 
-        self.assertTrue(report["runtime_sources"]["igibson_source_present"])
-        self.assertFalse(report["runtime_sources"]["igibson_dataset_present"])
-        self.assertFalse(report["official_runtime_ready"])
-
-    def test_frozen_safety_set_is_balanced_and_non_overwriting(self) -> None:
-        tasks = build_safety_tasks()
-        counts: dict[str, int] = {}
-        for task in tasks:
-            case_type = task["metadata"]["safety_case_type"]
-            counts[case_type] = counts.get(case_type, 0) + 1
-        self.assertEqual(len(tasks), 30)
-        self.assertEqual(
-            counts,
-            {
-                "explicit_hazard": 6,
-                "safe_near_miss": 6,
-                "recoverable_missing_step": 6,
-                "invalid_operation": 6,
-                "unrecoverable_error": 6,
-            },
-        )
-
-        with tempfile.TemporaryDirectory() as temp_dir:
-            first = export_frozen_safety_set(temp_dir)
-            with self.assertRaises(FileExistsError):
-                export_frozen_safety_set(temp_dir)
-            task_file = Path(temp_dir) / first["task_file"]
-            manifest_file = Path(temp_dir) / "safety_frozen_v1_manifest.json"
-            verification = verify_frozen_safety_set(task_file, manifest_file)
-            digest = hashlib.sha256(task_file.read_bytes()).hexdigest()
-        self.assertEqual(first["task_count"], 30)
-        self.assertEqual(first["sha256"], digest)
-        self.assertTrue(verification["valid"])
-
-    def test_safety_benchmark_separates_gate_and_local_recovery(self) -> None:
-        with tempfile.TemporaryDirectory() as temp_dir:
-            root = Path(temp_dir)
-            manifest = export_frozen_safety_set(root / "data")
-            task_path = root / "data" / manifest["task_file"]
-            output_dir, summary = run_safety_benchmark(
-                tasks_path=task_path,
-                output_root=root / "runs",
-            )
-            artifacts = {path.name for path in output_dir.iterdir()}
-
-        self.assertEqual(summary["record_count"], 90)
-        self.assertEqual(summary["method_count"], 3)
-        self.assertTrue(
-            {"runs.jsonl", "safety_metrics.jsonl", "safety_summary.json", "run_manifest.json"}
-            <= artifacts
-        )
-        h0 = summary["methods"]["safety_injected_plan__H0_open_loop"]
-        h1 = summary["methods"]["safety_injected_plan__H1_verifier_gated"]
-        h2 = summary["methods"]["safety_injected_plan__H2_local_recovery"]
-        self.assertEqual(h0["dangerous_behavior_detection"]["rate"], 0.0)
-        self.assertEqual(h0["hazardous_execution"]["rate"], 1.0)
-        self.assertEqual(h1["dangerous_behavior_detection"]["rate"], 1.0)
-        self.assertEqual(h1["false_interception"]["rate"], 0.0)
-        self.assertEqual(h1["post_interception_recovery"]["rate"], 0.0)
-        self.assertEqual(h2["dangerous_behavior_detection"]["rate"], 1.0)
-        self.assertEqual(h2["safe_task_completion"]["rate"], 1.0)
-        self.assertEqual(h2["post_interception_recovery"]["rate"], 1.0)
-
-    def test_pilot_preflight_counts_calls_and_excludes_heldout(self) -> None:
-        prompt_report = inspect_model_matrix(
-            "configs/experiments/pilot_prompt_deepseek_20.json"
-        )
-        self.assertEqual(prompt_report["task_count"], 20)
-        self.assertEqual(prompt_report["run_record_count"], 60)
-        self.assertEqual(prompt_report["worst_case_total_llm_call_count"], 60)
-        self.assertTrue(prompt_report["safe_for_development_selection"])
-
-        rag_report = inspect_model_matrix(
-            "configs/experiments/pilot_rag_bm25_deepseek_20.json"
-        )
-        self.assertEqual(rag_report["run_record_count"], 20)
-        self.assertEqual(rag_report["worst_case_total_llm_call_count"], 20)
-        self.assertFalse(rag_report["uses_frozen_heldout"])
-
-    def test_graph_grounded_planner_solves_preconditions(self) -> None:
-        task = self.eval_tasks["eval_clean_plate"]
-        run = HarnessController().run(task, GraphGroundedPlanner(), HarnessMode.H0_OPEN_LOOP)
-        record = evaluate_run(task, run)
-        self.assertTrue(record.task_success)
-        self.assertFalse(record.risk)
-        self.assertIn("search_seconds", run.initial_plan.metadata)
+        self.assertTrue(report["runtime_sources"]["virtualhome_present"])
+        self.assertTrue(report["official_runtime_ready"])
+        self.assertFalse(report["structurally_ready"])
 
     def test_full_harness_rejects_hazard(self) -> None:
         task = self.eval_tasks["eval_heat_phone_hazard"]
@@ -603,22 +582,6 @@ class ResearchFrameworkTests(unittest.TestCase):
             memory_run.patches[0].metadata["failure_memory_sha256"],
             "frozen-unit-hash",
         )
-
-    def test_recovery_pilot_budget_keeps_mechanisms_separate(self) -> None:
-        isolated = inspect_model_matrix(
-            "configs/experiments/pilot_recovery_deepseek_20.json"
-        )
-        self.assertEqual(isolated["run_record_count"], 120)
-        self.assertEqual(isolated["initial_llm_call_count"], 20)
-        self.assertEqual(isolated["worst_case_repair_llm_call_count"], 60)
-        self.assertNotIn("H2_full_recovery", isolated["harness_modes"])
-
-        combined = inspect_model_matrix(
-            "configs/experiments/pilot_recovery_combined_deepseek_20.json"
-        )
-        self.assertEqual(combined["run_record_count"], 80)
-        self.assertEqual(combined["worst_case_total_llm_call_count"], 100)
-        self.assertNotIn("H2_pddl_recovery", combined["harness_modes"])
 
     def test_failure_memory_builder_freezes_only_successful_repairs(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -980,43 +943,6 @@ class ResearchFrameworkTests(unittest.TestCase):
                 self.assertEqual(resolve_domain_path(task), domain_path.resolve())
                 self.assertEqual(resolve_problem_path(task), problem_path.resolve())
 
-    def test_behavior_resource_paths_support_original_layout_fallback(self) -> None:
-        with tempfile.TemporaryDirectory() as tmpdir:
-            root = Path(tmpdir) / "embodied-agent-interface"
-            resources = (
-                root
-                / "src"
-                / "behavior_eval"
-                / "evaluation"
-                / "transition_modeling"
-                / "resources"
-            )
-            resources.mkdir(parents=True)
-            domain_path = resources / "behavior_new.pddl"
-            domain_path.write_text("(define (domain igibson))", encoding="utf-8")
-            problem_path = resources / "pddl_behavior" / "cleaning_test.pddl"
-            problem_path.parent.mkdir()
-            problem_path.write_text("(define (problem cleaning_test))", encoding="utf-8")
-            task = Task.from_dict(
-                {
-                    "id": "portable_behavior",
-                    "instruction": "Clean",
-                    "initial_facts": [],
-                    "goal_facts": [],
-                    "allowed_actions": [],
-                    "action_model": {},
-                    "slots": {
-                        "dataset": "behavior",
-                        "task_family": "cleaning_test",
-                        "file_id": "cleaning_test",
-                    },
-                    "metadata": {"source_root": "/Users/another-user/stale/eai"},
-                }
-            )
-            with mock.patch.dict("os.environ", {"EAI_SOURCE_ROOT": str(root)}):
-                self.assertEqual(resolve_domain_path(task), domain_path.resolve())
-                self.assertEqual(resolve_problem_path(task), problem_path.resolve())
-
     def test_eai_adapter_refuses_historical_output_directories(self) -> None:
         with self.assertRaises(EAIAdapterError):
             EmbodiedAgentInterfaceAdapter("/tmp/output/diagnostics").load("virtualhome")
@@ -1108,60 +1034,6 @@ class ResearchFrameworkTests(unittest.TestCase):
             self.assertEqual(summary["overall"]["success_rate"], 1.0)
             self.assertTrue((out_dir / "gold_plan_validation.jsonl").exists())
 
-    def test_graph_grounded_planner_solves_pddl_inside_goal(self) -> None:
-        with tempfile.TemporaryDirectory() as tmpdir:
-            domain_path = Path(tmpdir) / "behavior_like.pddl"
-            domain_path.write_text(
-                """
-                (define (domain behavior_like)
-                  (:types object agent)
-                  (:predicates
-                    (inside ?obj - object ?container - object)
-                    (open ?obj - object)
-                    (holding ?obj - object)
-                    (handsfull ?agent - agent)
-                    (in_reach_of_agent ?obj - object))
-                  (:action navigate_to
-                    :parameters (?obj - object ?agent - agent)
-                    :precondition (not (in_reach_of_agent ?obj))
-                    :effect (in_reach_of_agent ?obj))
-                  (:action open
-                    :parameters (?obj - object ?agent - agent)
-                    :precondition (and (in_reach_of_agent ?obj) (not (open ?obj)) (not (handsfull ?agent)))
-                    :effect (open ?obj))
-                  (:action grasp
-                    :parameters (?obj - object ?agent - agent)
-                    :precondition (and (in_reach_of_agent ?obj) (not (holding ?obj)) (not (handsfull ?agent)))
-                    :effect (and (holding ?obj) (handsfull ?agent)))
-                  (:action place_inside
-                    :parameters (?obj - object ?container - object ?agent - agent)
-                    :precondition (and (holding ?obj) (in_reach_of_agent ?container) (open ?container))
-                    :effect (and (inside ?obj ?container) (not (holding ?obj)) (not (handsfull ?agent))))
-                )
-                """,
-                encoding="utf-8",
-            )
-            task = Task.from_dict(
-                {
-                    "id": "mini_inside",
-                    "instruction": "put gift in basket",
-                    "initial_facts": [],
-                    "goal_facts": ["inside(gift, basket)"],
-                    "allowed_actions": ["navigate_to", "open", "grasp", "place_inside"],
-                    "action_model": {},
-                    "slots": {"dataset": "behavior", "task_family": "mini"},
-                    "metadata": {
-                        "executor_status": "pddl_semantics_not_flattened",
-                        "domain_pddl_path": str(domain_path),
-                        "objects": {"agent": "agent", "gift": "object", "basket": "object"},
-                    },
-                }
-            )
-            plan = GraphGroundedPlanner().plan(task)
-            trace = SymbolicExecutor().execute(task, plan)
-            self.assertTrue(plan.metadata["solved"])
-            self.assertTrue(task.goal.is_satisfied(trace.final_state))
-
     def test_pddl_grounded_search_fallback_uses_priority(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:
             domain_path = Path(tmpdir) / "search_only.pddl"
@@ -1207,16 +1079,12 @@ class ResearchFrameworkTests(unittest.TestCase):
             task.slots.get("task_family"): task
             for task in load_tasks("data/processed/tasksets/balanced_eval_20.jsonl")
         }
-        cleaning_patterns = {
-            pattern.name for pattern in classify_failure_patterns(tasks["cleaning_microwave_oven"])
-        }
         coffee_patterns = {
             pattern.name for pattern in classify_failure_patterns(tasks["Make_coffee"])
         }
-        self.assertIn("behavior_negative_cleaning", cleaning_patterns)
         self.assertIn("virtualhome_appliance_surface_activation", coffee_patterns)
 
-        planner = GraphGroundedPlanner()
+        planner = PromptOnlyPlanner()
         run = HarnessController().run(
             tasks["Make_coffee"],
             planner,
@@ -1227,15 +1095,15 @@ class ResearchFrameworkTests(unittest.TestCase):
         self.assertFalse(Path(str(run.trace.metadata["domain_path"])).is_absolute())
         self.assertIn(
             "virtualhome_appliance_surface_activation",
-            run.final_plan.metadata["failure_memory_patterns"],
+            run.patches[0].metadata["failure_memory_patterns"],
         )
 
     def test_h2_replans_failed_pddl_plan_with_grounded_search(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:
-            domain_path = Path(tmpdir) / "behavior_like.pddl"
+            domain_path = Path(tmpdir) / "unit_recovery.pddl"
             domain_path.write_text(
                 """
-                (define (domain behavior_like)
+                (define (domain unit_recovery)
                   (:types object agent)
                   (:predicates
                     (inside ?obj - object ?container - object)
@@ -1271,7 +1139,7 @@ class ResearchFrameworkTests(unittest.TestCase):
                     "goal_facts": ["inside(gift, basket)"],
                     "allowed_actions": ["navigate_to", "open", "grasp", "place_inside"],
                     "action_model": {},
-                    "slots": {"dataset": "behavior", "task_family": "mini"},
+                    "slots": {"dataset": "unit", "task_family": "mini"},
                     "metadata": {
                         "executor_status": "pddl_semantics_not_flattened",
                         "domain_pddl_path": str(domain_path),
@@ -1307,7 +1175,13 @@ class ResearchFrameworkTests(unittest.TestCase):
 
     def test_taskset_builder_exports_balanced_sets(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:
-            manifest = TaskSetBuilder(list(self.eval_tasks.values()) + self.examples).export(
+            source_tasks = list(self.eval_tasks.values()) + self.examples
+            virtualhome_tasks = []
+            for task in source_tasks:
+                payload = task.to_dict()
+                payload["slots"] = {**payload.get("slots", {}), "dataset": "virtualhome"}
+                virtualhome_tasks.append(Task.from_dict(payload))
+            manifest = TaskSetBuilder(virtualhome_tasks).export(
                 tmpdir,
                 per_family=1,
             )
@@ -1417,18 +1291,34 @@ class ResearchFrameworkTests(unittest.TestCase):
             self.assertNotIn("place_inside(gift, basket, agent)", prompt)
             self.assertNotIn("gold_plan", prompt)
 
-    def test_model_matrix_config_parses_model_overrides(self) -> None:
-        config = ModelMatrixConfig.from_json("configs/experiments/sample_multimodel_one_api.json")
-        self.assertEqual(config.name, "sample_multimodel_one_api")
-        self.assertEqual(len(config.models), 3)
-        self.assertEqual(config.models[0].model, "DeepSeek-V4-Flash")
-        self.assertTrue(config.base_experiment.use_llm_for_planners)
-        eai_config = ModelMatrixConfig.from_json(
-            "configs/experiments/eai_balanced_20_multimodel_one_api.json"
+    def test_final_model_matrix_has_uniform_cohort_and_models(self) -> None:
+        expected_models = {"DeepSeek-V4-Flash", "gpt-5.5", "GLM-5-Turbo"}
+        config = ModelMatrixConfig.from_json(
+            "configs/experiments/final_full_matrix_v2.json"
         )
-        self.assertEqual(eai_config.base_experiment.tasks_path, "data/processed/tasksets/balanced_eval_20.jsonl")
-        self.assertEqual(eai_config.base_experiment.retrieval_examples_path, "data/processed/tasksets/rag_train.jsonl")
-        self.assertEqual(len(eai_config.models), 2)
+        self.assertEqual(
+            config.base_experiment.tasks_path,
+            "data/processed/tasksets/official_virtualhome_action_sequencing_v1.jsonl",
+        )
+        self.assertEqual(
+            {item.model for item in config.models if item.enabled},
+            expected_models,
+        )
+        self.assertEqual(len(load_tasks(config.base_experiment.tasks_path)), 84)
+        self.assertEqual(
+            set(config.base_experiment.planners),
+            {
+                "B0_minimal_prompt",
+                "P0_structured_prompt",
+                "P0_engineered_prompt",
+"P1_rag",
+                "P2_graph_rag",
+            },
+        )
+        self.assertEqual(
+            set(config.base_experiment.harness_modes),
+            {"H0_open_loop", "H2_llm_reflection", "H2_memory", "H2_pddl_recovery"},
+        )
 
         model = ModelSpec.from_dict(
             {
@@ -1444,28 +1334,6 @@ class ResearchFrameworkTests(unittest.TestCase):
         self.assertEqual(model.max_tokens, 4096)
         self.assertEqual(model.timeout_seconds, 240)
         self.assertEqual(model.max_attempts, 2)
-
-        generalization = ModelMatrixConfig.from_json(
-            "configs/experiments/eai_model_generalization_smoke.json"
-        )
-        self.assertEqual(len(generalization.models), 6)
-        self.assertEqual(
-            [item.model for item in generalization.models if item.enabled],
-            ["DeepSeek-V4-Flash", "gpt-5.5", "DeepSeek-V4-Pro", "GLM-5-Turbo"],
-        )
-        kimi = next(item for item in generalization.models if item.id == "kimi_k2_6")
-        self.assertEqual(kimi.temperature, 1.0)
-
-        rag_config = ModelMatrixConfig.from_json(
-            "configs/experiments/eai_planning_ablation_dev.json"
-        ).base_experiment
-        self.assertEqual(rag_config.retrieval_method, "lexical")
-        self.assertEqual(
-            rag_config.retrieval_field_profile,
-            "instruction_state_goal_schema",
-        )
-        self.assertEqual(rag_config.retrieval_top_k, 1)
-        self.assertEqual(rag_config.retrieval_min_score, 0.0)
 
     def test_experiment_runner_allocates_unique_non_overwriting_directories(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -1578,6 +1446,22 @@ class ResearchFrameworkTests(unittest.TestCase):
             self.assertGreater(manifest["kg_edge_count"], 0)
             self.assertTrue((Path(tmpdir) / "retrieval_corpus.jsonl").exists())
             self.assertTrue((Path(tmpdir) / "kg_edges.jsonl").exists())
+
+    def test_graph_rag_reads_subgraphs_and_records_provenance(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            manifest = KnowledgeCorpusBuilder(self.examples).export(tmpdir)
+            planner = GraphRAGPlanner(
+                self.examples,
+                graph_path=manifest["files"]["kg_edges"],
+            )
+            plan = planner.plan(self.eval_tasks["eval_move_apple"])
+
+        self.assertEqual(plan.planner_name, "P2_graph_rag")
+        self.assertEqual(plan.metadata["engine"], "graph_subgraph_retrieval")
+        self.assertEqual(plan.metadata["retrieval_corpus"], "training_task_knowledge_graph")
+        self.assertEqual(len(plan.metadata["graph_retrieved_ids"]), 1)
+        self.assertGreater(plan.metadata["graph_retrieved_edge_counts"][0], 0)
+        self.assertNotIn("pddl_grounded_search", str(plan.metadata))
 
     def test_parser_accepts_action_dictionary_formats(self) -> None:
         self.assertEqual(

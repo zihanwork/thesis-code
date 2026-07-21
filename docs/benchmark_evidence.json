@@ -1,21 +1,41 @@
 {
-  "last_verified": "2026-07-16",
-  "comparison_policy": {
-    "custom_202_result": "development-only custom PDDL final-state evaluation; not leaderboard comparable",
-    "local_heldout_result": "local generalization evidence; not an official challenge score",
-    "official_comparison_requirement": "official hidden test and evaluator with all required outputs"
+  "last_verified": "2026-07-21",
+  "project_scope": {
+    "outcome_authority": "Pinned VirtualHome Action Sequencing evaluator",
+    "evaluator_commit": "531c62f8df2cb392bdf1907923c76da41cad4fe6",
+    "evaluated_dataset": "VirtualHome",
+    "evaluated_module": "action_sequencing",
+    "cohort_path": "data/processed/tasksets/official_virtualhome_action_sequencing_v1.jsonl",
+    "cohort_task_count": 84,
+    "task_family_count": 8,
+    "compatibility_scope": "Official-evaluator compatible subset; not a complete hidden challenge-set submission."
   },
-  "official_protocol": {
-    "datasets": ["VirtualHome", "BEHAVIOR"],
-    "modules": [
-      "goal_interpretation",
-      "subgoal_decomposition",
-      "action_sequencing",
-      "transition_modeling"
+  "formal_experiment": {
+    "config_path": "configs/experiments/final_full_matrix_v2.json",
+    "planner_count": 5,
+    "harness_count": 4,
+    "model_count": 3,
+    "cell_count": 60,
+    "record_count": 5040,
+    "models": [
+      "DeepSeek-V4-Flash",
+      "gpt-5.5",
+      "GLM-5-Turbo"
     ],
-    "required_output_files": 8,
-    "hidden_final_test": true,
-    "rules_url": "https://eai-challenge-cvpr2026.github.io/rules"
+    "results_json": "docs/final_official_virtualhome_results_v4.json",
+    "results_markdown": "docs/final_official_virtualhome_results_v4.md",
+    "paired_comparison_count": 93
+  },
+  "interpretation_policy": {
+    "primary_metric": "official task success rate",
+    "secondary_metrics": [
+      "official total-goal completion",
+      "official state/relation/action goal completion",
+      "official execution success",
+      "official evaluator error categories"
+    ],
+    "local_pddl_role": "Verifier and recovery telemetry only; never a reported outcome authority.",
+    "failed_prediction_policy": "Malformed, unmappable, or empty predictions remain in the fixed denominator and are passed as empty sequences."
   },
   "public_work": [
     {

@@ -1,87 +1,79 @@
-# Final Experiment Protocol v1
+# Final Experiment Protocol
 
-## Scope
+## Confirmatory source runs
 
-The local final set contains 119 frozen VirtualHome tasks. It is a one-shot
-local held-out evaluation, not an official EAI challenge score and not a
-BEHAVIOR generalization estimate. The official evaluator results must be
-reported separately from the custom PDDL evaluator.
+The final protocol is a complete factorial planner-harness-model matrix. Every
+cell is executed; there are no intentional empty cells or model-specific gaps.
+All cells use the same 84-task official VirtualHome Action Sequencing cohort.
 
-The authoritative machine-readable protocol is
-`configs/experiments/final_protocol_v1.json`. The protocol is valid only when:
+| Dimension | Conditions | Count |
+|---|---|---:|
+| Planner | B0 Minimal, P0-S Structured, P0-E Engineered, P1 Flat RAG, P2 GraphRAG | 5 |
+| Harness | H0 Open Loop, H2-R Reflection, H2-M Memory, H2-P PDDL Recovery | 4 |
+| Model | DeepSeek-V4-Flash, gpt-5.5, GLM-5-Turbo | 3 |
+| Official tasks | Frozen compatible VirtualHome cohort | 84 |
+| **Total cells** | 5 x 4 x 3 | **60** |
+| **Total records** | 60 x 84 | **5040** |
 
-- every frozen artifact hash matches;
-- the worktree is clean;
-- the current commit is tagged `final-protocol-v1`;
-- no final output root already contains `run_index.jsonl`.
+The machine-readable source-run configuration is
+`configs/experiments/final_full_matrix_v2.json`. The previous staged final
+configs were removed so that there is only one formal experiment definition.
 
-Verify all gates before the first final run:
+## Planner-Harness Matrix
 
-```bash
-PYTHONPATH=src python3 -m embodied_gap.cli verify-final-protocol
-```
+Every entry in this matrix is run with all three models and all 84 tasks.
 
-## Frozen cells and budget
+| Planner / initial planning method | H0 open loop | H2-R validator-feedback recovery | H2-M memory-augmented recovery | H2-P PDDL recovery |
+|---|---|---|---|---|
+| **B0 Minimal Prompt** | 3 models | 3 models | 3 models | 3 models |
+| **P0-S Structured Prompt** | 3 models | 3 models | 3 models | 3 models |
+| **P0-E Engineered Prompt** | 3 models | 3 models | 3 models | 3 models |
+| **P1 Flat RAG** | 3 models | 3 models | 3 models | 3 models |
+| **P2 GraphRAG** | 3 models | 3 models | 3 models | 3 models |
+| **Total** | **15** | **15** | **15** | **15** |
 
-| Experiment | Models | Cells | Records | Worst-case LLM calls |
-|---|---|---|---:|---:|
-| Planning | DeepSeek-V4-Flash, gpt-5.5 | B0/H0, P0-structured/H0, P0-engineered/H0 | 714 | 714 |
-| Recovery | DeepSeek-V4-Flash, gpt-5.5 | P1 with H0, Reflection, Memory, PDDL recovery | 952 | 714 |
-| Generalization | GLM-5-Turbo | P0-engineered/H0, P1/H0 | 238 | 238 |
-| Symbolic reference | Model-independent | P2-symbolic/H0 | 119 | 0 |
-| Total |  |  | 2,023 | 1,666 |
+This gives 20 planner-harness combinations and 60 model-specific cells. H2-P
+is deliberately included for every planner so that recovery comparisons do not
+silently change the initial planning method. P2 is the new GraphRAG treatment:
+it retrieves training-only graph subgraphs and graph-derived action chains. It
+does not reuse the deleted symbolic P2 artifacts.
 
-P1/H0 for the two primary models is supplied by the Recovery matrix, avoiding a
-duplicate P1 planning call in the Planning matrix. The Recovery matrix reuses
-each P1 initial plan across all four harness modes.
+Every source run preserves raw plans, prompts, model-call telemetry, retrieval
+provenance, local verifier traces, and repair traces. Local PDDL execution is
+implementation telemetry only; it is never reported as the thesis outcome.
 
-The fixed decoding policy is temperature 0, maximum output 2048 tokens, timeout
-180 seconds, and at most two transport attempts. Length-truncated calls are a
-reported resource outcome and do not trigger selective reruns. Monetary cost
-cannot be estimated until trustworthy One API pricing is configured; calls,
-tokens, latency, and truncation remain mandatory.
+## Official evaluation population
 
-## Method selection
+Outcome reporting uses the frozen cohort at
+`data/processed/tasksets/official_virtualhome_action_sequencing_v1.jsonl`.
+Every one of the 60 model-specific cells is exported with exactly these 84 task
+identifiers and scored by the pinned official VirtualHome Action Sequencing
+evaluator. Failed or malformed predictions remain in the denominator.
 
-- GLM-5-Turbo is the only additional family because it passed the realistic
-  canary and development pilot.
-- Plain Reflection is retained as the principal LLM recovery mechanism.
-- Symbolic-teacher Memory is retained as a planned contrast despite being
-  slightly worse and more expensive than Reflection in development.
-- PDDL recovery is retained only as a separately labelled symbolic reference.
-- H2 Local and H2 Error-specific remain development ablations.
-- Combined Harness modes are not run because the isolated development evidence
-  did not justify them.
-- H1 safety claims come from the frozen safety benchmark, not from these normal
-  household tasks.
+The primary endpoint is official task success. Secondary endpoints are official
+total-goal completion, state/relation/action goal completion, execution success,
+and evaluator error categories.
 
-See `docs/model_generalization_protocol.md` and
-`docs/recovery_pilot_protocol.md` for the selection evidence.
+## Method attribution
 
-## One-shot execution order
+- B0, P0-S, P0-E, P1, and P2 vary planning-time information.
+- H2-R, H2-M, and H2-P vary execution-time recovery while holding the initial
+  planner condition fixed within each row.
+- H2-P is a symbolic recovery mechanism, not the P2 planning method.
+- P2-GraphRAG is a graph retrieval treatment and is evaluated independently of
+  PDDL search.
+- The pinned official evaluator is the sole outcome authority.
 
-After the tag gate passes and the API-call budget is explicitly approved, run
-the four configurations without inspecting per-task outcomes between them:
+## Statistical policy
 
-```bash
-PYTHONPATH=src python3 -m embodied_gap.cli run-model-matrix \
-  --config configs/experiments/final_planning_heldout_v1.json
-PYTHONPATH=src python3 -m embodied_gap.cli run-model-matrix \
-  --config configs/experiments/final_recovery_heldout_v1.json
-PYTHONPATH=src python3 -m embodied_gap.cli run-model-matrix \
-  --config configs/experiments/final_generalization_heldout_v1.json
-PYTHONPATH=src python3 -m embodied_gap.cli run \
-  --config configs/experiments/final_symbolic_heldout_v1.json
-```
+Comparisons are paired by task and stratified by model, planner, and harness.
+Exact two-sided McNemar tests quantify discordant binary outcomes. Confidence
+intervals resample all observations in a task family together, using 10,000
+bootstrap samples and seed 13.
 
-Do not change code, prompts, retrieval, memory, models, decoding, or statistics
-after the first command starts. Do not selectively rerun failed tasks. If an
-external service interruption prevents a complete matrix, preserve the failed
-run and create an explicit protocol amendment before any rerun.
+## Reproducibility
 
-## Reporting
-
-Report Wilson 95% intervals, exact paired McNemar tests, paired bootstrap uplift
-intervals, VirtualHome-only scope, difficulty/task-family/failure strata, calls,
-tokens, latency, length truncations, repair counts, PDDL explored states, and
-PDDL search time. Never add held-out failures to RAG or failure memory.
+The machine-readable protocol is `configs/experiments/final_protocol_v1.json`.
+Official export and evaluation commands are in
+`docs/official_eai_protocol.md`. All 60 cells and the official evaluator run are
+complete; frozen evidence is in `docs/final_official_virtualhome_results_v4.*`.

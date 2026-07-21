@@ -48,7 +48,7 @@ class PDDLExecutionFailure:
 class PDDLBackedExecutor:
     """Small PDDL interpreter for clean EAI action-sequencing tasks.
 
-    It supports the subset used by EAI VirtualHome and BEHAVIOR domains:
+    It supports the PDDL subset used by the EAI VirtualHome domain:
     conjunction, disjunction, negation, existential/universal quantifiers, and
     conditional effects.
     """

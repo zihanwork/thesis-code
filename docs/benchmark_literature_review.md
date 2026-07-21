@@ -24,7 +24,7 @@ different estimands:
 | Result | Data/protocol | Metric | Directly comparable? |
 |---|---|---|---|
 | Current `197/202` historical result | Custom 202-task executable development subset | Local PDDL final-state task success after symbolic replanning | No |
-| Frozen local held-out result | 119 unseen executable VirtualHome tasks | Local evaluator task success | No; useful only as a local generalization test |
+| Frozen local held-out result | 119 task-ID-unseen but task-family-seen executable VirtualHome instances | Local evaluator task success | No; useful as a seen-family instance-transfer test |
 | Official EAI challenge result | Official hidden set, eight required outputs, official evaluator | Four-module, two-environment official metrics and aggregate | Yes, but only after official submission/evaluation |
 
 The thesis must label the first two as **custom subset** results and must never
@@ -71,9 +71,13 @@ The defensible contribution package is:
 
 The strongest research question is not “Can a harness reach 97.5%?” It is:
 
-> Under matched tasks and models, which planning-time and recovery-time
-> mechanisms produce genuine, complementary gains, and at what token, latency,
-> monetary, and symbolic-search cost?
+> Under matched tasks and models, how much does retrieval improve initial plans,
+> how many residual RAG failures does feedback recovery repair, and at what
+> token, latency, and symbolic-search cost?
+
+The frozen final design does not contain the P0/Reflection cell required to
+estimate a planning-by-recovery interaction. It must not use "complementary" as
+a factorial or causal interaction claim.
 
 ## Literature structure for the thesis
 

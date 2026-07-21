@@ -1,151 +1,119 @@
-# Revised Experiment Design
+# Converged Experiment Design
 
-## Thesis Claim
+## Research position
 
-The study separates planning-time augmentation from execution-time recovery.
-It asks how structured prompting and retrieval affect the initial plan, how
-isolated recovery mechanisms repair failures, and whether the effects transfer
-across model families at acceptable cost.
+The thesis studies a two-stage control problem in embodied planning:
 
-The historical 3x3 matrix is a pilot. It is not the final confirmatory design
-because the old P2 and H2 both invoked the same symbolic PDDL search.
+1. **Planning-time knowledge constraint** controls what information the LLM
+   receives before producing its first action sequence.
+2. **Execution-time closed-loop control** diagnoses and repairs a plan after a
+   verifier detects a concrete failure.
 
-## Research Questions
+This framing is deeper than a component list such as “structured + RAG” and
+more precise than the engineering label “harness engineering.” It separates
+where information enters the pipeline, which failure it can affect, and which
+mechanism deserves credit for an improvement.
 
-- RQ1: What is gained by structured prompts, engineered prompts, and RAG?
-- RQ2: Which failures are repaired by local, LLM-feedback, and PDDL recovery?
-- RQ3: Are planning-time RAG and execution-time recovery complementary?
-- RQ4: Do the effects transfer across model families and capability levels?
-- RQ5: What are the token, latency, monetary, and symbolic-search costs?
+## Why the historical 3 × 3 was retired
 
-## Planning Ablation
+The historical matrix crossed prompt-only, RAG, and “graph grounded” planners
+with open loop, verifier gating, and full recovery. It was not a valid
+factorial design:
 
-Run every method under `H0_open_loop` so the initial plan is measured without
-recovery contamination.
+- the final P2 path used `pddl_grounded_search`, not the knowledge graph;
+- P2 and H2 both called the same symbolic PDDL machinery, so their cells were
+  not independent mechanisms;
+- verifier-only H1 blocks invalid actions but does not repair them, making many
+  H0/H1 cells mechanically identical;
+- “full recovery” bundled local patching, LLM feedback, memory, and symbolic
+  fallback, preventing causal attribution.
 
-| ID | Paper name | Role |
+The old grid looked simple, but its apparent symmetry concealed confounding.
+It must not be presented as the confirmatory thesis experiment.
+
+## Final interventions
+
+### Planning-time knowledge constraint
+
+| ID | Paper label | Information added before generation |
 |---|---|---|
-| `B0_minimal_prompt` | Minimal Prompt Baseline | Instruction and allowed actions only |
-| `P0_structured_prompt` | Structured PDDL-Informed Prompt | State, goal, objects, and PDDL signatures |
-| `P0_engineered_prompt` | Engineered Structured Prompt | P0 plus a fixed constraint checklist |
-| `P1_rag` | Retrieval-Augmented Planning | P0-PE plus task-conditioned demonstrations |
-| `P2_symbolic_pddl` | Symbolic PDDL Reference | Model-independent reference, run once |
+| B0 | Minimal prompt | Instruction and output requirement only |
+| P0-S | Structured state–goal prompt | Objects, state, goals, and action signatures |
+| P0-E | Constraint-engineered prompt | P0-S plus a fixed precondition/order checklist |
+| P1 | Retrieval-grounded planning | P0-E plus a task-conditioned training demonstration |
+| P2 | GraphRAG planning | Retrieve training-only task subgraphs and graph-derived action chains before generation |
 
-P2 is not a knowledge-graph method and is not claimed to be an upper bound.
+### Execution-time closed-loop control
 
-## Recovery Ablation
-
-| ID | Paper name | Allowed repair mechanism |
+| ID | Paper label | Response to detected failure |
 |---|---|---|
-| `H0_open_loop` | Open Loop | None |
-| `H1_verifier_gated` | Safety/Validity Gate | Detect and block only |
-| `H2_local_recovery` | Local Recovery | Safety rule and local deterministic patch |
-| `H2_llm_reflection` | LLM Feedback Replanning | Explicit validator feedback to the original model |
-| `H2_error_specific` | Error-Specific LLM Repair | Validator feedback plus error-type guidance |
-| `H2_memory` | Memory-Augmented LLM Repair | Validator feedback plus frozen failure-repair example |
-| `H2_combined` | Combined LLM Harness | Local patch, error-specific guidance, and frozen memory |
-| `H2_pddl_recovery` | Symbolic PDDL Recovery | Symbolic search fallback |
+| H0 | Open loop | No post-generation intervention |
+| H2-R | Validator-feedback reflection | Return the concrete validation failure to the same LLM and replan once |
+| H2-M | Memory-augmented repair | Reflection plus one frozen development repair example |
+| H2-P | Symbolic recovery reference | Replace the failed plan using PDDL search |
 
-`H2_full_recovery` remains available only to reproduce historical pilot runs.
-It must not be used as a final thesis method because it mixes mechanisms.
+The verifier is an intervention component. Its internal PDDL/state checks are
+not an outcome metric and are never reported as task success.
 
-The combined harness excludes PDDL fallback so its contribution is not confused
-with the symbolic reference. `H2_combined_no_local`,
-`H2_combined_no_error`, and `H2_combined_no_memory` provide
-leave-one-component-out ablations. Cross-task memory is built only from train/development data and
-is read-only during final evaluation.
+## Actual confirmatory design
 
-The first frozen development memory contains 357 successful failure-to-repair
-pairs. All were produced by the historical symbolic PDDL recovery, so this
-version must be described as **symbolic-teacher failure memory**, not ordinary
-LLM self-memory. Later LLM-only development runs may support a separate
-LLM-derived memory corpus and teacher-source ablation.
+The final design is a complete 5 x 4 x 3 factorial matrix:
 
-## Experiment Phases
+- **Five planners:** B0, P0-S, P0-E, P1 Flat RAG, and P2 GraphRAG.
+- **Four harnesses:** H0, H2-R, H2-M, and H2-P.
+- **Three models:** DeepSeek-V4-Flash, gpt-5.5, and GLM-5-Turbo.
+- **One cohort:** the same 84 official-compatible VirtualHome tasks in every
+  model-specific cell.
 
-1. Model compatibility smoke: validate API routing, parseability, and telemetry.
-2. Planning development ablation: run B0/P0/P0-PE/P1 under H0 on the 202-task
-   development set.
-3. Recovery development ablation: run P0-PE and P1 under isolated recovery modes.
-4. Symbolic reference: run P2 once without an LLM or recovery fallback.
-5. RAG and recovery tuning: development data only.
-6. Safety evaluation: use a separate frozen safety dataset for H1 claims.
-7. Generalization: rerun only preregistered key cells on additional model families.
-8. Final evaluation: frozen local held-out and official challenge submission.
+This yields 20 planner-harness combinations, 60 model-specific cells, and 5040
+official records. There are no empty cells. The former symbolic P2 source runs
+and result rows were deleted and cannot be reused. Crossing every planner with
+every harness supports direct planning, recovery, and planner-by-recovery
+comparisons without changing model coverage or task denominators.
 
-The 202-task `balanced_eval.jsonl` set is development-only. Its results must not
-be described as held-out or official benchmark performance.
+## Research questions and identifiable claims
 
-The local held-out split is frozen at 119 VirtualHome-only tasks with task-ID
-hash `036ed8d9c943477bdc704d4d1e4fd3e84541352f8a132984b68c3b6c51f22eac`.
-See `docs/data_split_protocol.md`. It must not be executed until final methods
-and reporting rules are frozen.
+- **RQ1 — Planning-time grounding:** How much do structured constraints and
+  retrieved procedural examples improve official task success?
+- **RQ2 — Failure diagnosis:** Which official trajectory and goal failures
+  remain after each planning intervention?
+- **RQ3 — Recovery and interaction:** How much do reflection, frozen repair
+  memory, and symbolic recovery improve each planning method, and do their
+  effects interact with planning-time grounding?
+- **RQ4 — Model transfer:** Do the planning-time effects reproduce across model
+  families?
+- **RQ5 — Cost:** What extra calls, tokens, latency, and symbolic search are
+  required?
 
-RAG selection uses normalized lexical, BM25, and field-structured retrieval,
-top-1/3/5, and four query field profiles. The staged protocol is defined in
-`docs/rag_ablation.md`.
+RQ3 is estimable because every planning method is crossed with every recovery
+method. Interaction claims remain model-stratified and paired by task; no cell
+may be omitted from confirmatory reporting.
 
-## One API Model Policy
+## GraphRAG treatment definition
 
-The account model directory and smoke results are recorded in
-`configs/models/one_api_catalog.json`. As of 2026-07-17:
+P2-GraphRAG is now a distinct planning treatment. It reads the frozen,
+training-only `data/knowledge/eai_train/kg_edges.jsonl`, retrieves task-specific
+subgraphs using graph node/relation overlap, renders graph triples and the
+graph-derived action chain, and then generates an action list. It does not
+invoke PDDL search and does not reuse the deleted symbolic P2 outputs.
 
-- Verified existing models: `DeepSeek-V4-Flash`, `gpt-5.5`.
-- Promoted cross-family model: `GLM-5-Turbo`.
-- API-compatible but not promoted after the realistic output-budget canary:
-  `DeepSeek-V4-Pro`.
-- Conditional: `MiniMax-M3`, `Kimi-K2.6`.
-- Listed but unavailable through the current chat route: tested Claude models
-  and `grok-4.5`.
+The flat `P1_rag` condition remains the direct control. The completed GraphRAG
+run records retrieved task IDs, graph scores, edge counts, graph path, token
+telemetry, and official Action Sequencing outcomes. Its official results are
+reported in `docs/final_official_virtualhome_results_v4.md`.
 
-The primary generalization addition is `GLM-5-Turbo` because it adds a new
-model family. `DeepSeek-V4-Pro` is excluded from the current pilot because one
-of two realistic 2048-token canary calls ended by length.
-Qwen and Llama are not exposed by this One API account. A LoRA/PEFT experiment
-therefore requires a separate local open-weight backend. Fine-tuning is an
-optional appendix/future-work experiment and does not block the main thesis.
+## Single evaluation authority
 
-The completed 20-task development pilot compares only P0/H0 with P1/H0 across
-DeepSeek-V4-Flash, gpt-5.5, and GLM-5-Turbo. RAG improved task success by 45,
-25, and 50 percentage points respectively. See
-`docs/model_generalization_protocol.md`. These are development results, not
-held-out or official scores.
+All thesis outcome claims use the pinned official VirtualHome Action
+Sequencing evaluator. The fixed cohort is built before examining treatment
+outcomes by retaining tasks whose gold plan is supported by the pinned action
+vocabulary and whose task-specific object IDs are unambiguous. Failed model
+predictions remain in the common denominator and are passed to the official
+evaluator as empty sequences.
 
-## Reporting Guardrails
+Primary outcome: official task success rate.
 
-- Keep planner quality and recovery quality as separate estimands.
-- Reuse the same initial plan across harness modes for paired comparison.
-- Cap repair calls equally and report conditional recovery success.
-- Report VirtualHome and BEHAVIOR separately.
-- Record exact model IDs and per-model decoding overrides.
-- Report 95% confidence intervals, paired McNemar tests, calls, tokens, latency,
-  cost, repair attempts, PDDL time, and explored states.
-- Never write final-test failures into RAG or failure memory.
+Secondary official outcomes: total goal completion, state/relation/action goal
+completion, execution success, and official error categories.
 
-## Runnable Development Configurations
-
-- `configs/experiments/eai_planning_ablation_dev.json`
-- `configs/experiments/eai_recovery_ablation_dev.json`
-- `configs/experiments/eai_harness_leave_one_out_dev.json`
-- `configs/experiments/eai_symbolic_reference_dev.json`
-- `configs/experiments/eai_model_generalization_smoke.json`
-
-These configurations define the structure but should not be launched as paid
-full runs until model pricing, run budgets, and the development/final protocol
-are frozen.
-
-Build or refresh a frozen development memory with:
-
-```bash
-uv run embodied-gap build-failure-memory \
-  --tasks data/processed/tasksets/balanced_eval.jsonl \
-  --runs <development-runs.jsonl> \
-  --out data/knowledge/failure_memory_dev.jsonl
-```
-
-The completed isolated Recovery/Memory development pilot and final mechanism
-selection are documented in `docs/recovery_pilot_protocol.md`. Plain reflection
-and error-specific repair tied at 60% task success, memory reached 55%, local
-repair remained at the 20% H0 baseline, and PDDL recovery reached 100% as a
-separately labelled symbolic reference. The combined leave-one-out pilot is not
-run because the isolated results do not justify it.
+Inference resamples whole task families and reports exact paired McNemar tests.

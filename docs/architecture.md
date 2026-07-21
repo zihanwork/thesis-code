@@ -1,4 +1,4 @@
-# Architecture
+# Architecture: Two-Stage Control With One Outcome Authority
 
 The project uses a two-layer architecture.
 
@@ -10,7 +10,7 @@ Initial planners generate the first candidate action sequence.
 - `P0_structured_prompt`: structured PDDL-informed prompt baseline.
 - `P0_engineered_prompt`: structured prompt with a fixed constraint checklist.
 - `P1_rag`: retrieves task demonstrations on top of the engineered prompt.
-- `P2_symbolic_pddl`: model-independent symbolic planning reference.
+- `P2_graph_rag`: graph-conditioned planning from training-only task subgraphs.
 
 ## Layer 2: Execution Harness
 
@@ -32,8 +32,13 @@ This architecture supports separable ablations:
 
 1. Planning-time improvement: B0 vs P0 vs P0-PE vs P1 under H0.
 2. Recovery improvement: isolated Local vs LLM vs typed vs memory vs PDDL recovery.
-3. Interaction effect: whether RAG and LLM feedback recovery are complementary.
+3. Conditional recovery effect: how much LLM feedback recovery improves P1 RAG
+   plans. A true interaction requires the currently absent P0/Reflection cell.
 4. Symbolic reference: P2 once, outside the LLM model matrix.
+
+P2 is now in this list as a distinct GraphRAG treatment. It reads the frozen
+training-only KG edge artifact and renders retrieved graph triples before
+planning. It is not the same implementation as the deleted PDDL-backed P2.
 
 ## Data Flow
 
@@ -43,7 +48,11 @@ Task JSONL
   -> Initial planner
   -> Harness controller
   -> Validator / executor / repair router
-  -> Execution trace
-  -> Evaluation metrics
-  -> Runs and summary artifacts
+  -> Candidate final action sequence
+  -> Official-format adapter (fixed 84-task cohort)
+  -> Pinned VirtualHome Action Sequencing evaluator
+  -> Official goal, trajectory, and error metrics
 ```
+
+The validator/executor trace is internal intervention telemetry. Only the
+pinned official evaluator is allowed to award outcome success.

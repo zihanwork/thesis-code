@@ -119,26 +119,6 @@ def resolve_problem_path(task: Task) -> Path | None:
                     / task_family
                     / filename
                 )
-            elif dataset == "behavior":
-                candidates.extend(
-                    (
-                        root
-                        / "src"
-                        / "virtualhome_eval"
-                        / "resources"
-                        / "behavior"
-                        / "problem_pddl"
-                        / filename,
-                        root
-                        / "src"
-                        / "behavior_eval"
-                        / "evaluation"
-                        / "transition_modeling"
-                        / "resources"
-                        / "pddl_behavior"
-                        / filename,
-                    )
-                )
 
     return _first_file(candidates)
 
@@ -168,31 +148,6 @@ def _standard_domain_paths(source_root: Path, dataset: str) -> tuple[Path, ...]:
             / "resources"
             / "virtualhome"
             / "virtualhome_pd.pddl",
-        )
-    if dataset == "behavior":
-        return (
-            # The normalized domain distributed with the EAI action-sequencing
-            # resources matches the processed problem/gold-plan files.
-            source_root
-            / "src"
-            / "virtualhome_eval"
-            / "resources"
-            / "behavior"
-            / "behavior.pddl",
-            # Fall back to the original BEHAVIOR transition-modeling domain.
-            source_root
-            / "src"
-            / "behavior_eval"
-            / "evaluation"
-            / "transition_modeling"
-            / "resources"
-            / "behavior_new.pddl",
-            source_root
-            / "src"
-            / "virtualhome_eval"
-            / "resources"
-            / "behavior"
-            / "behavior_pd.pddl",
         )
     return ()
 

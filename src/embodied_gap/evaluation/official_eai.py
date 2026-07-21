@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import json
-import os
 from pathlib import Path
 import re
 from typing import Any
@@ -9,13 +8,8 @@ from typing import Any
 from embodied_gap.core.action_schema import parse_call
 
 
-OFFICIAL_DATASETS = ("virtualhome", "behavior")
-OFFICIAL_MODULES = (
-    "goal_interpretation",
-    "subgoal_decomposition",
-    "action_sequencing",
-    "transition_modeling",
-)
+OFFICIAL_DATASETS = ("virtualhome",)
+OFFICIAL_MODULES = ("action_sequencing",)
 
 # This mirrors valid_actions in the evaluator at the pinned EAI commit. It is
 # deliberately not expanded from the prompt prose: PLUGIN and PLUGOUT are
@@ -156,6 +150,7 @@ def validate_action_sequencing_records(
     issues: list[dict[str, str]] = []
     identifiers: set[str] = set()
     parsed_count = 0
+    empty_plan_count = 0
     nonempty_plan_count = 0
 
     if not isinstance(records, list):
@@ -179,8 +174,19 @@ def validate_action_sequencing_records(
         if parse_issues:
             continue
         parsed_count += 1
-        if not isinstance(parsed, list) or not parsed:
-            issues.append(_issue("empty_or_nonlist_plan", "Action sequence must be a non-empty JSON list.", identifier=identifier))
+        if not isinstance(parsed, list):
+            issues.append(
+                _issue(
+                    "nonlist_plan",
+                    "Action sequence must be a JSON list.",
+                    identifier=identifier,
+                )
+            )
+            continue
+        if not parsed:
+            # The pinned evaluator accepts [] and records it as a parsing failure.
+            # Keeping the row is required to preserve the fixed task denominator.
+            empty_plan_count += 1
             continue
         nonempty_plan_count += 1
 
@@ -237,22 +243,12 @@ def validate_action_sequencing_records(
                             )
                         )
                         break
-            else:
-                if set(step) != {"action", "object"}:
-                    issues.append(
-                        _issue(
-                            "behavior_step_shape",
-                            f"Step {step_index} must contain exactly action and object.",
-                            identifier=identifier,
-                        )
-                    )
-                elif not isinstance(step["action"], str) or not isinstance(step["object"], str):
-                    issues.append(_issue("behavior_step_types", f"Step {step_index} action/object must be strings.", identifier=identifier))
 
     return {
         "dataset": dataset,
         "record_count": len(records),
         "parsed_count": parsed_count,
+        "empty_plan_count": empty_plan_count,
         "nonempty_plan_count": nonempty_plan_count,
         "valid": not issues,
         "issues": issues,
@@ -269,6 +265,7 @@ def validate_action_sequencing_file(path: str | Path, *, dataset: str) -> dict[s
             "path": str(path),
             "record_count": 0,
             "parsed_count": 0,
+            "empty_plan_count": 0,
             "nonempty_plan_count": 0,
             "valid": False,
             "issues": [_issue("file_unreadable", str(exc))],
@@ -379,13 +376,17 @@ def export_virtualhome_action_sequencing(
     planner_name: str,
     harness_mode: str,
     allow_partial: bool = False,
+    include_failed_predictions: bool = False,
     overwrite: bool = False,
 ) -> dict[str, Any]:
     """Export one exact project method to pinned official VirtualHome format.
 
     The exporter never guesses object IDs. A strict export writes the official
     output only when every expected VirtualHome task has one selected run and
-    every action can be translated without ambiguity.
+    every action can be translated without ambiguity. For a prevalidated fixed
+    cohort, ``include_failed_predictions`` preserves the common denominator by
+    emitting ``[]`` for model outputs that cannot be translated; the pinned
+    evaluator then counts those rows as failed predictions.
     """
 
     output_path = Path(output_path)
@@ -418,6 +419,7 @@ def export_virtualhome_action_sequencing(
 
     outputs: list[dict[str, str]] = []
     issues: list[dict[str, str]] = []
+    failed_prediction_count = 0
     for task in virtualhome_tasks:
         task_id = str(task.get("id", ""))
         identifier = str(task.get("slots", {}).get("file_id", ""))
@@ -431,6 +433,9 @@ def export_virtualhome_action_sequencing(
                     identifier=identifier or task_id,
                 )
             )
+            if include_failed_predictions and identifier:
+                outputs.append({"identifier": identifier, "llm_output": "[]"})
+                failed_prediction_count += 1
             continue
         if not identifier or identifier not in prompt_objects:
             issues.append(
@@ -450,6 +455,9 @@ def export_virtualhome_action_sequencing(
                     identifier=identifier,
                 )
             )
+            if include_failed_predictions:
+                outputs.append({"identifier": identifier, "llm_output": "[]"})
+                failed_prediction_count += 1
             continue
 
         translated: list[dict[str, list[Any]]] = []
@@ -483,9 +491,14 @@ def export_virtualhome_action_sequencing(
                     "llm_output": json.dumps(translated, ensure_ascii=False, separators=(",", ":")),
                 }
             )
+        elif include_failed_predictions:
+            outputs.append({"identifier": identifier, "llm_output": "[]"})
+            failed_prediction_count += 1
 
     outputs.sort(key=lambda row: row["identifier"])
-    complete = len(outputs) == len(virtualhome_tasks) and not issues
+    complete = len(outputs) == len(virtualhome_tasks) and (
+        include_failed_predictions or not issues
+    )
     manifest: dict[str, Any] = {
         "format_version": 1,
         "dataset": "virtualhome",
@@ -502,15 +515,126 @@ def export_virtualhome_action_sequencing(
         "skipped_task_count": len(virtualhome_tasks) - len(outputs),
         "complete": complete,
         "partial_output_written": bool(allow_partial and outputs and not complete),
+        "failed_prediction_count": failed_prediction_count,
+        "common_denominator_preserved": bool(
+            include_failed_predictions and len(outputs) == len(virtualhome_tasks)
+        ),
         "issues": issues,
         "notes": [
             "Object IDs come only from each task's pinned official prompt; ambiguous IDs are never guessed.",
             "A successful export is an input artifact, not an official score; run the pinned evaluator separately.",
+            "When enabled, failed predictions are emitted as [] so the official evaluator counts them as failures on the fixed cohort.",
         ],
     }
     _atomic_write_json_value(manifest_path, manifest)
     if complete or (allow_partial and outputs):
         _atomic_write_json_value(output_path, outputs)
+    return manifest
+
+
+def build_virtualhome_official_cohort(
+    *,
+    tasks_path: str | Path,
+    prompts_path: str | Path,
+    output_path: str | Path,
+    overwrite: bool = False,
+) -> dict[str, Any]:
+    """Freeze tasks whose gold plans are representable by the pinned evaluator.
+
+    Cohort membership depends only on benchmark task resources and the pinned
+    evaluator contract, never on any tested model or treatment output.
+    """
+
+    output_path = Path(output_path)
+    manifest_path = output_path.with_suffix(".manifest.json")
+    existing = [path for path in (output_path, manifest_path) if path.exists()]
+    if existing and not overwrite:
+        raise FileExistsError(
+            "Official cohort export is non-overwriting; already exists: "
+            + ", ".join(str(path) for path in existing)
+        )
+
+    tasks = _read_jsonl(tasks_path)
+    prompt_objects = load_virtualhome_prompt_object_ids(prompts_path)
+    included: list[dict[str, Any]] = []
+    exclusions: list[dict[str, str]] = []
+    for task in tasks:
+        dataset = task.get("slots", {}).get("dataset") or task.get("metadata", {}).get("dataset")
+        if dataset != "virtualhome":
+            continue
+        task_id = str(task.get("id", ""))
+        identifier = str(task.get("slots", {}).get("file_id", ""))
+        if not identifier or identifier not in prompt_objects:
+            exclusions.append(
+                _issue(
+                    "official_prompt_missing",
+                    "Task has no matching official VirtualHome action-sequencing prompt.",
+                    identifier=identifier or task_id,
+                )
+            )
+            continue
+        gold_plan = task.get("gold_plan")
+        if not isinstance(gold_plan, list) or not gold_plan:
+            exclusions.append(
+                _issue(
+                    "gold_plan_missing",
+                    "Task has no gold action sequence for evaluator-compatibility screening.",
+                    identifier=identifier,
+                )
+            )
+            continue
+        compatible = True
+        for action_index, action_text in enumerate(gold_plan):
+            if not isinstance(action_text, str):
+                issue = _issue(
+                    "gold_action_not_string",
+                    f"Gold action {action_index} is not a string.",
+                    identifier=identifier,
+                )
+                exclusions.append(issue)
+                compatible = False
+                break
+            _, issue = _translate_virtualhome_action(action_text, prompt_objects[identifier])
+            if issue is not None:
+                issue["identifier"] = identifier
+                issue["action_index"] = str(action_index)
+                exclusions.append(issue)
+                compatible = False
+                break
+        if compatible:
+            included.append(task)
+
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    temporary = output_path.with_name(f".{output_path.name}.tmp")
+    with temporary.open("w", encoding="utf-8") as handle:
+        for task in included:
+            handle.write(json.dumps(task, ensure_ascii=False, sort_keys=True) + "\n")
+    temporary.replace(output_path)
+    manifest = {
+        "format_version": 1,
+        "dataset": "virtualhome",
+        "module": "action_sequencing",
+        "source_tasks_path": str(tasks_path),
+        "prompts_path": str(prompts_path),
+        "output_path": str(output_path),
+        "source_virtualhome_task_count": sum(
+            1
+            for task in tasks
+            if task.get("slots", {}).get("dataset") == "virtualhome"
+            or task.get("metadata", {}).get("dataset") == "virtualhome"
+        ),
+        "included_task_count": len(included),
+        "excluded_task_count": len(exclusions),
+        "selection_policy": (
+            "Pre-outcome screening: include only tasks whose gold plan and task-specific "
+            "object IDs are executable under the pinned official VirtualHome action-sequencing evaluator."
+        ),
+        "included_identifiers": sorted(
+            str(task.get("slots", {}).get("file_id", "")) for task in included
+        ),
+        "exclusions": exclusions,
+    }
+    _atomic_write_json_value(manifest_path, manifest)
     return manifest
 
 
@@ -542,29 +666,11 @@ def inspect_official_response_tree(
     present_count = sum(bool(slot["present"]) for slot in slots)
     validations = [validation for slot in slots for validation in slot.get("validations", [])]
     action_shapes_valid = bool(validations) and all(item["valid"] for item in validations)
-    behavior_runtime_marker = external_root / "src" / "behavior_eval"
     virtualhome_runtime_marker = external_root / "src" / "virtualhome_eval"
-    igibson_root = external_root.parent / "iGibson"
-    igibson_dataset_root = Path(
-        os.environ.get(
-            "IGIBSON_DATASET_PATH",
-            str(igibson_root / "igibson" / "data" / "ig_dataset"),
-        )
-    ).expanduser()
-    igibson_source_present = (igibson_root / "igibson").is_dir()
-    igibson_dataset_present = all(
-        (igibson_dataset_root / component).is_dir()
-        for component in ("scenes", "objects")
-    )
-    official_runtime_ready = (
-        virtualhome_runtime_marker.is_dir()
-        and behavior_runtime_marker.is_dir()
-        and igibson_source_present
-        and igibson_dataset_present
-    )
+    official_runtime_ready = virtualhome_runtime_marker.is_dir()
     structurally_ready = present_count == len(slots) and action_shapes_valid
     return {
-        "protocol": "official-eai-four-modules-two-datasets",
+        "protocol": "official-eai-virtualhome-action-sequencing",
         "response_root": str(response_root),
         "external_root": str(external_root),
         "required_slot_count": len(OFFICIAL_DATASETS) * len(OFFICIAL_MODULES),
@@ -576,10 +682,6 @@ def inspect_official_response_tree(
         "submission_ready": structurally_ready and official_runtime_ready,
         "runtime_sources": {
             "virtualhome_present": virtualhome_runtime_marker.is_dir(),
-            "behavior_present": behavior_runtime_marker.is_dir(),
-            "igibson_source_present": igibson_source_present,
-            "igibson_dataset_path": str(igibson_dataset_root),
-            "igibson_dataset_present": igibson_dataset_present,
         },
         "slots": slots,
         "notes": [
@@ -587,7 +689,7 @@ def inspect_official_response_tree(
             "A custom PDDL final-state score is not an official EAI score.",
             "The pinned VirtualHome evaluator requires object name/ID pairs despite conflicting prompt prose.",
             "Use a multi-task smoke set covering state, relation, and action goals to avoid zero-denominator failures.",
-            "BEHAVIOR evaluation requires the separately licensed iGibson scenes and objects dataset.",
+            "This scoped preflight covers only the official VirtualHome action-sequencing evaluator.",
         ],
     }
 

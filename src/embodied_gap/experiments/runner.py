@@ -62,6 +62,8 @@ class ExperimentRunner:
                 retrieval_field_profile=self.config.retrieval_field_profile,
                 retrieval_top_k=self.config.retrieval_top_k,
                 retrieval_min_score=self.config.retrieval_min_score,
+                graph_path=self.config.graph_path,
+                graph_top_k=self.config.graph_top_k,
             )
             harness_modes = parse_harness_modes(self.config.harness_modes)
             failure_memory = (

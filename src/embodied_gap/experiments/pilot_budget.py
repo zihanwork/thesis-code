@@ -14,6 +14,7 @@ LLM_PLANNERS = {
     "P0_structured_prompt",
     "P0_engineered_prompt",
     "P1_rag",
+    "P2_graph_rag",
     # Historical aliases remain inspectable for reproducibility.
     "P0_prompt_only",
     "P1_retrieval_augmented",
@@ -47,6 +48,8 @@ def inspect_model_matrix(path: str | Path) -> dict[str, Any]:
         raise FileNotFoundError(
             f"Failure-memory file does not exist: {base.failure_memory_path}"
         )
+    if "P2_graph_rag" in base.planners and not Path(base.graph_path).exists():
+        raise FileNotFoundError(f"GraphRAG edge file does not exist: {base.graph_path}")
 
     tasks = [task for task in load_tasks(tasks_path) if task.split != "train"]
     enabled_models = [model for model in matrix.models if model.enabled]

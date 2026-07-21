@@ -97,7 +97,7 @@ def freeze_heldout_split(
         },
         "limitations": [
             "All locally held-out tasks are VirtualHome.",
-            "No untouched local BEHAVIOR final split remains.",
+            "The final study is scoped to VirtualHome Action Sequencing only.",
         ],
     }
     manifest_text = json.dumps(manifest, ensure_ascii=False, indent=2, sort_keys=True) + "\n"

@@ -1,163 +1,60 @@
-# Clean EAI Data Pipeline
+# VirtualHome Data Pipeline
 
-This project treats Embodied Agent Interface (EAI) source resources as the
-authoritative benchmark input for the thesis experiments. Historical model
-outputs and diagnostics are excluded from the new experimental data.
+## Source
 
-## Source Policy
-
-The EAI adapter reads only raw benchmark resources from the repository-local
-checkout at `external/embodied-agent-interface`. Paths stored in generated
-metadata are relative to that checkout, not tied to a user home directory.
-
-Included raw resources:
-
-- `problem_pddl/**/*.pddl`
-- `id2task.json`
-- `gold_pddl_plan.json`
-- `id2action.json`
-- `id2predicate.json`
-- `success_task.json`
-- `failed_task.json`
-
-Excluded historical or dirty resources:
-
-- `output/`
-- `output_norm_all/`
-- `output_single_norm/`
-- `diagnostics/`
-- `evaluate_results/`
-
-## Generated Files
-
-The command below generates the clean processed benchmark files:
+The only benchmark environment in the study is VirtualHome from the pinned
+Embodied Agent Interface checkout. Clean import reads the distributed PDDL
+problems, gold PDDL plans, task names, predicates, and action metadata. It does
+not read historical model outputs.
 
 ```bash
-PYTHONPATH=src python3 -m embodied_gap.cli prepare-eai \
+PYTHONPATH=src python -m embodied_gap.cli prepare-eai \
   --source-root external/embodied-agent-interface \
+  --datasets virtualhome \
   --out-dir data/processed/eai_clean
 ```
 
-For an EAI checkout outside this repository, either pass `--source-root` or
-set `EAI_SOURCE_ROOT`. Runtime path resolution tries the environment override,
-the metadata hint, and the repository-local checkout in that order. Stale
-absolute paths from older JSONL exports are ignored when a portable candidate
-exists.
+Imported inventory: 338 VirtualHome tasks, 26 task families, 69 deterministic
+training IDs, and 269 evaluation IDs. Fifty-seven training tasks have usable
+gold plans for retrieval.
 
-### PDDL layout
+## Development and source-generation sets
 
-- VirtualHome domain: `src/virtualhome_eval/resources/virtualhome/virtualhome.pddl`
-- VirtualHome problems: `src/virtualhome_eval/resources/virtualhome/problem_pddl/`
-- Normalized BEHAVIOR domain used by the action-sequencing evaluator:
-  `src/virtualhome_eval/resources/behavior/behavior.pddl`
-- Normalized BEHAVIOR problems:
-  `src/virtualhome_eval/resources/behavior/problem_pddl/`
-- Original BEHAVIOR transition-modeling domain fallback:
-  `src/behavior_eval/evaluation/transition_modeling/resources/behavior_new.pddl`
-- Original BEHAVIOR problem source fallback:
-  `src/behavior_eval/evaluation/transition_modeling/resources/pddl_behavior/`
+`build-tasksets` is hard-scoped to VirtualHome. Current outputs are:
 
-Generated outputs:
+| Artifact | Rows | Purpose |
+|---|---:|---|
+| `rag_train.jsonl` | 57 | Frozen retrieval examples |
+| `balanced_eval.jsonl` | 120 | Development only |
+| `balanced_eval_20.jsonl` | 20 | Development smoke |
+| `balanced_eval_50.jsonl` | 50 | Development pilot |
+| `executable_eval.jsonl` | 239 | Source inventory with gold plans/goals |
+| `heldout_virtualhome_119.jsonl` | 119 | Frozen source-generation pool |
 
-- `data/processed/eai_clean/virtualhome_tasks.jsonl`
-- `data/processed/eai_clean/behavior_tasks.jsonl`
-- `data/processed/eai_clean/all_tasks.jsonl`
-- `data/processed/eai_clean/virtualhome_raw_pddl.jsonl`
-- `data/processed/eai_clean/behavior_raw_pddl.jsonl`
-- `data/processed/eai_clean/manifest.json`
+The 119-task pool is task-ID-disjoint from development but family- and
+template-overlapping. It is not described as unseen-family generalization.
 
-Current clean import summary:
+## Retrieval and graph artifacts
 
-| Dataset | PDDL tasks | Task families | Gold plans | Empty goals | Train | Eval |
-| --- | ---: | ---: | ---: | ---: | ---: | ---: |
-| VirtualHome | 338 | 26 | 296 | 32 | 69 | 269 |
-| BEHAVIOR | 100 | 100 | 100 | 0 | 18 | 82 |
-| Combined | 438 | 126 | 396 | 32 | 87 | 351 |
+The 57 training examples generate a flat retrieval corpus and a 4,986-edge
+knowledge graph. Final P1 uses the flat retrieval corpus. The graph is retained
+for exploratory analysis but is not a final treatment.
 
-VirtualHome has 342 task identifiers in `id2task.json`, but only 338 matching
-PDDL problem files are present in the EAI source tree. The clean import uses
-the PDDL files as the ground truth task set. The missing PDDL identifiers are:
-`339_1`, `627_1`, `84_1`, and `93_1`.
+## Official evaluation cohort
 
-## Schema Notes
+The official evaluator-compatible cohort contains 84 tasks across eight task
+families. It is produced by checking each gold plan against the pinned official
+action vocabulary and task-specific object IDs. This pre-outcome screen removes
+35 tasks that cannot be represented faithfully by the pinned evaluator.
 
-Each processed task stores:
+The 84-task cohort is the only outcome population. Each experimental cell
+contributes all 84 predictions; failed predictions are not dropped.
 
-- natural-language instruction
-- PDDL initial facts
-- PDDL goal facts
-- object/type map
-- gold PDDL plan when available
-- non-leaky domain action names in `allowed_actions`
-- task-level action and predicate names in metadata
-- source-relative PDDL path
+## Leakage controls
 
-The import keeps `gold_plan` separate from `allowed_actions`. This prevents
-LLM planners from seeing the answer sequence while still allowing gold-plan
-validation and supervised analysis.
-
-The current execution layer includes a PDDL-backed interpreter for EAI
-action-sequencing tasks. It supports conjunction, disjunction, negation,
-existential/universal quantifiers, and conditional effects.
-
-## Task Set Expansion
-
-The command below builds thesis-ready task subsets from the clean combined EAI
-tasks:
-
-```bash
-PYTHONPATH=src python3 -m embodied_gap.cli build-tasksets \
-  --tasks data/processed/eai_clean/all_tasks.jsonl \
-  --out-dir data/processed/tasksets \
-  --per-family 8
-```
-
-Generated task sets:
-
-| Task set | Rows | Purpose |
-| --- | ---: | --- |
-| `rag_train.jsonl` | 75 | Retrieval demonstrations and memory construction |
-| `full_eval.jsonl` | 351 | Full non-train evaluation inventory |
-| `executable_eval.jsonl` | 321 | Main candidates with non-empty goals and gold plans |
-| `balanced_eval.jsonl` | 202 | Family-balanced main experiment set |
-| `balanced_eval_20.jsonl` | 20 | Cost-controlled pilot sampled by dataset and difficulty |
-| `balanced_eval_50.jsonl` | 50 | Medium pilot sampled by dataset and difficulty |
-| `eai_smoke_eval.jsonl` | 10 | Eight BEHAVIOR RAG examples plus one BEHAVIOR and one VirtualHome evaluation task |
-| `heldout_virtualhome_119.jsonl` | 119 | Frozen local VirtualHome-only held-out; never used for tuning |
-
-These tasksets are version-controlled because committed experiment configs use
-them directly. All stored resource references are relative to the project-local
-EAI submodule; machine-specific `/Users/...` paths are rejected by CI.
-
-The task set builder also annotates each record with a deterministic difficulty
-label based on gold-plan length, goal count, and object count. Current
-`balanced_eval` difficulty mix: 61 easy, 67 medium, and 74 hard tasks.
-`balanced_eval_20` contains 8 BEHAVIOR and 12 VirtualHome tasks, with 7 easy,
-6 medium, and 7 hard tasks. `balanced_eval_50` contains 20 BEHAVIOR and 30
-VirtualHome tasks, with 16 easy, 16 medium, and 18 hard tasks.
-
-The frozen held-out split is managed separately from the regenerable taskset
-builder. It is executable-minus-development, contains no BEHAVIOR tasks, and is
-governed by `docs/data_split_protocol.md`.
-
-## PDDL Gold-Plan Validation
-
-Gold plans are validated with:
-
-```bash
-PYTHONPATH=src python3 -m embodied_gap.cli validate-pddl-gold \
-  --tasks data/processed/tasksets/balanced_eval.jsonl \
-  --out-dir runs/pddl_gold_validation/balanced_eval_full
-```
-
-Current validation evidence:
-
-| Task set | Rows | Executable rate | Goal success rate | Overall success |
-| --- | ---: | ---: | ---: | ---: |
-| `balanced_eval_20.jsonl` | 20 | 1.000 | 1.000 | 1.000 |
-| `balanced_eval_50.jsonl` | 50 | 1.000 | 1.000 | 1.000 |
-| `balanced_eval.jsonl` | 202 | 1.000 | 1.000 | 1.000 |
-| `executable_eval.jsonl` | 321 | 1.000 | 1.000 | 1.000 |
-
-This validation confirms that the clean EAI task import, domain PDDL files, and
-gold PDDL plans are mutually consistent under the project executor.
+- Retrieval and repair memory use training/development artifacts only.
+- Final task failures are never added to RAG or memory.
+- Cohort selection uses gold plans and evaluator compatibility, not treatment
+  outcomes.
+- Task-family clustered inference addresses dependence among repeated task
+  templates.

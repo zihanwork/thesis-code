@@ -62,7 +62,7 @@ class EmbodiedAgentInterfaceAdapter:
     read historical model outputs, diagnostics, or prior experiment folders.
     """
 
-    SUPPORTED_DATASETS = ("virtualhome", "behavior")
+    SUPPORTED_DATASETS = ("virtualhome",)
 
     def __init__(self, source_root: str | Path) -> None:
         self.source_root = Path(source_root).expanduser().resolve()
@@ -160,7 +160,7 @@ class EmbodiedAgentInterfaceAdapter:
             instruction = self._instruction(problem_id, task_family, parsed, id2task)
             split = assign_split(dataset, problem_id, train_ratio)
             source_rel = problem_path.relative_to(dataset_root)
-            domain_path = dataset_root / ("behavior.pddl" if dataset == "behavior" else "virtualhome.pddl")
+            domain_path = dataset_root / "virtualhome.pddl"
             problem_root_rel = problem_path.relative_to(self.source_root)
             domain_root_rel = domain_path.relative_to(self.source_root)
             tags = (

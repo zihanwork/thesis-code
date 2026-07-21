@@ -1,35 +1,42 @@
-# Statistical and cost analysis protocol
+# Statistical Analysis — Official Outcome Only
 
-Every new experiment run writes `analysis.json` beside `metrics.jsonl` and
-`runs.jsonl`. The report is generated from task-level outcomes and contains:
+## Unit of analysis
 
-- Wilson 95% confidence intervals for task, execution, and safe success rates;
-- exact two-sided McNemar tests for every task-paired method comparison;
-- paired task-success uplift with a deterministic percentile-bootstrap 95% CI;
-- separate summaries by dataset, difficulty, and task family;
-- failure-type counts, average attempts, and average repairs;
-- attributable LLM calls, tokens, latency, estimated cost, and cost per success;
-- PDDL/symbolic explored-state counts and measured search time.
+The outcome unit is one task in the fixed 84-task VirtualHome Action Sequencing
+cohort. The primary endpoint is the pinned official evaluator's binary task
+success. Secondary endpoints are official total-goal completion, execution
+success, and official error categories.
 
-An initial planner call is computed once and reused across harness variants by
-the matrix runner. For method-level comparison, `analysis.json` attributes that
-same initial call to each harness method as the cost it would incur if run alone.
-The matrix-level manifest telemetry remains the source for the actual amount
-spent by that invocation.
+The eight task families are treated as dependence clusters. Task-level
+percentages remain descriptive, while primary uplift intervals resample whole
+families with 10,000 bootstrap samples and seed 13. Exact paired McNemar tests
+are reported for binary task changes.
 
-Cost remains `null` with `pricing_not_configured` unless both input and output
-rates are recorded in the model config. Do not substitute guessed prices after
-the run; retain the original configuration and, if necessary, make a separate
-clearly labelled post-hoc cost table.
+## Planned paired contrasts
 
-Historical runs can be analyzed without rerunning models:
+No result table is currently valid. All former numeric contrasts were removed
+because the old runs did not satisfy the current uniform model/task protocol.
+After the new run, the primary comparisons will be computed separately for
+DeepSeek-V4-Flash, gpt-5.5, and GLM-5-Turbo:
 
-```bash
-uv run --frozen python -m embodied_gap.cli analyze-run \
-  --metrics RUN_DIR/metrics.jsonl \
-  --runs RUN_DIR/runs.jsonl \
-  --out RUN_DIR/analysis.json
-```
+- `B0/H0 -> P0-S/H0 -> P0-E/H0 -> P1/H0`
+- `P1/H0 -> P1/H2-R`
+- `P1/H0 -> P1/H2-M`
+- `P1/H0 -> P1/H2-P`
+- `P1/H0 -> P2-GraphRAG/H0`
 
-Statistical significance is supporting evidence, not a replacement for effect
-size, confidence interval, dataset-stratified results, and failure analysis.
+The clustered interval and exact paired McNemar test answer different
+questions. A family-bootstrap interval measures sensitivity of the average
+uplift to family composition; McNemar tests whether paired task changes are
+asymmetric. Both will be retained for the new 84-task cohort.
+
+## Multiplicity and interpretation
+
+The matrix contains multiple planned contrasts. Exact p-values are evidence
+strength indicators, not independent discovery claims. The analysis will
+emphasize effect sizes, family-clustered intervals, consistency across all
+three models, and the distinction between official task success, total-goal
+completion, and execution success.
+
+All result files will be generated only from the pinned VirtualHome Action
+Sequencing evaluator after the complete 60-cell run completes.

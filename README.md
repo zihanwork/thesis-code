@@ -1,295 +1,116 @@
 # Bridging the Goal-to-Action Gap
 
-Formal research framework for the thesis project:
+Research code and evidence for diagnosing and improving LLM embodied planning
+on VirtualHome Action Sequencing.
 
-**Bridging the Goal-to-Action Gap: Diagnosing and Improving LLM Embodied Planning**
+## Final research framing
 
-The framework implements a two-layer experimental design inspired by *Embodied Agent Interface*:
+The study separates two intervention stages:
 
-- **Initial planners** answer how the first action sequence is generated.
-- **Execution harnesses** answer how a generated plan is validated, executed, repaired, and recovered.
+- **Planning-time knowledge constraint:** minimal prompting, structured
+  state–goal prompting, constraint-engineered prompting, flat retrieval-grounded
+  planning, and the new graph-retrieved P2-GraphRAG treatment.
+- **Execution-time closed-loop control:** open loop, validator-feedback
+  reflection, frozen repair memory, and a separately labelled symbolic PDDL
+  recovery reference.
 
-This avoids treating harness engineering as just another prompt/planner method.
+The historical “RAG + graph × harness” 3 × 3 is retired. Its graph-grounded
+planner and full-recovery harness both called the same PDDL search, so the old
+P2 data and charts are invalid and have been removed. P2 is now a new
+GraphRAG treatment that reads training-only graph edges and must be evaluated
+from a fresh run.
 
-## Experimental Design
+## One evaluation authority
 
-### Initial Planners
+All thesis outcome claims use the pinned official VirtualHome Action Sequencing
+evaluator:
 
-| ID | Planner | Research Question |
-| --- | --- | --- |
-| B0 | Minimal Prompt Baseline | How far does an instruction/action-list prompt go? |
-| P0 | Structured PDDL-Informed Prompt | What is gained from state, goal, objects, and action signatures? |
-| P0-PE | Engineered Structured Prompt | What is gained from a fixed constraint checklist? |
-| P1 | Retrieval-Augmented Planning | What additional gain comes from task-conditioned demonstrations? |
-| P2 | Symbolic PDDL Reference | How does a model-independent symbolic planner perform? |
+`external/embodied-agent-interface/src/virtualhome_eval/evaluation/action_sequencing/scripts/evaluate_results.py`
 
-### Harness Modes
+The official source submodule is pinned at
+`531c62f8df2cb392bdf1907923c76da41cad4fe6`.
 
-| ID | Harness | Research Question |
-| --- | --- | --- |
-| H0 | Open-loop Execution | What fails when the plan is executed directly? |
-| H1 | Verifier-Gated Execution | How much does precondition/safety validation help without repair? |
-| H2-Local | Local Recovery | What can deterministic local repair fix? |
-| H2-LLM | LLM Feedback Replanning | What can the original model repair from explicit validator feedback? |
-| H2-PDDL | Symbolic PDDL Recovery | What is gained from a symbolic fallback? |
+Local state/PDDL checking exists only inside the verifier and recovery
+implementation; it is not a competing scoring standard and its success rate
+is not reported as a result. Previous alternative benchmark evaluators and
+standalone safety-benchmark entry points are not part of this project anymore.
 
-The original 3x3 matrix is retained as a historical pilot. The final design
-uses separate planning and recovery ablations so P2 and H2 cannot claim credit
-for the same symbolic search. See `docs/revised_experiment_design.md`.
+## Current experiment table
 
-## Repository Structure
+The historical 3 x 3 planner-by-harness grid has been retired. The completed
+experiment is a full 60-cell factorial matrix. Every planner-harness condition
+runs DeepSeek-V4-Flash, gpt-5.5, and GLM-5-Turbo on the same 84-task official
+VirtualHome Action Sequencing cohort:
 
-```text
-configs/
-  experiments/          Experiment matrix configs
-  models/               Model/provider configs
-  datasets/             Dataset adapter configs
-data/
-  raw/                  Raw benchmark exports
-  processed/            Canonical JSONL tasks
-  knowledge_graphs/     Graph facts and precondition/effect stores
-  retrieval_corpus/     Demonstration and failure-memory corpora
-src/embodied_gap/
-  core/                 Task, state, goal, plan, violation, patch schemas
-  datasets/             Dataset adapters
-  llm/                  LLM clients, prompts, parsers, cache
-  planners/             P0/P1/P2 initial planners
-  execution/            Symbolic executor, validator, goal checker
-  harness/              H0/H1/H2 controller and recovery policy
-  repair/               Safety rejection, local patch, full replanning
-  knowledge/            Retriever, action graph, affordance KB, failure memory
-  evaluation/           Metrics, error taxonomy, statistical tests
-  experiments/          Config, registry, runner, logger
-  analysis/             Aggregation, table, and figure helpers
-tests/                  Unit and integration tests
-runs/                   Generated experiment artifacts
-reports/                Thesis-ready tables and figures
-notebooks/              Exploratory analysis
-```
+| Dimension | Conditions | Count |
+|---|---|---:|
+| Planner | B0, P0-S, P0-E, P1 Flat RAG, P2 GraphRAG | 5 |
+| Harness | H0, H2-R, H2-M, H2-P | 4 |
+| Model | DeepSeek-V4-Flash, gpt-5.5, GLM-5-Turbo | 3 |
+| **Total model-specific cells** | 5 x 4 x 3 | **60** |
 
-## Quick Start
+Every cell uses the same frozen 84-task cohort, yielding 5040 official records.
+P2-GraphRAG retrieves training-only task subgraphs from `kg_edges.jsonl` and
+cannot reuse deleted symbolic P2 outputs. The complete factorial matrix supports
+planner, recovery, and planner-by-recovery comparisons for all three models.
 
-Create the exact Python 3.12 environment recorded in `uv.lock`:
+## Final official evidence
 
-```bash
-uv sync --locked
-```
 
-Run the offline historical sample matrix:
+- Fixed official cohort:
+  `data/processed/tasksets/official_virtualhome_action_sequencing_v1.jsonl`
+- Cohort audit:
+  `data/processed/tasksets/official_virtualhome_action_sequencing_v1.manifest.json`
+- Official result report:
+  `docs/final_official_virtualhome_results_v4.md`
+- Machine-readable evidence:
+  `docs/final_official_virtualhome_results_v4.json`
+- Evaluation protocol:
+  `docs/official_eai_protocol.md`
+- Converged experiment design:
+  `docs/revised_experiment_design.md`
 
-```bash
-uv run --frozen embodied-gap run \
-  --config configs/experiments/sample_matrix.json
-```
+The fixed cohort has 84 tasks across eight task families. It is screened using
+gold plans and the pinned evaluator contract before treatment comparison. Every
+cell retains all 84 predictions in the denominator; malformed or unmappable
+model outputs are passed as empty sequences and counted as failures by the
+official evaluator.
 
-Run tests:
+## Results status
 
-```bash
-uv run --frozen python -m unittest discover -s tests -v
-```
+The complete 60-cell matrix has been run with all three models on all 84 tasks
+and scored by the pinned VirtualHome Action Sequencing evaluator. Current
+results and paired statistics are reported only in the v4 evidence files above.
 
-Prepare clean EAI raw benchmark data:
+## Reproduction
+
+Create the main environment:
 
 ```bash
-PYTHONPATH=src python3 -m embodied_gap.cli prepare-eai \
-  --source-root external/embodied-agent-interface \
-  --out-dir data/processed/eai_clean
+UV_CACHE_DIR=/tmp/thesis-uv-cache uv sync --locked --python 3.12
 ```
 
-Generated task metadata stores paths relative to the EAI checkout. If the
-checkout is kept elsewhere, set `EAI_SOURCE_ROOT=/path/to/embodied-agent-interface`
-or pass `--source-root`; processed JSONL files do not need to be rewritten.
-The canonical `data/processed/tasksets/*.jsonl` files used by committed
-experiment configs are version-controlled so a fresh clone can run them
-immediately. Intermediate `data/processed/eai_clean/` conversion outputs remain
-ignored and can be regenerated with `prepare-eai`.
-
-The EAI import reads only source benchmark resources, not previous model outputs
-or diagnostics. See `docs/data_pipeline.md` for the data policy and current
-import summary.
-
-## One API
-
-Create a local `.env` file with:
+Run the unit suite:
 
 ```bash
-ONE_API_KEY=your-key
-ONE_API_BASE_URL=https://your-one-api-domain/v1
-ONE_API_MODEL=your-model
+.venv/bin/python -m unittest discover -s tests -p 'test_*.py' -v
 ```
 
-Check connectivity:
+Build the fixed cohort:
 
 ```bash
-PYTHONPATH=src python3 -m embodied_gap.cli check-one-api
+PYTHONPATH=src .venv/bin/python -m embodied_gap.cli \
+  build-official-virtualhome-cohort \
+  --tasks data/processed/tasksets/heldout_virtualhome_119.jsonl \
+  --out data/processed/tasksets/official_virtualhome_action_sequencing_v1.jsonl
 ```
 
-List the model IDs exposed to the configured account, or smoke-test a specific
-model without changing `.env`:
+See `docs/official_eai_protocol.md` for export, official execution, and
+family-clustered analysis commands.
 
-```bash
-PYTHONPATH=src python3 -m embodied_gap.cli list-one-api-models
-PYTHONPATH=src python3 -m embodied_gap.cli check-one-api --model "GLM-5-Turbo"
-```
+## Claim boundary
 
-Run the matrix with One API-backed P0/P1 planners:
-
-```bash
-PYTHONPATH=src python3 -m embodied_gap.cli run \
-  --config configs/experiments/one_api_matrix.json
-```
-
-Run the sample multi-model matrix:
-
-```bash
-PYTHONPATH=src python3 -m embodied_gap.cli run-model-matrix \
-  --config configs/experiments/sample_multimodel_one_api.json
-```
-
-Run the cost-controlled real EAI smoke matrix:
-
-```bash
-PYTHONPATH=src python3 -m embodied_gap.cli run-model-matrix \
-  --config configs/experiments/eai_smoke_multimodel_one_api.json
-```
-
-Run the 20-task real EAI balanced pilot after local validation:
-
-```bash
-PYTHONPATH=src python3 -m embodied_gap.cli run-model-matrix \
-  --config configs/experiments/eai_balanced_20_multimodel_one_api.json
-```
-
-See `docs/experiment_matrix.md` for the historical pilot results. The revised
-planning/recovery/generalization design is documented in
-`docs/revised_experiment_design.md`.
-
-Inspect and run the preregistered model-generalization pilot, then export its
-auditable summary:
-
-```bash
-PYTHONPATH=src python3 -m embodied_gap.cli inspect-model-matrix \
-  --config configs/experiments/eai_model_generalization_dev20.json
-PYTHONPATH=src python3 -m embodied_gap.cli run-model-matrix \
-  --config configs/experiments/eai_model_generalization_dev20.json
-PYTHONPATH=src python3 -m embodied_gap.cli summarize-model-generalization \
-  --run-dir runs/eai_model_generalization_dev20/<run-id> \
-  --out docs/model_generalization_evidence.json
-```
-
-The completed Stage 10 development evidence and its claim limits are documented
-in `docs/model_generalization_protocol.md`.
-
-The one-shot final held-out cells, 1,666-call worst-case budget, Git-tag gate,
-artifact hashes, and stopping rules are frozen in
-`docs/final_experiment_protocol.md`. Before any final run, execute:
-
-```bash
-PYTHONPATH=src python3 -m embodied_gap.cli verify-final-protocol
-```
-
-Before a paid model-matrix run, use `inspect-model-matrix` to validate paths and
-review the task, record, and worst-case LLM-call counts. The staged 20-task
-development procedure is documented in `docs/pilot_protocol.md`.
-
-New runs also generate `analysis.json` with confidence intervals, task-paired
-tests, stratified outcomes, failure counts, and cost/search summaries. See
-`docs/statistical_analysis.md`.
-
-The verified public benchmark comparison and literature positioning are in
-`docs/benchmark_literature_review.md`; machine-readable evidence and the strict
-custom-versus-official comparison boundary are in `docs/benchmark_evidence.json`.
-
-The data-use boundary is frozen in `docs/data_split_protocol.md`: 202 tasks are
-development-only and 119 VirtualHome tasks are reserved for one-shot local
-held-out evaluation.
-
-## Experiment Artifacts
-
-Every invocation creates a new immutable directory below the configured
-`output_dir`; an earlier run is never deleted or overwritten. A normal run is
-stored as `output_dir/<run_id>/`. A model matrix uses
-`output_dir/<run_id>/<model_id>/` and keeps its matrix-level summary at the
-`<run_id>` level. `run_index.jsonl` provides a compact history of completed
-runs.
-
-Each run writes:
-
-- `run_manifest.json` - run ID and timestamps; Git commit, dirty state, and
-  pinned submodule commit; Python and `uv.lock` fingerprints; dataset hash and
-  task IDs; prompt file hash and prompt version; model parameters; token usage,
-  latency, estimated cost, response IDs, and failures.
-- `config.json` - exact experiment configuration.
-- `runs.jsonl` - initial plans, final plans, traces, violations, patches.
-- `metrics.jsonl` - one evaluation record per task/planner/harness cell.
-- `summary.json` - aggregate task success, execution success, safety, risk, rejection, patch, and error metrics.
-
-Per-call cost is estimated only when both `input_cost_per_million` and
-`output_cost_per_million` are configured for that model. Otherwise the
-manifest records `pricing_not_configured` rather than inventing a price. API
-keys and full prompt text are never written; prompts are identified by a
-SHA-256 fingerprint.
-
-## Canonical Task Format
-
-Tasks are stored as JSONL with:
-
-- `instruction`
-- `initial_facts`
-- `goal_facts`
-- `allowed_actions`
-- `action_model`
-- optional `gold_plan`, `slots`, `tags`, `safety_rules`
-
-This makes it possible to adapt EAI, ALFRED, ET-Plan-Bench, SafeAgentBench, or custom symbolic tasks into one shared evaluation pipeline.
-
-## Current Implementation Status
-
-Implemented:
-
-- Canonical task/plan/state/violation/patch schemas.
-- Minimal, structured, engineered, RAG, and symbolic-reference planners.
-- Open-loop, verifier, local, LLM-feedback, and PDDL recovery modes.
-- Clean EAI raw-resource import for VirtualHome and BEHAVIOR PDDL tasks.
-- Thesis task set builder for RAG train, full eval, executable eval, balanced eval, and 20/50-task balanced pilots.
-- Multi-model One API experiment runner with per-model fault isolation.
-- External retrieval example files for P1 RAG experiments.
-- PDDL-backed execution and gold-plan validation for clean EAI tasksets.
-- Model-independent P2 symbolic PDDL planning.
-- Isolated local, LLM-feedback, and symbolic PDDL recovery paths.
-- Error-specific LLM repair, frozen failure memory, and combined leave-one-out modes.
-- Failure-memory labels for recurring macro-recoverable failures.
-- KG/macro goal-regression coverage for cleaning, soaking, container transfer,
-  surface/next-to/floor placement, food processing, and VirtualHome appliance
-  activation tasks.
-- Non-leaky PDDL action signatures and object-type candidates in P0/P1 prompts.
-- Bounded cached fallback search for scalable PDDL-grounded recovery.
-- Robust parsing for common fenced JSON action-list outputs.
-- EAI-style symbolic execution errors: hallucination, missing step, wrong order, affordance error, additional step, safety violation, goal unsatisfied.
-- JSONL experiment logging and summary generation.
-- Immutable run directories with provenance manifests, task/prompt hashes,
-  model parameters, token/latency telemetry, and optional cost estimates.
-- Locked Python 3.12 environment and CI verification.
-- Local balanced 20-task and 50-task verification after failure-memory and
-  KG/macro enhancement.
-- Unit/integration tests for the sample matrix.
-- One API-compatible LLM client.
-
-Completed research infrastructure now also includes:
-
-- Cost-controlled recovery, memory, prompt, and RAG pilot configurations.
-- Wilson confidence intervals, paired tests, cost aggregation, and failure analysis.
-- Automatic real-run export to the pinned official VirtualHome evaluator, with
-  ambiguity/upstream exclusions recorded separately from benchmark claims.
-- A 30-task frozen controlled safety set and dedicated H0/H1/H2-Local metrics;
-  see `docs/safety_evaluation.md`.
-
-The model-family expansion and one-shot final frozen matrix are complete. The
-final local results, paired statistics, resource telemetry, and official
-VirtualHome compatibility diagnostic are documented in
-`docs/final_results.md` and `docs/final_results_evidence.json`.
-
-The remaining external-scope limitations are not hidden: the project has no
-official BEHAVIOR simulator score without the separately licensed iGibson
-assets, and it does not implement all eight official challenge output slots.
-Fine-tuning remains an optional control rather than a prerequisite.
+This is an official-evaluator compatible-subset study, not a complete hidden
+EAI leaderboard submission. The complete 5 x 4 planner-harness grid supports
+model-stratified planning, recovery, and interaction analyses on the frozen
+84-task cohort; it does not establish generalization beyond this cohort.

@@ -2,9 +2,8 @@ from __future__ import annotations
 
 from embodied_gap.core.task_schema import Task
 from embodied_gap.harness.recovery_policy import HarnessMode
-from embodied_gap.knowledge.graph_store import ActionKnowledgeGraph
 from embodied_gap.llm.clients import OneAPIChatClient
-from embodied_gap.planners.graph_grounded import GraphGroundedPlanner
+from embodied_gap.planners.graph_rag import GraphRAGPlanner
 from embodied_gap.planners.prompt_only import (
     EngineeredPromptPlanner,
     MinimalPromptPlanner,
@@ -30,8 +29,9 @@ def build_planners(
     retrieval_field_profile: str = "instruction_state_goal_schema",
     retrieval_top_k: int = 1,
     retrieval_min_score: float = 0.0,
+    graph_path: str = "data/knowledge/eai_train/kg_edges.jsonl",
+    graph_top_k: int = 1,
 ) -> dict[str, object]:
-    graph = ActionKnowledgeGraph()
     llm_client = None
     if use_llm_for_planners:
         if llm_backend != "one_api":
@@ -57,17 +57,21 @@ def build_planners(
         field_profile=retrieval_field_profile,
         llm_client=llm_client,
     )
-    symbolic = GraphGroundedPlanner(graph)
+    graph_rag = GraphRAGPlanner(
+        examples,
+        graph_path=graph_path,
+        top_k=graph_top_k,
+        llm_client=llm_client,
+    )
     return {
         "B0_minimal_prompt": minimal,
         "P0_structured_prompt": structured,
         "P0_engineered_prompt": engineered,
         "P1_rag": rag,
-        "P2_symbolic_pddl": symbolic,
-        # Legacy config aliases for historical pilot configuration files.
+        "P2_graph_rag": graph_rag,
+        # Stable aliases for non-final pilot configurations.
         "P0_prompt_only": structured,
         "P1_retrieval_augmented": rag,
-        "P2_graph_grounded": symbolic,
     }
 
 

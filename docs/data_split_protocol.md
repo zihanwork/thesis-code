@@ -1,67 +1,40 @@
-# Frozen Data Split Protocol
+# Data Split and Official Cohort Protocol
 
-## Roles
+## Split roles
 
-| Artifact | Tasks | Role |
-|---|---:|---|
-| `rag_train.jsonl` | 75 | RAG examples and training-only resources |
-| `balanced_eval.jsonl` | 202 | Development, debugging, ablations, and method selection |
-| `heldout_virtualhome_119.jsonl` | 119 | One-shot local VirtualHome-only final evaluation |
-| Official hidden test | Organizer controlled | Primary final benchmark |
+- **Retrieval training:** 57 VirtualHome tasks with gold plans.
+- **Development:** 120 family-balanced VirtualHome tasks for method selection.
+- **Frozen source pool:** 119 task-ID-disjoint VirtualHome tasks used to produce
+  all final plans.
+- **Official outcome cohort:** 84 source-pool tasks supported by the pinned
+  official Action Sequencing evaluator.
 
-The 20-task and 50-task pilots are subsets of the 202-task development set.
-They are not separate test sets.
+Task identifiers are disjoint between development and the source pool. Task
+families, instructions, and action templates overlap substantially, so the
+study is a seen-family/unseen-ID transfer evaluation, not unseen-family
+generalization.
 
-## Frozen Local Held-Out
+## Official cohort rule
 
-The local held-out split is the set difference between the 321 executable
-evaluation tasks and the 202 development tasks. The split contains 119 tasks,
-all from VirtualHome:
+Compatibility is determined before looking at treatment outcomes. A task is
+included only if:
 
-- 77 easy
-- 39 medium
-- 3 hard
-- 0 BEHAVIOR
+1. it has a matching official Action Sequencing prompt;
+2. every gold-plan action is implemented by the pinned evaluator;
+3. each referenced object has one unambiguous task-specific official ID.
 
-Frozen identifiers and fingerprints:
+This yields 84 included and 35 excluded tasks. The same 84 identifiers are used
+for every cell. Model-specific conversion failures remain in the denominator
+and are scored by the official evaluator as failed predictions.
 
-- Task-ID SHA-256: `036ed8d9c943477bdc704d4d1e4fd3e84541352f8a132984b68c3b6c51f22eac`
-- Task-record SHA-256: `4a01bdb4ce499fdc20fc2d11ad4b4139296bf5a9b936525bc730d214776b3bb9`
-- Development/held-out overlap: 0
+## Statistical dependence
 
-Authoritative artifacts:
+The 84 tasks belong to eight task families. Paired effect intervals therefore
+resample whole families rather than treating all tasks as independent. Exact
+paired McNemar tests are also reported.
 
-- `data/processed/tasksets/heldout_virtualhome_119.jsonl`
-- `data/processed/tasksets/heldout_virtualhome_119_ids.json`
-- `data/processed/tasksets/heldout_virtualhome_119_manifest.json`
+## Claim boundary
 
-## Non-Leakage Rules
-
-1. Never inspect held-out per-task results during method development.
-2. Never add prompts, macros, repair rules, RAG examples, or memory entries in
-   response to a held-out failure.
-3. Build and select methods only on training and the 202-task development set.
-4. Freeze code commit, prompts, RAG corpus, memory, models, and statistics before
-   the first held-out run.
-5. Run the local held-out evaluation once for the preregistered final cells.
-6. Report the local result as VirtualHome-only; it is not an unbiased BEHAVIOR
-   estimate and is not an official challenge score.
-
-The official hidden test is required for the primary cross-environment final
-claim because no untouched local BEHAVIOR split remains.
-
-## Reproduction Guard
-
-The freezer refuses count changes, dataset changes, development tasks missing
-from the executable inventory, duplicate IDs, or changes to existing frozen
-artifacts:
-
-```bash
-uv run embodied-gap freeze-heldout \
-  --executable data/processed/tasksets/executable_eval.jsonl \
-  --development data/processed/tasksets/balanced_eval.jsonl \
-  --out-dir data/processed/tasksets \
-  --name heldout_virtualhome_119 \
-  --expected-count 119 \
-  --expected-dataset virtualhome
-```
+The cohort is a reproducible official-evaluator compatible subset of the
+project's frozen source pool. It is not the full official hidden challenge set
+and does not support a leaderboard rank claim.

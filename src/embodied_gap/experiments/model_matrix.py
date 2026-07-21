@@ -82,6 +82,8 @@ class ModelMatrixConfig:
                 ),
                 retrieval_top_k=int(base_data.get("retrieval_top_k", 1)),
                 retrieval_min_score=float(base_data.get("retrieval_min_score", 0.0)),
+                graph_path=str(base_data.get("graph_path", "data/knowledge/eai_train/kg_edges.jsonl")),
+                graph_top_k=int(base_data.get("graph_top_k", 1)),
                 failure_memory_path=base_data.get("failure_memory_path"),
                 planners=tuple(base_data.get("planners", ExperimentConfig.planners)),
                 harness_modes=tuple(

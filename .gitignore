@@ -16,6 +16,7 @@ reports/*
 !reports/.gitkeep
 notebooks/.ipynb_checkpoints/
 logs/
+tmp/
 data/raw/*
 !data/raw/.gitkeep
 data/processed/*

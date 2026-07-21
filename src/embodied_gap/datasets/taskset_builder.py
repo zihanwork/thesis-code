@@ -28,7 +28,10 @@ class TaskSetBuilder:
     """Build thesis-ready task subsets from canonical clean task records."""
 
     def __init__(self, tasks: list[Task]) -> None:
-        self.tasks = sorted(tasks, key=lambda task: task.id)
+        self.tasks = sorted(
+            (task for task in tasks if task.slots.get("dataset") == "virtualhome"),
+            key=lambda task: task.id,
+        )
 
     @classmethod
     def from_jsonl(cls, path: str | Path) -> "TaskSetBuilder":
@@ -46,22 +49,8 @@ class TaskSetBuilder:
         balanced_eval = self._balanced_by_family(executable_eval, per_family=per_family)
         balanced_eval_20 = stratified_spread_sample(balanced_eval, limit=20)
         balanced_eval_50 = stratified_spread_sample(balanced_eval, limit=50)
-        smoke_train = [
-            task
-            for task in rag_train
-            if task.slots.get("dataset") == "behavior"
-        ][:8]
-        smoke_eval = smoke_train + [
-            candidates[0]
-            for dataset in ("behavior", "virtualhome")
-            if (
-                candidates := [
-                    task
-                    for task in executable_eval
-                    if task.slots.get("dataset") == dataset
-                ]
-            )
-        ]
+        smoke_train = rag_train[:8]
+        smoke_eval = smoke_train + executable_eval[:2]
 
         files = {
             "rag_train": output_dir / "rag_train.jsonl",
@@ -94,7 +83,7 @@ class TaskSetBuilder:
                 "balanced_eval": "deterministic length-spread sample per dataset/task_family",
                 "balanced_eval_20": "stratified deterministic sample from balanced_eval by dataset/difficulty",
                 "balanced_eval_50": "larger stratified deterministic sample from balanced_eval by dataset/difficulty",
-                "eai_smoke_eval": "first 8 BEHAVIOR train demonstrations plus first executable BEHAVIOR and VirtualHome evaluation tasks",
+                "eai_smoke_eval": "first 8 VirtualHome train demonstrations plus first 2 executable VirtualHome evaluation tasks",
             },
             "exclusions": {
                 "missing_gold_plan": sum(not task.gold_plan for task in self.tasks),
