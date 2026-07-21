@@ -64,10 +64,11 @@ conda run -n eai-eval python -m eai_eval.cli \
   --num-workers 8
 ```
 
-The old result directory was deleted because it did not satisfy the current
-uniform protocol. The completed official run evaluated 60 model-specific cells:
-all five planners, all four harnesses, and all three models on the same 84-task
-cohort. Official summaries and error files are stored under:
+The archived official run evaluated 60 model-specific cells: all five planners,
+all four harnesses, and all three models on the same 84-task cohort. Its P2
+implementation has since been replaced, so archived P2 outputs do not evaluate
+the current `P2_graph_rag`. Non-P2 summaries remain valid for the archived run.
+Official summaries and error files are stored under:
 
 `runs/official_virtualhome_action_sequencing_v4/results/virtualhome/evaluate_results/action_sequencing/`
 

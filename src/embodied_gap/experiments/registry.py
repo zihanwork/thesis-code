@@ -30,7 +30,7 @@ def build_planners(
     retrieval_top_k: int = 1,
     retrieval_min_score: float = 0.0,
     graph_path: str = "data/knowledge/eai_train/kg_edges.jsonl",
-    graph_top_k: int = 1,
+    graph_top_k: int = 3,
 ) -> dict[str, object]:
     llm_client = None
     if use_llm_for_planners:

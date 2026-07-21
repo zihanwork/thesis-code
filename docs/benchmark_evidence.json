@@ -24,7 +24,11 @@
     ],
     "results_json": "docs/final_official_virtualhome_results_v4.json",
     "results_markdown": "docs/final_official_virtualhome_results_v4.md",
-    "paired_comparison_count": 93
+    "paired_comparison_count": 93,
+    "p2_result_status": "archived v4 P2 cells are superseded; replacement P2 has a completed post-hoc same-cohort replication",
+    "replacement_p2_results_json": "docs/final_official_virtualhome_graph_rag_replacement.json",
+    "replacement_p2_results_markdown": "docs/final_official_virtualhome_graph_rag_replacement.md",
+    "replacement_p2_paired_comparison_count": 30
   },
   "interpretation_policy": {
     "primary_metric": "official task success rate",

@@ -4,6 +4,8 @@
 
 The single outcome authority is the pinned official evaluator. The fixed cohort contains 84 tasks across 8 task families. Local execution checks are used only inside the verifier/recovery mechanism.
 
+> **Superseded P2 notice:** the `P2_graph_rag` implementation used in this archived run has been replaced. All P2 cells and P1-to-P2 contrasts below are historical evidence and do not describe the current `P2_graph_rag` implementation. Non-P2 cells remain evidence for the code used in this run.
+
 ## Official results
 
 | Cell | Task success | Total goal | Execution success | Parsing error |

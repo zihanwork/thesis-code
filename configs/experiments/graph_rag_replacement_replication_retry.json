@@ -1,0 +1,45 @@
+{
+  "name": "graph_rag_replacement_replication_retry",
+  "continue_on_error": true,
+  "base_experiment": {
+    "name": "graph_rag_replacement_replication_retry",
+    "tasks_path": "data/processed/tasksets/official_virtualhome_action_sequencing_v1.jsonl",
+    "retrieval_examples_path": "data/processed/tasksets/rag_train.jsonl",
+    "failure_memory_path": "data/knowledge/failure_memory_dev.jsonl",
+    "graph_path": "data/knowledge/eai_train/kg_edges.jsonl",
+    "graph_top_k": 3,
+    "output_dir": "runs/graph_rag_replacement_replication_retry",
+    "planners": ["P1_rag", "P2_graph_rag"],
+    "harness_modes": [
+      "H0_open_loop",
+      "H2_llm_reflection",
+      "H2_memory",
+      "H2_pddl_recovery"
+    ],
+    "seed": 13,
+    "max_retries": 1,
+    "llm_backend": "one_api",
+    "use_llm_for_planners": true,
+    "llm_temperature": 0.0,
+    "llm_max_tokens": 2048,
+    "llm_timeout_seconds": 180,
+    "llm_max_attempts": 5,
+    "llm_backoff_seconds": 15.0,
+    "retrieval_method": "structured",
+    "retrieval_field_profile": "instruction_state_goal_schema",
+    "retrieval_top_k": 1,
+    "retrieval_min_score": 0.0,
+    "metadata": {
+      "phase": "graph_rag_replacement_replication_retry",
+      "parent_failed_run_id": "20260721T064546439225Z_0b25eef1",
+      "amendment_reason": "One API HTTP 429 upstream saturation before gpt-5.5 produced any record; GLM-5-Turbo had not started.",
+      "invariant": "GraphRAG code, prompts, task cohort, model decoding, planners, harnesses, and seeds are unchanged.",
+      "operational_change": "Run only missing models with five transient-error attempts and 15-second exponential backoff.",
+      "claim_limit": "Post-hoc same-cohort replacement replication; not an untouched confirmatory result."
+    }
+  },
+  "models": [
+    {"id": "gpt_5_5", "provider": "one_api", "model": "gpt-5.5", "max_attempts": 5},
+    {"id": "glm_5_turbo", "provider": "one_api", "model": "GLM-5-Turbo", "max_attempts": 5}
+  ]
+}

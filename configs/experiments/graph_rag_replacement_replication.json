@@ -1,0 +1,46 @@
+{
+  "name": "graph_rag_replacement_replication",
+  "continue_on_error": false,
+  "base_experiment": {
+    "name": "graph_rag_replacement_replication",
+    "tasks_path": "data/processed/tasksets/official_virtualhome_action_sequencing_v1.jsonl",
+    "retrieval_examples_path": "data/processed/tasksets/rag_train.jsonl",
+    "failure_memory_path": "data/knowledge/failure_memory_dev.jsonl",
+    "graph_path": "data/knowledge/eai_train/kg_edges.jsonl",
+    "graph_top_k": 3,
+    "output_dir": "runs/graph_rag_replacement_replication",
+    "planners": ["P1_rag", "P2_graph_rag"],
+    "harness_modes": [
+      "H0_open_loop",
+      "H2_llm_reflection",
+      "H2_memory",
+      "H2_pddl_recovery"
+    ],
+    "seed": 13,
+    "max_retries": 1,
+    "llm_backend": "one_api",
+    "use_llm_for_planners": true,
+    "llm_temperature": 0.0,
+    "llm_max_tokens": 2048,
+    "llm_timeout_seconds": 180,
+    "llm_max_attempts": 2,
+    "llm_backoff_seconds": 2.0,
+    "retrieval_method": "structured",
+    "retrieval_field_profile": "instruction_state_goal_schema",
+    "retrieval_top_k": 1,
+    "retrieval_min_score": 0.0,
+    "metadata": {
+      "phase": "graph_rag_replacement_replication",
+      "evaluation_authority": "pinned VirtualHome Action Sequencing evaluator only",
+      "data_policy": "Post-hoc replacement replication on the observed frozen 84-task cohort.",
+      "comparison_policy": "Rerun P1 and replacement P2 under all four harnesses and all three models.",
+      "claim_limit": "Results support same-cohort implementation comparison, not untouched confirmatory or hidden-leaderboard claims.",
+      "stopping_rule": "Do not tune or alter GraphRAG after this replication starts."
+    }
+  },
+  "models": [
+    {"id": "deepseek_v4_flash", "provider": "one_api", "model": "DeepSeek-V4-Flash"},
+    {"id": "gpt_5_5", "provider": "one_api", "model": "gpt-5.5"},
+    {"id": "glm_5_turbo", "provider": "one_api", "model": "GLM-5-Turbo"}
+  ]
+}

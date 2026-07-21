@@ -1,0 +1,40 @@
+{
+  "name": "graph_rag_development",
+  "continue_on_error": false,
+  "base_experiment": {
+    "name": "graph_rag_development",
+    "tasks_path": "data/processed/tasksets/balanced_eval.jsonl",
+    "retrieval_examples_path": "data/processed/tasksets/rag_train.jsonl",
+    "failure_memory_path": "data/knowledge/failure_memory_dev.jsonl",
+    "graph_path": "data/knowledge/eai_train/kg_edges.jsonl",
+    "graph_top_k": 3,
+    "output_dir": "runs/graph_rag_development",
+    "planners": ["P1_rag", "P2_graph_rag"],
+    "harness_modes": ["H0_open_loop"],
+    "seed": 13,
+    "max_retries": 0,
+    "llm_backend": "one_api",
+    "use_llm_for_planners": true,
+    "llm_temperature": 0.0,
+    "llm_max_tokens": 2048,
+    "llm_timeout_seconds": 180,
+    "llm_max_attempts": 2,
+    "llm_backoff_seconds": 2.0,
+    "retrieval_method": "structured",
+    "retrieval_field_profile": "instruction_state_goal_schema",
+    "retrieval_top_k": 1,
+    "retrieval_min_score": 0.0,
+    "metadata": {
+      "phase": "graph_rag_development",
+      "evaluation_authority": "development-only local telemetry; no confirmatory claim",
+      "data_policy": "The 120 development tasks are disjoint from the observed 84-task official cohort.",
+      "comparison_policy": "Isolate P1 Flat RAG versus the replacement P2 GraphRAG under H0.",
+      "claim_limit": "Results may guide implementation checks but cannot be reported as untouched confirmatory evidence."
+    }
+  },
+  "models": [
+    {"id": "deepseek_v4_flash", "provider": "one_api", "model": "DeepSeek-V4-Flash"},
+    {"id": "gpt_5_5", "provider": "one_api", "model": "gpt-5.5"},
+    {"id": "glm_5_turbo", "provider": "one_api", "model": "GLM-5-Turbo"}
+  ]
+}

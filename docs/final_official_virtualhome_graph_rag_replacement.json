@@ -1,0 +1,2834 @@
+{
+  "cells": {
+    "deepseek_v4_flash__P1_rag__H0_open_loop": {
+      "cohort_task_count": 84,
+      "goal_evaluation": {
+        "action_goal": 0.0,
+        "relation_goal": 81.4286,
+        "state_goal": 91.3043,
+        "task_success_rate": 47.619,
+        "total_goal": 67.7966
+      },
+      "official_summary_path": "runs/official_virtualhome_graph_rag_replacement/results/virtualhome/evaluate_results/action_sequencing/deepseek_v4_flash__P1_rag__H0_open_loop/summary.json",
+      "task_success_count": 40,
+      "trajectory_evaluation": {
+        "execution_success_rate": 89.3,
+        "grammar_error": {
+          "hallucination": 0.0,
+          "parsing": 0.0,
+          "predicate_argument_number": 0.0
+        },
+        "runtime_error": {
+          "additional_step": 0.0,
+          "affordance_error": 0.0,
+          "missing_step": 10.7143,
+          "wrong_order": 0.0
+        }
+      }
+    },
+    "deepseek_v4_flash__P1_rag__H2_llm_reflection": {
+      "cohort_task_count": 84,
+      "goal_evaluation": {
+        "action_goal": 0.0,
+        "relation_goal": 90.0,
+        "state_goal": 95.6522,
+        "task_success_rate": 50.0,
+        "total_goal": 72.8814
+      },
+      "official_summary_path": "runs/official_virtualhome_graph_rag_replacement/results/virtualhome/evaluate_results/action_sequencing/deepseek_v4_flash__P1_rag__H2_llm_reflection/summary.json",
+      "task_success_count": 42,
+      "trajectory_evaluation": {
+        "execution_success_rate": 100.0,
+        "grammar_error": {
+          "hallucination": 0.0,
+          "parsing": 0.0,
+          "predicate_argument_number": 0.0
+        },
+        "runtime_error": {
+          "additional_step": 0.0,
+          "affordance_error": 0.0,
+          "missing_step": 0.0,
+          "wrong_order": 0.0
+        }
+      }
+    },
+    "deepseek_v4_flash__P1_rag__H2_memory": {
+      "cohort_task_count": 84,
+      "goal_evaluation": {
+        "action_goal": 0.0,
+        "relation_goal": 87.1429,
+        "state_goal": 95.6522,
+        "task_success_rate": 50.0,
+        "total_goal": 71.7514
+      },
+      "official_summary_path": "runs/official_virtualhome_graph_rag_replacement/results/virtualhome/evaluate_results/action_sequencing/deepseek_v4_flash__P1_rag__H2_memory/summary.json",
+      "task_success_count": 42,
+      "trajectory_evaluation": {
+        "execution_success_rate": 100.0,
+        "grammar_error": {
+          "hallucination": 0.0,
+          "parsing": 0.0,
+          "predicate_argument_number": 0.0
+        },
+        "runtime_error": {
+          "additional_step": 0.0,
+          "affordance_error": 0.0,
+          "missing_step": 0.0,
+          "wrong_order": 0.0
+        }
+      }
+    },
+    "deepseek_v4_flash__P1_rag__H2_pddl_recovery": {
+      "cohort_task_count": 84,
+      "goal_evaluation": {
+        "action_goal": 0.0,
+        "relation_goal": 85.7143,
+        "state_goal": 95.6522,
+        "task_success_rate": 50.0,
+        "total_goal": 71.1864
+      },
+      "official_summary_path": "runs/official_virtualhome_graph_rag_replacement/results/virtualhome/evaluate_results/action_sequencing/deepseek_v4_flash__P1_rag__H2_pddl_recovery/summary.json",
+      "task_success_count": 42,
+      "trajectory_evaluation": {
+        "execution_success_rate": 100.0,
+        "grammar_error": {
+          "hallucination": 0.0,
+          "parsing": 0.0,
+          "predicate_argument_number": 0.0
+        },
+        "runtime_error": {
+          "additional_step": 0.0,
+          "affordance_error": 0.0,
+          "missing_step": 0.0,
+          "wrong_order": 0.0
+        }
+      }
+    },
+    "deepseek_v4_flash__P2_graph_rag__H0_open_loop": {
+      "cohort_task_count": 84,
+      "goal_evaluation": {
+        "action_goal": 0.0,
+        "relation_goal": 84.2857,
+        "state_goal": 97.1014,
+        "task_success_rate": 52.381,
+        "total_goal": 71.1864
+      },
+      "official_summary_path": "runs/official_virtualhome_graph_rag_replacement/results/virtualhome/evaluate_results/action_sequencing/deepseek_v4_flash__P2_graph_rag__H0_open_loop/summary.json",
+      "task_success_count": 44,
+      "trajectory_evaluation": {
+        "execution_success_rate": 95.2,
+        "grammar_error": {
+          "hallucination": 0.0,
+          "parsing": 3.5714,
+          "predicate_argument_number": 0.0
+        },
+        "runtime_error": {
+          "additional_step": 0.0,
+          "affordance_error": 0.0,
+          "missing_step": 1.1905,
+          "wrong_order": 0.0
+        }
+      }
+    },
+    "deepseek_v4_flash__P2_graph_rag__H2_llm_reflection": {
+      "cohort_task_count": 84,
+      "goal_evaluation": {
+        "action_goal": 0.0,
+        "relation_goal": 82.8571,
+        "state_goal": 98.5507,
+        "task_success_rate": 52.381,
+        "total_goal": 71.1864
+      },
+      "official_summary_path": "runs/official_virtualhome_graph_rag_replacement/results/virtualhome/evaluate_results/action_sequencing/deepseek_v4_flash__P2_graph_rag__H2_llm_reflection/summary.json",
+      "task_success_count": 44,
+      "trajectory_evaluation": {
+        "execution_success_rate": 96.4,
+        "grammar_error": {
+          "hallucination": 0.0,
+          "parsing": 0.0,
+          "predicate_argument_number": 0.0
+        },
+        "runtime_error": {
+          "additional_step": 0.0,
+          "affordance_error": 0.0,
+          "missing_step": 3.5714,
+          "wrong_order": 0.0
+        }
+      }
+    },
+    "deepseek_v4_flash__P2_graph_rag__H2_memory": {
+      "cohort_task_count": 84,
+      "goal_evaluation": {
+        "action_goal": 0.0,
+        "relation_goal": 85.7143,
+        "state_goal": 98.5507,
+        "task_success_rate": 52.381,
+        "total_goal": 72.3164
+      },
+      "official_summary_path": "runs/official_virtualhome_graph_rag_replacement/results/virtualhome/evaluate_results/action_sequencing/deepseek_v4_flash__P2_graph_rag__H2_memory/summary.json",
+      "task_success_count": 44,
+      "trajectory_evaluation": {
+        "execution_success_rate": 98.8,
+        "grammar_error": {
+          "hallucination": 0.0,
+          "parsing": 0.0,
+          "predicate_argument_number": 0.0
+        },
+        "runtime_error": {
+          "additional_step": 0.0,
+          "affordance_error": 0.0,
+          "missing_step": 1.1905,
+          "wrong_order": 0.0
+        }
+      }
+    },
+    "deepseek_v4_flash__P2_graph_rag__H2_pddl_recovery": {
+      "cohort_task_count": 84,
+      "goal_evaluation": {
+        "action_goal": 0.0,
+        "relation_goal": 87.1429,
+        "state_goal": 98.5507,
+        "task_success_rate": 52.381,
+        "total_goal": 72.8814
+      },
+      "official_summary_path": "runs/official_virtualhome_graph_rag_replacement/results/virtualhome/evaluate_results/action_sequencing/deepseek_v4_flash__P2_graph_rag__H2_pddl_recovery/summary.json",
+      "task_success_count": 44,
+      "trajectory_evaluation": {
+        "execution_success_rate": 100.0,
+        "grammar_error": {
+          "hallucination": 0.0,
+          "parsing": 0.0,
+          "predicate_argument_number": 0.0
+        },
+        "runtime_error": {
+          "additional_step": 0.0,
+          "affordance_error": 0.0,
+          "missing_step": 0.0,
+          "wrong_order": 0.0
+        }
+      }
+    },
+    "glm_5_turbo__P1_rag__H0_open_loop": {
+      "cohort_task_count": 84,
+      "goal_evaluation": {
+        "action_goal": 0.0,
+        "relation_goal": 82.8571,
+        "state_goal": 98.5507,
+        "task_success_rate": 52.381,
+        "total_goal": 71.1864
+      },
+      "official_summary_path": "runs/official_virtualhome_graph_rag_replacement/results/virtualhome/evaluate_results/action_sequencing/glm_5_turbo__P1_rag__H0_open_loop/summary.json",
+      "task_success_count": 44,
+      "trajectory_evaluation": {
+        "execution_success_rate": 92.9,
+        "grammar_error": {
+          "hallucination": 0.0,
+          "parsing": 0.0,
+          "predicate_argument_number": 0.0
+        },
+        "runtime_error": {
+          "additional_step": 0.0,
+          "affordance_error": 0.0,
+          "missing_step": 5.9524,
+          "wrong_order": 1.1905
+        }
+      }
+    },
+    "glm_5_turbo__P1_rag__H2_llm_reflection": {
+      "cohort_task_count": 84,
+      "goal_evaluation": {
+        "action_goal": 0.0,
+        "relation_goal": 90.0,
+        "state_goal": 98.5507,
+        "task_success_rate": 52.381,
+        "total_goal": 74.0113
+      },
+      "official_summary_path": "runs/official_virtualhome_graph_rag_replacement/results/virtualhome/evaluate_results/action_sequencing/glm_5_turbo__P1_rag__H2_llm_reflection/summary.json",
+      "task_success_count": 44,
+      "trajectory_evaluation": {
+        "execution_success_rate": 98.8,
+        "grammar_error": {
+          "hallucination": 0.0,
+          "parsing": 0.0,
+          "predicate_argument_number": 0.0
+        },
+        "runtime_error": {
+          "additional_step": 0.0,
+          "affordance_error": 0.0,
+          "missing_step": 0.0,
+          "wrong_order": 1.1905
+        }
+      }
+    },
+    "glm_5_turbo__P1_rag__H2_memory": {
+      "cohort_task_count": 84,
+      "goal_evaluation": {
+        "action_goal": 0.0,
+        "relation_goal": 90.0,
+        "state_goal": 98.5507,
+        "task_success_rate": 52.381,
+        "total_goal": 74.0113
+      },
+      "official_summary_path": "runs/official_virtualhome_graph_rag_replacement/results/virtualhome/evaluate_results/action_sequencing/glm_5_turbo__P1_rag__H2_memory/summary.json",
+      "task_success_count": 44,
+      "trajectory_evaluation": {
+        "execution_success_rate": 98.8,
+        "grammar_error": {
+          "hallucination": 0.0,
+          "parsing": 0.0,
+          "predicate_argument_number": 0.0
+        },
+        "runtime_error": {
+          "additional_step": 0.0,
+          "affordance_error": 0.0,
+          "missing_step": 0.0,
+          "wrong_order": 1.1905
+        }
+      }
+    },
+    "glm_5_turbo__P1_rag__H2_pddl_recovery": {
+      "cohort_task_count": 84,
+      "goal_evaluation": {
+        "action_goal": 0.0,
+        "relation_goal": 90.0,
+        "state_goal": 98.5507,
+        "task_success_rate": 52.381,
+        "total_goal": 74.0113
+      },
+      "official_summary_path": "runs/official_virtualhome_graph_rag_replacement/results/virtualhome/evaluate_results/action_sequencing/glm_5_turbo__P1_rag__H2_pddl_recovery/summary.json",
+      "task_success_count": 44,
+      "trajectory_evaluation": {
+        "execution_success_rate": 98.8,
+        "grammar_error": {
+          "hallucination": 0.0,
+          "parsing": 0.0,
+          "predicate_argument_number": 0.0
+        },
+        "runtime_error": {
+          "additional_step": 0.0,
+          "affordance_error": 0.0,
+          "missing_step": 0.0,
+          "wrong_order": 1.1905
+        }
+      }
+    },
+    "glm_5_turbo__P2_graph_rag__H0_open_loop": {
+      "cohort_task_count": 84,
+      "goal_evaluation": {
+        "action_goal": 0.0,
+        "relation_goal": 78.5714,
+        "state_goal": 94.2029,
+        "task_success_rate": 50.0,
+        "total_goal": 67.7966
+      },
+      "official_summary_path": "runs/official_virtualhome_graph_rag_replacement/results/virtualhome/evaluate_results/action_sequencing/glm_5_turbo__P2_graph_rag__H0_open_loop/summary.json",
+      "task_success_count": 42,
+      "trajectory_evaluation": {
+        "execution_success_rate": 91.7,
+        "grammar_error": {
+          "hallucination": 0.0,
+          "parsing": 8.3333,
+          "predicate_argument_number": 0.0
+        },
+        "runtime_error": {
+          "additional_step": 0.0,
+          "affordance_error": 0.0,
+          "missing_step": 0.0,
+          "wrong_order": 0.0
+        }
+      }
+    },
+    "glm_5_turbo__P2_graph_rag__H2_llm_reflection": {
+      "cohort_task_count": 84,
+      "goal_evaluation": {
+        "action_goal": 2.6316,
+        "relation_goal": 80.0,
+        "state_goal": 97.1014,
+        "task_success_rate": 51.1905,
+        "total_goal": 70.0565
+      },
+      "official_summary_path": "runs/official_virtualhome_graph_rag_replacement/results/virtualhome/evaluate_results/action_sequencing/glm_5_turbo__P2_graph_rag__H2_llm_reflection/summary.json",
+      "task_success_count": 43,
+      "trajectory_evaluation": {
+        "execution_success_rate": 92.9,
+        "grammar_error": {
+          "hallucination": 0.0,
+          "parsing": 4.7619,
+          "predicate_argument_number": 0.0
+        },
+        "runtime_error": {
+          "additional_step": 0.0,
+          "affordance_error": 0.0,
+          "missing_step": 2.381,
+          "wrong_order": 0.0
+        }
+      }
+    },
+    "glm_5_turbo__P2_graph_rag__H2_memory": {
+      "cohort_task_count": 84,
+      "goal_evaluation": {
+        "action_goal": 2.6316,
+        "relation_goal": 85.7143,
+        "state_goal": 98.5507,
+        "task_success_rate": 53.5714,
+        "total_goal": 72.8814
+      },
+      "official_summary_path": "runs/official_virtualhome_graph_rag_replacement/results/virtualhome/evaluate_results/action_sequencing/glm_5_turbo__P2_graph_rag__H2_memory/summary.json",
+      "task_success_count": 45,
+      "trajectory_evaluation": {
+        "execution_success_rate": 98.8,
+        "grammar_error": {
+          "hallucination": 0.0,
+          "parsing": 0.0,
+          "predicate_argument_number": 0.0
+        },
+        "runtime_error": {
+          "additional_step": 0.0,
+          "affordance_error": 0.0,
+          "missing_step": 1.1905,
+          "wrong_order": 0.0
+        }
+      }
+    },
+    "glm_5_turbo__P2_graph_rag__H2_pddl_recovery": {
+      "cohort_task_count": 84,
+      "goal_evaluation": {
+        "action_goal": 0.0,
+        "relation_goal": 87.1429,
+        "state_goal": 98.5507,
+        "task_success_rate": 52.381,
+        "total_goal": 72.8814
+      },
+      "official_summary_path": "runs/official_virtualhome_graph_rag_replacement/results/virtualhome/evaluate_results/action_sequencing/glm_5_turbo__P2_graph_rag__H2_pddl_recovery/summary.json",
+      "task_success_count": 44,
+      "trajectory_evaluation": {
+        "execution_success_rate": 100.0,
+        "grammar_error": {
+          "hallucination": 0.0,
+          "parsing": 0.0,
+          "predicate_argument_number": 0.0
+        },
+        "runtime_error": {
+          "additional_step": 0.0,
+          "affordance_error": 0.0,
+          "missing_step": 0.0,
+          "wrong_order": 0.0
+        }
+      }
+    },
+    "gpt_5_5__P1_rag__H0_open_loop": {
+      "cohort_task_count": 84,
+      "goal_evaluation": {
+        "action_goal": 0.0,
+        "relation_goal": 85.7143,
+        "state_goal": 95.6522,
+        "task_success_rate": 48.8095,
+        "total_goal": 71.1864
+      },
+      "official_summary_path": "runs/official_virtualhome_graph_rag_replacement/results/virtualhome/evaluate_results/action_sequencing/gpt_5_5__P1_rag__H0_open_loop/summary.json",
+      "task_success_count": 41,
+      "trajectory_evaluation": {
+        "execution_success_rate": 96.4,
+        "grammar_error": {
+          "hallucination": 0.0,
+          "parsing": 1.1905,
+          "predicate_argument_number": 0.0
+        },
+        "runtime_error": {
+          "additional_step": 0.0,
+          "affordance_error": 0.0,
+          "missing_step": 2.381,
+          "wrong_order": 0.0
+        }
+      }
+    },
+    "gpt_5_5__P1_rag__H2_llm_reflection": {
+      "cohort_task_count": 84,
+      "goal_evaluation": {
+        "action_goal": 0.0,
+        "relation_goal": 87.1429,
+        "state_goal": 97.1014,
+        "task_success_rate": 50.0,
+        "total_goal": 72.3164
+      },
+      "official_summary_path": "runs/official_virtualhome_graph_rag_replacement/results/virtualhome/evaluate_results/action_sequencing/gpt_5_5__P1_rag__H2_llm_reflection/summary.json",
+      "task_success_count": 42,
+      "trajectory_evaluation": {
+        "execution_success_rate": 98.8,
+        "grammar_error": {
+          "hallucination": 0.0,
+          "parsing": 1.1905,
+          "predicate_argument_number": 0.0
+        },
+        "runtime_error": {
+          "additional_step": 0.0,
+          "affordance_error": 0.0,
+          "missing_step": 0.0,
+          "wrong_order": 0.0
+        }
+      }
+    },
+    "gpt_5_5__P1_rag__H2_memory": {
+      "cohort_task_count": 84,
+      "goal_evaluation": {
+        "action_goal": 0.0,
+        "relation_goal": 87.1429,
+        "state_goal": 97.1014,
+        "task_success_rate": 50.0,
+        "total_goal": 72.3164
+      },
+      "official_summary_path": "runs/official_virtualhome_graph_rag_replacement/results/virtualhome/evaluate_results/action_sequencing/gpt_5_5__P1_rag__H2_memory/summary.json",
+      "task_success_count": 42,
+      "trajectory_evaluation": {
+        "execution_success_rate": 98.8,
+        "grammar_error": {
+          "hallucination": 0.0,
+          "parsing": 1.1905,
+          "predicate_argument_number": 0.0
+        },
+        "runtime_error": {
+          "additional_step": 0.0,
+          "affordance_error": 0.0,
+          "missing_step": 0.0,
+          "wrong_order": 0.0
+        }
+      }
+    },
+    "gpt_5_5__P1_rag__H2_pddl_recovery": {
+      "cohort_task_count": 84,
+      "goal_evaluation": {
+        "action_goal": 0.0,
+        "relation_goal": 87.1429,
+        "state_goal": 97.1014,
+        "task_success_rate": 50.0,
+        "total_goal": 72.3164
+      },
+      "official_summary_path": "runs/official_virtualhome_graph_rag_replacement/results/virtualhome/evaluate_results/action_sequencing/gpt_5_5__P1_rag__H2_pddl_recovery/summary.json",
+      "task_success_count": 42,
+      "trajectory_evaluation": {
+        "execution_success_rate": 98.8,
+        "grammar_error": {
+          "hallucination": 0.0,
+          "parsing": 1.1905,
+          "predicate_argument_number": 0.0
+        },
+        "runtime_error": {
+          "additional_step": 0.0,
+          "affordance_error": 0.0,
+          "missing_step": 0.0,
+          "wrong_order": 0.0
+        }
+      }
+    },
+    "gpt_5_5__P2_graph_rag__H0_open_loop": {
+      "cohort_task_count": 84,
+      "goal_evaluation": {
+        "action_goal": 7.8947,
+        "relation_goal": 92.8571,
+        "state_goal": 98.5507,
+        "task_success_rate": 54.7619,
+        "total_goal": 76.8362
+      },
+      "official_summary_path": "runs/official_virtualhome_graph_rag_replacement/results/virtualhome/evaluate_results/action_sequencing/gpt_5_5__P2_graph_rag__H0_open_loop/summary.json",
+      "task_success_count": 46,
+      "trajectory_evaluation": {
+        "execution_success_rate": 98.8,
+        "grammar_error": {
+          "hallucination": 0.0,
+          "parsing": 1.1905,
+          "predicate_argument_number": 0.0
+        },
+        "runtime_error": {
+          "additional_step": 0.0,
+          "affordance_error": 0.0,
+          "missing_step": 0.0,
+          "wrong_order": 0.0
+        }
+      }
+    },
+    "gpt_5_5__P2_graph_rag__H2_llm_reflection": {
+      "cohort_task_count": 84,
+      "goal_evaluation": {
+        "action_goal": 7.8947,
+        "relation_goal": 92.8571,
+        "state_goal": 98.5507,
+        "task_success_rate": 54.7619,
+        "total_goal": 76.8362
+      },
+      "official_summary_path": "runs/official_virtualhome_graph_rag_replacement/results/virtualhome/evaluate_results/action_sequencing/gpt_5_5__P2_graph_rag__H2_llm_reflection/summary.json",
+      "task_success_count": 46,
+      "trajectory_evaluation": {
+        "execution_success_rate": 98.8,
+        "grammar_error": {
+          "hallucination": 0.0,
+          "parsing": 1.1905,
+          "predicate_argument_number": 0.0
+        },
+        "runtime_error": {
+          "additional_step": 0.0,
+          "affordance_error": 0.0,
+          "missing_step": 0.0,
+          "wrong_order": 0.0
+        }
+      }
+    },
+    "gpt_5_5__P2_graph_rag__H2_memory": {
+      "cohort_task_count": 84,
+      "goal_evaluation": {
+        "action_goal": 7.8947,
+        "relation_goal": 92.8571,
+        "state_goal": 98.5507,
+        "task_success_rate": 54.7619,
+        "total_goal": 76.8362
+      },
+      "official_summary_path": "runs/official_virtualhome_graph_rag_replacement/results/virtualhome/evaluate_results/action_sequencing/gpt_5_5__P2_graph_rag__H2_memory/summary.json",
+      "task_success_count": 46,
+      "trajectory_evaluation": {
+        "execution_success_rate": 98.8,
+        "grammar_error": {
+          "hallucination": 0.0,
+          "parsing": 1.1905,
+          "predicate_argument_number": 0.0
+        },
+        "runtime_error": {
+          "additional_step": 0.0,
+          "affordance_error": 0.0,
+          "missing_step": 0.0,
+          "wrong_order": 0.0
+        }
+      }
+    },
+    "gpt_5_5__P2_graph_rag__H2_pddl_recovery": {
+      "cohort_task_count": 84,
+      "goal_evaluation": {
+        "action_goal": 7.8947,
+        "relation_goal": 92.8571,
+        "state_goal": 98.5507,
+        "task_success_rate": 54.7619,
+        "total_goal": 76.8362
+      },
+      "official_summary_path": "runs/official_virtualhome_graph_rag_replacement/results/virtualhome/evaluate_results/action_sequencing/gpt_5_5__P2_graph_rag__H2_pddl_recovery/summary.json",
+      "task_success_count": 46,
+      "trajectory_evaluation": {
+        "execution_success_rate": 98.8,
+        "grammar_error": {
+          "hallucination": 0.0,
+          "parsing": 1.1905,
+          "predicate_argument_number": 0.0
+        },
+        "runtime_error": {
+          "additional_step": 0.0,
+          "affordance_error": 0.0,
+          "missing_step": 0.0,
+          "wrong_order": 0.0
+        }
+      }
+    }
+  },
+  "claim_boundaries": [
+    "All reported outcome scores come from the pinned official evaluator.",
+    "The local verifier is an intervention component, not an outcome authority.",
+    "The 84-task cohort is not the complete official hidden challenge set.",
+    "This report is a post-hoc replacement replication on the observed cohort; it supports same-cohort P1-to-P2 comparisons, not untouched confirmatory claims.",
+    "The reported grid contains 2 planners and 4 harnesses."
+  ],
+  "cohort": {
+    "path": "data/processed/tasksets/official_virtualhome_action_sequencing_v1.jsonl",
+    "selection": "Pre-outcome compatibility screen using gold plans, official action support, and unambiguous task-specific object IDs.",
+    "task_count": 84,
+    "task_family_count": 8
+  },
+  "evaluator_log_path": "logs/action_sequencing_eval_20260721_173304.log",
+  "paired_comparisons": {
+    "deepseek_v4_flash__H0_open_loop__P1_rag_to_P2_graph_rag": {
+      "family_clustered": {
+        "bootstrap": {
+          "samples": 10000,
+          "seed": 13,
+          "unit": "task_family"
+        },
+        "by_family": [
+          {
+            "n": 10,
+            "task_family": "Drink",
+            "uplift": 0
+          },
+          {
+            "n": 7,
+            "task_family": "Listen_to_music",
+            "uplift": 0
+          },
+          {
+            "n": 11,
+            "task_family": "Pet_cat",
+            "uplift": 0
+          },
+          {
+            "n": 12,
+            "task_family": "Pick_up_phone",
+            "uplift": 0.16666666666666666
+          },
+          {
+            "n": 10,
+            "task_family": "Read_book",
+            "uplift": 0
+          },
+          {
+            "n": 20,
+            "task_family": "Relax_on_sofa",
+            "uplift": 0.1
+          },
+          {
+            "n": 7,
+            "task_family": "Turn_on_light",
+            "uplift": 0
+          },
+          {
+            "n": 7,
+            "task_family": "Watch_TV",
+            "uplift": 0
+          }
+        ],
+        "equal_family_clustered_ci95": [
+          0.0,
+          0.08333333333333333
+        ],
+        "equal_family_uplift": 0.03333333333333333,
+        "exact_family_sign_flip_p_value": 0.5,
+        "paired_task_count": 84,
+        "task_family_count": 8,
+        "task_weighted_family_clustered_ci95": [
+          0.0,
+          0.09302325581395349
+        ],
+        "task_weighted_uplift": 0.047619047619047616
+      },
+      "left": "deepseek_v4_flash__P1_rag__H0_open_loop",
+      "mcnemar": {
+        "discordant_count": 4,
+        "exact_two_sided_p_value": 0.125,
+        "left_only_success": 0,
+        "paired_task_count": 84,
+        "right_only_success": 4
+      },
+      "right": "deepseek_v4_flash__P2_graph_rag__H0_open_loop"
+    },
+    "deepseek_v4_flash__H2_llm_reflection__P1_rag_to_P2_graph_rag": {
+      "family_clustered": {
+        "bootstrap": {
+          "samples": 10000,
+          "seed": 13,
+          "unit": "task_family"
+        },
+        "by_family": [
+          {
+            "n": 10,
+            "task_family": "Drink",
+            "uplift": 0
+          },
+          {
+            "n": 7,
+            "task_family": "Listen_to_music",
+            "uplift": 0
+          },
+          {
+            "n": 11,
+            "task_family": "Pet_cat",
+            "uplift": 0
+          },
+          {
+            "n": 12,
+            "task_family": "Pick_up_phone",
+            "uplift": 0
+          },
+          {
+            "n": 10,
+            "task_family": "Read_book",
+            "uplift": 0
+          },
+          {
+            "n": 20,
+            "task_family": "Relax_on_sofa",
+            "uplift": 0.1
+          },
+          {
+            "n": 7,
+            "task_family": "Turn_on_light",
+            "uplift": 0
+          },
+          {
+            "n": 7,
+            "task_family": "Watch_TV",
+            "uplift": 0
+          }
+        ],
+        "equal_family_clustered_ci95": [
+          0.0,
+          0.037500000000000006
+        ],
+        "equal_family_uplift": 0.0125,
+        "exact_family_sign_flip_p_value": 1.0,
+        "paired_task_count": 84,
+        "task_family_count": 8,
+        "task_weighted_family_clustered_ci95": [
+          0.0,
+          0.058823529411764705
+        ],
+        "task_weighted_uplift": 0.023809523809523808
+      },
+      "left": "deepseek_v4_flash__P1_rag__H2_llm_reflection",
+      "mcnemar": {
+        "discordant_count": 2,
+        "exact_two_sided_p_value": 0.5,
+        "left_only_success": 0,
+        "paired_task_count": 84,
+        "right_only_success": 2
+      },
+      "right": "deepseek_v4_flash__P2_graph_rag__H2_llm_reflection"
+    },
+    "deepseek_v4_flash__H2_memory__P1_rag_to_P2_graph_rag": {
+      "family_clustered": {
+        "bootstrap": {
+          "samples": 10000,
+          "seed": 13,
+          "unit": "task_family"
+        },
+        "by_family": [
+          {
+            "n": 10,
+            "task_family": "Drink",
+            "uplift": 0
+          },
+          {
+            "n": 7,
+            "task_family": "Listen_to_music",
+            "uplift": 0
+          },
+          {
+            "n": 11,
+            "task_family": "Pet_cat",
+            "uplift": 0
+          },
+          {
+            "n": 12,
+            "task_family": "Pick_up_phone",
+            "uplift": 0
+          },
+          {
+            "n": 10,
+            "task_family": "Read_book",
+            "uplift": 0
+          },
+          {
+            "n": 20,
+            "task_family": "Relax_on_sofa",
+            "uplift": 0.1
+          },
+          {
+            "n": 7,
+            "task_family": "Turn_on_light",
+            "uplift": 0
+          },
+          {
+            "n": 7,
+            "task_family": "Watch_TV",
+            "uplift": 0
+          }
+        ],
+        "equal_family_clustered_ci95": [
+          0.0,
+          0.037500000000000006
+        ],
+        "equal_family_uplift": 0.0125,
+        "exact_family_sign_flip_p_value": 1.0,
+        "paired_task_count": 84,
+        "task_family_count": 8,
+        "task_weighted_family_clustered_ci95": [
+          0.0,
+          0.058823529411764705
+        ],
+        "task_weighted_uplift": 0.023809523809523808
+      },
+      "left": "deepseek_v4_flash__P1_rag__H2_memory",
+      "mcnemar": {
+        "discordant_count": 2,
+        "exact_two_sided_p_value": 0.5,
+        "left_only_success": 0,
+        "paired_task_count": 84,
+        "right_only_success": 2
+      },
+      "right": "deepseek_v4_flash__P2_graph_rag__H2_memory"
+    },
+    "deepseek_v4_flash__H2_pddl_recovery__P1_rag_to_P2_graph_rag": {
+      "family_clustered": {
+        "bootstrap": {
+          "samples": 10000,
+          "seed": 13,
+          "unit": "task_family"
+        },
+        "by_family": [
+          {
+            "n": 10,
+            "task_family": "Drink",
+            "uplift": 0
+          },
+          {
+            "n": 7,
+            "task_family": "Listen_to_music",
+            "uplift": 0
+          },
+          {
+            "n": 11,
+            "task_family": "Pet_cat",
+            "uplift": 0
+          },
+          {
+            "n": 12,
+            "task_family": "Pick_up_phone",
+            "uplift": 0
+          },
+          {
+            "n": 10,
+            "task_family": "Read_book",
+            "uplift": 0
+          },
+          {
+            "n": 20,
+            "task_family": "Relax_on_sofa",
+            "uplift": 0.1
+          },
+          {
+            "n": 7,
+            "task_family": "Turn_on_light",
+            "uplift": 0
+          },
+          {
+            "n": 7,
+            "task_family": "Watch_TV",
+            "uplift": 0
+          }
+        ],
+        "equal_family_clustered_ci95": [
+          0.0,
+          0.037500000000000006
+        ],
+        "equal_family_uplift": 0.0125,
+        "exact_family_sign_flip_p_value": 1.0,
+        "paired_task_count": 84,
+        "task_family_count": 8,
+        "task_weighted_family_clustered_ci95": [
+          0.0,
+          0.058823529411764705
+        ],
+        "task_weighted_uplift": 0.023809523809523808
+      },
+      "left": "deepseek_v4_flash__P1_rag__H2_pddl_recovery",
+      "mcnemar": {
+        "discordant_count": 2,
+        "exact_two_sided_p_value": 0.5,
+        "left_only_success": 0,
+        "paired_task_count": 84,
+        "right_only_success": 2
+      },
+      "right": "deepseek_v4_flash__P2_graph_rag__H2_pddl_recovery"
+    },
+    "deepseek_v4_flash__P1_rag__H0_to_H2_llm_reflection": {
+      "family_clustered": {
+        "bootstrap": {
+          "samples": 10000,
+          "seed": 13,
+          "unit": "task_family"
+        },
+        "by_family": [
+          {
+            "n": 10,
+            "task_family": "Drink",
+            "uplift": 0
+          },
+          {
+            "n": 7,
+            "task_family": "Listen_to_music",
+            "uplift": 0
+          },
+          {
+            "n": 11,
+            "task_family": "Pet_cat",
+            "uplift": 0
+          },
+          {
+            "n": 12,
+            "task_family": "Pick_up_phone",
+            "uplift": 0.16666666666666666
+          },
+          {
+            "n": 10,
+            "task_family": "Read_book",
+            "uplift": 0
+          },
+          {
+            "n": 20,
+            "task_family": "Relax_on_sofa",
+            "uplift": 0
+          },
+          {
+            "n": 7,
+            "task_family": "Turn_on_light",
+            "uplift": 0
+          },
+          {
+            "n": 7,
+            "task_family": "Watch_TV",
+            "uplift": 0
+          }
+        ],
+        "equal_family_clustered_ci95": [
+          0.0,
+          0.0625
+        ],
+        "equal_family_uplift": 0.020833333333333332,
+        "exact_family_sign_flip_p_value": 1.0,
+        "paired_task_count": 84,
+        "task_family_count": 8,
+        "task_weighted_family_clustered_ci95": [
+          0.0,
+          0.07595539481615422
+        ],
+        "task_weighted_uplift": 0.023809523809523808
+      },
+      "left": "deepseek_v4_flash__P1_rag__H0_open_loop",
+      "mcnemar": {
+        "discordant_count": 2,
+        "exact_two_sided_p_value": 0.5,
+        "left_only_success": 0,
+        "paired_task_count": 84,
+        "right_only_success": 2
+      },
+      "right": "deepseek_v4_flash__P1_rag__H2_llm_reflection"
+    },
+    "deepseek_v4_flash__P1_rag__H0_to_H2_memory": {
+      "family_clustered": {
+        "bootstrap": {
+          "samples": 10000,
+          "seed": 13,
+          "unit": "task_family"
+        },
+        "by_family": [
+          {
+            "n": 10,
+            "task_family": "Drink",
+            "uplift": 0
+          },
+          {
+            "n": 7,
+            "task_family": "Listen_to_music",
+            "uplift": 0
+          },
+          {
+            "n": 11,
+            "task_family": "Pet_cat",
+            "uplift": 0
+          },
+          {
+            "n": 12,
+            "task_family": "Pick_up_phone",
+            "uplift": 0.16666666666666666
+          },
+          {
+            "n": 10,
+            "task_family": "Read_book",
+            "uplift": 0
+          },
+          {
+            "n": 20,
+            "task_family": "Relax_on_sofa",
+            "uplift": 0
+          },
+          {
+            "n": 7,
+            "task_family": "Turn_on_light",
+            "uplift": 0
+          },
+          {
+            "n": 7,
+            "task_family": "Watch_TV",
+            "uplift": 0
+          }
+        ],
+        "equal_family_clustered_ci95": [
+          0.0,
+          0.0625
+        ],
+        "equal_family_uplift": 0.020833333333333332,
+        "exact_family_sign_flip_p_value": 1.0,
+        "paired_task_count": 84,
+        "task_family_count": 8,
+        "task_weighted_family_clustered_ci95": [
+          0.0,
+          0.07595539481615422
+        ],
+        "task_weighted_uplift": 0.023809523809523808
+      },
+      "left": "deepseek_v4_flash__P1_rag__H0_open_loop",
+      "mcnemar": {
+        "discordant_count": 2,
+        "exact_two_sided_p_value": 0.5,
+        "left_only_success": 0,
+        "paired_task_count": 84,
+        "right_only_success": 2
+      },
+      "right": "deepseek_v4_flash__P1_rag__H2_memory"
+    },
+    "deepseek_v4_flash__P1_rag__H0_to_H2_pddl_recovery": {
+      "family_clustered": {
+        "bootstrap": {
+          "samples": 10000,
+          "seed": 13,
+          "unit": "task_family"
+        },
+        "by_family": [
+          {
+            "n": 10,
+            "task_family": "Drink",
+            "uplift": 0
+          },
+          {
+            "n": 7,
+            "task_family": "Listen_to_music",
+            "uplift": 0
+          },
+          {
+            "n": 11,
+            "task_family": "Pet_cat",
+            "uplift": 0
+          },
+          {
+            "n": 12,
+            "task_family": "Pick_up_phone",
+            "uplift": 0.16666666666666666
+          },
+          {
+            "n": 10,
+            "task_family": "Read_book",
+            "uplift": 0
+          },
+          {
+            "n": 20,
+            "task_family": "Relax_on_sofa",
+            "uplift": 0
+          },
+          {
+            "n": 7,
+            "task_family": "Turn_on_light",
+            "uplift": 0
+          },
+          {
+            "n": 7,
+            "task_family": "Watch_TV",
+            "uplift": 0
+          }
+        ],
+        "equal_family_clustered_ci95": [
+          0.0,
+          0.0625
+        ],
+        "equal_family_uplift": 0.020833333333333332,
+        "exact_family_sign_flip_p_value": 1.0,
+        "paired_task_count": 84,
+        "task_family_count": 8,
+        "task_weighted_family_clustered_ci95": [
+          0.0,
+          0.07595539481615422
+        ],
+        "task_weighted_uplift": 0.023809523809523808
+      },
+      "left": "deepseek_v4_flash__P1_rag__H0_open_loop",
+      "mcnemar": {
+        "discordant_count": 2,
+        "exact_two_sided_p_value": 0.5,
+        "left_only_success": 0,
+        "paired_task_count": 84,
+        "right_only_success": 2
+      },
+      "right": "deepseek_v4_flash__P1_rag__H2_pddl_recovery"
+    },
+    "deepseek_v4_flash__P2_graph_rag__H0_to_H2_llm_reflection": {
+      "family_clustered": {
+        "bootstrap": {
+          "samples": 10000,
+          "seed": 13,
+          "unit": "task_family"
+        },
+        "by_family": [
+          {
+            "n": 10,
+            "task_family": "Drink",
+            "uplift": 0
+          },
+          {
+            "n": 7,
+            "task_family": "Listen_to_music",
+            "uplift": 0
+          },
+          {
+            "n": 11,
+            "task_family": "Pet_cat",
+            "uplift": 0
+          },
+          {
+            "n": 12,
+            "task_family": "Pick_up_phone",
+            "uplift": 0
+          },
+          {
+            "n": 10,
+            "task_family": "Read_book",
+            "uplift": 0
+          },
+          {
+            "n": 20,
+            "task_family": "Relax_on_sofa",
+            "uplift": 0
+          },
+          {
+            "n": 7,
+            "task_family": "Turn_on_light",
+            "uplift": 0
+          },
+          {
+            "n": 7,
+            "task_family": "Watch_TV",
+            "uplift": 0
+          }
+        ],
+        "equal_family_clustered_ci95": [
+          0.0,
+          0.0
+        ],
+        "equal_family_uplift": 0,
+        "exact_family_sign_flip_p_value": 1.0,
+        "paired_task_count": 84,
+        "task_family_count": 8,
+        "task_weighted_family_clustered_ci95": [
+          0.0,
+          0.0
+        ],
+        "task_weighted_uplift": 0
+      },
+      "left": "deepseek_v4_flash__P2_graph_rag__H0_open_loop",
+      "mcnemar": {
+        "discordant_count": 0,
+        "exact_two_sided_p_value": 1.0,
+        "left_only_success": 0,
+        "paired_task_count": 84,
+        "right_only_success": 0
+      },
+      "right": "deepseek_v4_flash__P2_graph_rag__H2_llm_reflection"
+    },
+    "deepseek_v4_flash__P2_graph_rag__H0_to_H2_memory": {
+      "family_clustered": {
+        "bootstrap": {
+          "samples": 10000,
+          "seed": 13,
+          "unit": "task_family"
+        },
+        "by_family": [
+          {
+            "n": 10,
+            "task_family": "Drink",
+            "uplift": 0
+          },
+          {
+            "n": 7,
+            "task_family": "Listen_to_music",
+            "uplift": 0
+          },
+          {
+            "n": 11,
+            "task_family": "Pet_cat",
+            "uplift": 0
+          },
+          {
+            "n": 12,
+            "task_family": "Pick_up_phone",
+            "uplift": 0
+          },
+          {
+            "n": 10,
+            "task_family": "Read_book",
+            "uplift": 0
+          },
+          {
+            "n": 20,
+            "task_family": "Relax_on_sofa",
+            "uplift": 0
+          },
+          {
+            "n": 7,
+            "task_family": "Turn_on_light",
+            "uplift": 0
+          },
+          {
+            "n": 7,
+            "task_family": "Watch_TV",
+            "uplift": 0
+          }
+        ],
+        "equal_family_clustered_ci95": [
+          0.0,
+          0.0
+        ],
+        "equal_family_uplift": 0,
+        "exact_family_sign_flip_p_value": 1.0,
+        "paired_task_count": 84,
+        "task_family_count": 8,
+        "task_weighted_family_clustered_ci95": [
+          0.0,
+          0.0
+        ],
+        "task_weighted_uplift": 0
+      },
+      "left": "deepseek_v4_flash__P2_graph_rag__H0_open_loop",
+      "mcnemar": {
+        "discordant_count": 0,
+        "exact_two_sided_p_value": 1.0,
+        "left_only_success": 0,
+        "paired_task_count": 84,
+        "right_only_success": 0
+      },
+      "right": "deepseek_v4_flash__P2_graph_rag__H2_memory"
+    },
+    "deepseek_v4_flash__P2_graph_rag__H0_to_H2_pddl_recovery": {
+      "family_clustered": {
+        "bootstrap": {
+          "samples": 10000,
+          "seed": 13,
+          "unit": "task_family"
+        },
+        "by_family": [
+          {
+            "n": 10,
+            "task_family": "Drink",
+            "uplift": 0
+          },
+          {
+            "n": 7,
+            "task_family": "Listen_to_music",
+            "uplift": 0
+          },
+          {
+            "n": 11,
+            "task_family": "Pet_cat",
+            "uplift": 0
+          },
+          {
+            "n": 12,
+            "task_family": "Pick_up_phone",
+            "uplift": 0
+          },
+          {
+            "n": 10,
+            "task_family": "Read_book",
+            "uplift": 0
+          },
+          {
+            "n": 20,
+            "task_family": "Relax_on_sofa",
+            "uplift": 0
+          },
+          {
+            "n": 7,
+            "task_family": "Turn_on_light",
+            "uplift": 0
+          },
+          {
+            "n": 7,
+            "task_family": "Watch_TV",
+            "uplift": 0
+          }
+        ],
+        "equal_family_clustered_ci95": [
+          0.0,
+          0.0
+        ],
+        "equal_family_uplift": 0,
+        "exact_family_sign_flip_p_value": 1.0,
+        "paired_task_count": 84,
+        "task_family_count": 8,
+        "task_weighted_family_clustered_ci95": [
+          0.0,
+          0.0
+        ],
+        "task_weighted_uplift": 0
+      },
+      "left": "deepseek_v4_flash__P2_graph_rag__H0_open_loop",
+      "mcnemar": {
+        "discordant_count": 0,
+        "exact_two_sided_p_value": 1.0,
+        "left_only_success": 0,
+        "paired_task_count": 84,
+        "right_only_success": 0
+      },
+      "right": "deepseek_v4_flash__P2_graph_rag__H2_pddl_recovery"
+    },
+    "glm_5_turbo__H0_open_loop__P1_rag_to_P2_graph_rag": {
+      "family_clustered": {
+        "bootstrap": {
+          "samples": 10000,
+          "seed": 13,
+          "unit": "task_family"
+        },
+        "by_family": [
+          {
+            "n": 10,
+            "task_family": "Drink",
+            "uplift": 0
+          },
+          {
+            "n": 7,
+            "task_family": "Listen_to_music",
+            "uplift": 0
+          },
+          {
+            "n": 11,
+            "task_family": "Pet_cat",
+            "uplift": 0
+          },
+          {
+            "n": 12,
+            "task_family": "Pick_up_phone",
+            "uplift": -0.08333333333333333
+          },
+          {
+            "n": 10,
+            "task_family": "Read_book",
+            "uplift": 0
+          },
+          {
+            "n": 20,
+            "task_family": "Relax_on_sofa",
+            "uplift": -0.05
+          },
+          {
+            "n": 7,
+            "task_family": "Turn_on_light",
+            "uplift": 0
+          },
+          {
+            "n": 7,
+            "task_family": "Watch_TV",
+            "uplift": 0
+          }
+        ],
+        "equal_family_clustered_ci95": [
+          -0.041666666666666664,
+          0.0
+        ],
+        "equal_family_uplift": -0.016666666666666666,
+        "exact_family_sign_flip_p_value": 0.5,
+        "paired_task_count": 84,
+        "task_family_count": 8,
+        "task_weighted_family_clustered_ci95": [
+          -0.046511627906976744,
+          0.0
+        ],
+        "task_weighted_uplift": -0.023809523809523808
+      },
+      "left": "glm_5_turbo__P1_rag__H0_open_loop",
+      "mcnemar": {
+        "discordant_count": 2,
+        "exact_two_sided_p_value": 0.5,
+        "left_only_success": 2,
+        "paired_task_count": 84,
+        "right_only_success": 0
+      },
+      "right": "glm_5_turbo__P2_graph_rag__H0_open_loop"
+    },
+    "glm_5_turbo__H2_llm_reflection__P1_rag_to_P2_graph_rag": {
+      "family_clustered": {
+        "bootstrap": {
+          "samples": 10000,
+          "seed": 13,
+          "unit": "task_family"
+        },
+        "by_family": [
+          {
+            "n": 10,
+            "task_family": "Drink",
+            "uplift": 0
+          },
+          {
+            "n": 7,
+            "task_family": "Listen_to_music",
+            "uplift": 0
+          },
+          {
+            "n": 11,
+            "task_family": "Pet_cat",
+            "uplift": 0
+          },
+          {
+            "n": 12,
+            "task_family": "Pick_up_phone",
+            "uplift": -0.08333333333333333
+          },
+          {
+            "n": 10,
+            "task_family": "Read_book",
+            "uplift": 0
+          },
+          {
+            "n": 20,
+            "task_family": "Relax_on_sofa",
+            "uplift": -0.05
+          },
+          {
+            "n": 7,
+            "task_family": "Turn_on_light",
+            "uplift": 0
+          },
+          {
+            "n": 7,
+            "task_family": "Watch_TV",
+            "uplift": 0.14285714285714285
+          }
+        ],
+        "equal_family_clustered_ci95": [
+          -0.0375,
+          0.04732142857142857
+        ],
+        "equal_family_uplift": 0.0011904761904761897,
+        "exact_family_sign_flip_p_value": 1.0,
+        "paired_task_count": 84,
+        "task_family_count": 8,
+        "task_weighted_family_clustered_ci95": [
+          -0.043859649122807015,
+          0.030303030303030304
+        ],
+        "task_weighted_uplift": -0.011904761904761904
+      },
+      "left": "glm_5_turbo__P1_rag__H2_llm_reflection",
+      "mcnemar": {
+        "discordant_count": 3,
+        "exact_two_sided_p_value": 1.0,
+        "left_only_success": 2,
+        "paired_task_count": 84,
+        "right_only_success": 1
+      },
+      "right": "glm_5_turbo__P2_graph_rag__H2_llm_reflection"
+    },
+    "glm_5_turbo__H2_memory__P1_rag_to_P2_graph_rag": {
+      "family_clustered": {
+        "bootstrap": {
+          "samples": 10000,
+          "seed": 13,
+          "unit": "task_family"
+        },
+        "by_family": [
+          {
+            "n": 10,
+            "task_family": "Drink",
+            "uplift": 0
+          },
+          {
+            "n": 7,
+            "task_family": "Listen_to_music",
+            "uplift": 0
+          },
+          {
+            "n": 11,
+            "task_family": "Pet_cat",
+            "uplift": 0.09090909090909091
+          },
+          {
+            "n": 12,
+            "task_family": "Pick_up_phone",
+            "uplift": 0
+          },
+          {
+            "n": 10,
+            "task_family": "Read_book",
+            "uplift": 0
+          },
+          {
+            "n": 20,
+            "task_family": "Relax_on_sofa",
+            "uplift": 0
+          },
+          {
+            "n": 7,
+            "task_family": "Turn_on_light",
+            "uplift": 0
+          },
+          {
+            "n": 7,
+            "task_family": "Watch_TV",
+            "uplift": 0
+          }
+        ],
+        "equal_family_clustered_ci95": [
+          0.0,
+          0.03409090909090909
+        ],
+        "equal_family_uplift": 0.011363636363636364,
+        "exact_family_sign_flip_p_value": 1.0,
+        "paired_task_count": 84,
+        "task_family_count": 8,
+        "task_weighted_family_clustered_ci95": [
+          0.0,
+          0.03896103896103896
+        ],
+        "task_weighted_uplift": 0.011904761904761904
+      },
+      "left": "glm_5_turbo__P1_rag__H2_memory",
+      "mcnemar": {
+        "discordant_count": 1,
+        "exact_two_sided_p_value": 1.0,
+        "left_only_success": 0,
+        "paired_task_count": 84,
+        "right_only_success": 1
+      },
+      "right": "glm_5_turbo__P2_graph_rag__H2_memory"
+    },
+    "glm_5_turbo__H2_pddl_recovery__P1_rag_to_P2_graph_rag": {
+      "family_clustered": {
+        "bootstrap": {
+          "samples": 10000,
+          "seed": 13,
+          "unit": "task_family"
+        },
+        "by_family": [
+          {
+            "n": 10,
+            "task_family": "Drink",
+            "uplift": 0
+          },
+          {
+            "n": 7,
+            "task_family": "Listen_to_music",
+            "uplift": 0
+          },
+          {
+            "n": 11,
+            "task_family": "Pet_cat",
+            "uplift": 0
+          },
+          {
+            "n": 12,
+            "task_family": "Pick_up_phone",
+            "uplift": 0
+          },
+          {
+            "n": 10,
+            "task_family": "Read_book",
+            "uplift": 0
+          },
+          {
+            "n": 20,
+            "task_family": "Relax_on_sofa",
+            "uplift": 0
+          },
+          {
+            "n": 7,
+            "task_family": "Turn_on_light",
+            "uplift": 0
+          },
+          {
+            "n": 7,
+            "task_family": "Watch_TV",
+            "uplift": 0
+          }
+        ],
+        "equal_family_clustered_ci95": [
+          0.0,
+          0.0
+        ],
+        "equal_family_uplift": 0,
+        "exact_family_sign_flip_p_value": 1.0,
+        "paired_task_count": 84,
+        "task_family_count": 8,
+        "task_weighted_family_clustered_ci95": [
+          0.0,
+          0.0
+        ],
+        "task_weighted_uplift": 0
+      },
+      "left": "glm_5_turbo__P1_rag__H2_pddl_recovery",
+      "mcnemar": {
+        "discordant_count": 0,
+        "exact_two_sided_p_value": 1.0,
+        "left_only_success": 0,
+        "paired_task_count": 84,
+        "right_only_success": 0
+      },
+      "right": "glm_5_turbo__P2_graph_rag__H2_pddl_recovery"
+    },
+    "glm_5_turbo__P1_rag__H0_to_H2_llm_reflection": {
+      "family_clustered": {
+        "bootstrap": {
+          "samples": 10000,
+          "seed": 13,
+          "unit": "task_family"
+        },
+        "by_family": [
+          {
+            "n": 10,
+            "task_family": "Drink",
+            "uplift": 0
+          },
+          {
+            "n": 7,
+            "task_family": "Listen_to_music",
+            "uplift": 0
+          },
+          {
+            "n": 11,
+            "task_family": "Pet_cat",
+            "uplift": 0
+          },
+          {
+            "n": 12,
+            "task_family": "Pick_up_phone",
+            "uplift": 0
+          },
+          {
+            "n": 10,
+            "task_family": "Read_book",
+            "uplift": 0
+          },
+          {
+            "n": 20,
+            "task_family": "Relax_on_sofa",
+            "uplift": 0
+          },
+          {
+            "n": 7,
+            "task_family": "Turn_on_light",
+            "uplift": 0
+          },
+          {
+            "n": 7,
+            "task_family": "Watch_TV",
+            "uplift": 0
+          }
+        ],
+        "equal_family_clustered_ci95": [
+          0.0,
+          0.0
+        ],
+        "equal_family_uplift": 0,
+        "exact_family_sign_flip_p_value": 1.0,
+        "paired_task_count": 84,
+        "task_family_count": 8,
+        "task_weighted_family_clustered_ci95": [
+          0.0,
+          0.0
+        ],
+        "task_weighted_uplift": 0
+      },
+      "left": "glm_5_turbo__P1_rag__H0_open_loop",
+      "mcnemar": {
+        "discordant_count": 0,
+        "exact_two_sided_p_value": 1.0,
+        "left_only_success": 0,
+        "paired_task_count": 84,
+        "right_only_success": 0
+      },
+      "right": "glm_5_turbo__P1_rag__H2_llm_reflection"
+    },
+    "glm_5_turbo__P1_rag__H0_to_H2_memory": {
+      "family_clustered": {
+        "bootstrap": {
+          "samples": 10000,
+          "seed": 13,
+          "unit": "task_family"
+        },
+        "by_family": [
+          {
+            "n": 10,
+            "task_family": "Drink",
+            "uplift": 0
+          },
+          {
+            "n": 7,
+            "task_family": "Listen_to_music",
+            "uplift": 0
+          },
+          {
+            "n": 11,
+            "task_family": "Pet_cat",
+            "uplift": 0
+          },
+          {
+            "n": 12,
+            "task_family": "Pick_up_phone",
+            "uplift": 0
+          },
+          {
+            "n": 10,
+            "task_family": "Read_book",
+            "uplift": 0
+          },
+          {
+            "n": 20,
+            "task_family": "Relax_on_sofa",
+            "uplift": 0
+          },
+          {
+            "n": 7,
+            "task_family": "Turn_on_light",
+            "uplift": 0
+          },
+          {
+            "n": 7,
+            "task_family": "Watch_TV",
+            "uplift": 0
+          }
+        ],
+        "equal_family_clustered_ci95": [
+          0.0,
+          0.0
+        ],
+        "equal_family_uplift": 0,
+        "exact_family_sign_flip_p_value": 1.0,
+        "paired_task_count": 84,
+        "task_family_count": 8,
+        "task_weighted_family_clustered_ci95": [
+          0.0,
+          0.0
+        ],
+        "task_weighted_uplift": 0
+      },
+      "left": "glm_5_turbo__P1_rag__H0_open_loop",
+      "mcnemar": {
+        "discordant_count": 0,
+        "exact_two_sided_p_value": 1.0,
+        "left_only_success": 0,
+        "paired_task_count": 84,
+        "right_only_success": 0
+      },
+      "right": "glm_5_turbo__P1_rag__H2_memory"
+    },
+    "glm_5_turbo__P1_rag__H0_to_H2_pddl_recovery": {
+      "family_clustered": {
+        "bootstrap": {
+          "samples": 10000,
+          "seed": 13,
+          "unit": "task_family"
+        },
+        "by_family": [
+          {
+            "n": 10,
+            "task_family": "Drink",
+            "uplift": 0
+          },
+          {
+            "n": 7,
+            "task_family": "Listen_to_music",
+            "uplift": 0
+          },
+          {
+            "n": 11,
+            "task_family": "Pet_cat",
+            "uplift": 0
+          },
+          {
+            "n": 12,
+            "task_family": "Pick_up_phone",
+            "uplift": 0
+          },
+          {
+            "n": 10,
+            "task_family": "Read_book",
+            "uplift": 0
+          },
+          {
+            "n": 20,
+            "task_family": "Relax_on_sofa",
+            "uplift": 0
+          },
+          {
+            "n": 7,
+            "task_family": "Turn_on_light",
+            "uplift": 0
+          },
+          {
+            "n": 7,
+            "task_family": "Watch_TV",
+            "uplift": 0
+          }
+        ],
+        "equal_family_clustered_ci95": [
+          0.0,
+          0.0
+        ],
+        "equal_family_uplift": 0,
+        "exact_family_sign_flip_p_value": 1.0,
+        "paired_task_count": 84,
+        "task_family_count": 8,
+        "task_weighted_family_clustered_ci95": [
+          0.0,
+          0.0
+        ],
+        "task_weighted_uplift": 0
+      },
+      "left": "glm_5_turbo__P1_rag__H0_open_loop",
+      "mcnemar": {
+        "discordant_count": 0,
+        "exact_two_sided_p_value": 1.0,
+        "left_only_success": 0,
+        "paired_task_count": 84,
+        "right_only_success": 0
+      },
+      "right": "glm_5_turbo__P1_rag__H2_pddl_recovery"
+    },
+    "glm_5_turbo__P2_graph_rag__H0_to_H2_llm_reflection": {
+      "family_clustered": {
+        "bootstrap": {
+          "samples": 10000,
+          "seed": 13,
+          "unit": "task_family"
+        },
+        "by_family": [
+          {
+            "n": 10,
+            "task_family": "Drink",
+            "uplift": 0
+          },
+          {
+            "n": 7,
+            "task_family": "Listen_to_music",
+            "uplift": 0
+          },
+          {
+            "n": 11,
+            "task_family": "Pet_cat",
+            "uplift": 0
+          },
+          {
+            "n": 12,
+            "task_family": "Pick_up_phone",
+            "uplift": 0
+          },
+          {
+            "n": 10,
+            "task_family": "Read_book",
+            "uplift": 0
+          },
+          {
+            "n": 20,
+            "task_family": "Relax_on_sofa",
+            "uplift": 0
+          },
+          {
+            "n": 7,
+            "task_family": "Turn_on_light",
+            "uplift": 0
+          },
+          {
+            "n": 7,
+            "task_family": "Watch_TV",
+            "uplift": 0.14285714285714285
+          }
+        ],
+        "equal_family_clustered_ci95": [
+          0.0,
+          0.05357142857142857
+        ],
+        "equal_family_uplift": 0.017857142857142856,
+        "exact_family_sign_flip_p_value": 1.0,
+        "paired_task_count": 84,
+        "task_family_count": 8,
+        "task_weighted_family_clustered_ci95": [
+          0.0,
+          0.04225352112676056
+        ],
+        "task_weighted_uplift": 0.011904761904761904
+      },
+      "left": "glm_5_turbo__P2_graph_rag__H0_open_loop",
+      "mcnemar": {
+        "discordant_count": 1,
+        "exact_two_sided_p_value": 1.0,
+        "left_only_success": 0,
+        "paired_task_count": 84,
+        "right_only_success": 1
+      },
+      "right": "glm_5_turbo__P2_graph_rag__H2_llm_reflection"
+    },
+    "glm_5_turbo__P2_graph_rag__H0_to_H2_memory": {
+      "family_clustered": {
+        "bootstrap": {
+          "samples": 10000,
+          "seed": 13,
+          "unit": "task_family"
+        },
+        "by_family": [
+          {
+            "n": 10,
+            "task_family": "Drink",
+            "uplift": 0
+          },
+          {
+            "n": 7,
+            "task_family": "Listen_to_music",
+            "uplift": 0
+          },
+          {
+            "n": 11,
+            "task_family": "Pet_cat",
+            "uplift": 0.09090909090909091
+          },
+          {
+            "n": 12,
+            "task_family": "Pick_up_phone",
+            "uplift": 0.08333333333333333
+          },
+          {
+            "n": 10,
+            "task_family": "Read_book",
+            "uplift": 0
+          },
+          {
+            "n": 20,
+            "task_family": "Relax_on_sofa",
+            "uplift": 0.05
+          },
+          {
+            "n": 7,
+            "task_family": "Turn_on_light",
+            "uplift": 0
+          },
+          {
+            "n": 7,
+            "task_family": "Watch_TV",
+            "uplift": 0
+          }
+        ],
+        "equal_family_clustered_ci95": [
+          0.00625,
+          0.05587121212121212
+        ],
+        "equal_family_uplift": 0.02803030303030303,
+        "exact_family_sign_flip_p_value": 0.25,
+        "paired_task_count": 84,
+        "task_family_count": 8,
+        "task_weighted_family_clustered_ci95": [
+          0.011904761904761904,
+          0.060240963855421686
+        ],
+        "task_weighted_uplift": 0.03571428571428571
+      },
+      "left": "glm_5_turbo__P2_graph_rag__H0_open_loop",
+      "mcnemar": {
+        "discordant_count": 3,
+        "exact_two_sided_p_value": 0.25,
+        "left_only_success": 0,
+        "paired_task_count": 84,
+        "right_only_success": 3
+      },
+      "right": "glm_5_turbo__P2_graph_rag__H2_memory"
+    },
+    "glm_5_turbo__P2_graph_rag__H0_to_H2_pddl_recovery": {
+      "family_clustered": {
+        "bootstrap": {
+          "samples": 10000,
+          "seed": 13,
+          "unit": "task_family"
+        },
+        "by_family": [
+          {
+            "n": 10,
+            "task_family": "Drink",
+            "uplift": 0
+          },
+          {
+            "n": 7,
+            "task_family": "Listen_to_music",
+            "uplift": 0
+          },
+          {
+            "n": 11,
+            "task_family": "Pet_cat",
+            "uplift": 0
+          },
+          {
+            "n": 12,
+            "task_family": "Pick_up_phone",
+            "uplift": 0.08333333333333333
+          },
+          {
+            "n": 10,
+            "task_family": "Read_book",
+            "uplift": 0
+          },
+          {
+            "n": 20,
+            "task_family": "Relax_on_sofa",
+            "uplift": 0.05
+          },
+          {
+            "n": 7,
+            "task_family": "Turn_on_light",
+            "uplift": 0
+          },
+          {
+            "n": 7,
+            "task_family": "Watch_TV",
+            "uplift": 0
+          }
+        ],
+        "equal_family_clustered_ci95": [
+          0.0,
+          0.041666666666666664
+        ],
+        "equal_family_uplift": 0.016666666666666666,
+        "exact_family_sign_flip_p_value": 0.5,
+        "paired_task_count": 84,
+        "task_family_count": 8,
+        "task_weighted_family_clustered_ci95": [
+          0.0,
+          0.046511627906976744
+        ],
+        "task_weighted_uplift": 0.023809523809523808
+      },
+      "left": "glm_5_turbo__P2_graph_rag__H0_open_loop",
+      "mcnemar": {
+        "discordant_count": 2,
+        "exact_two_sided_p_value": 0.5,
+        "left_only_success": 0,
+        "paired_task_count": 84,
+        "right_only_success": 2
+      },
+      "right": "glm_5_turbo__P2_graph_rag__H2_pddl_recovery"
+    },
+    "gpt_5_5__H0_open_loop__P1_rag_to_P2_graph_rag": {
+      "family_clustered": {
+        "bootstrap": {
+          "samples": 10000,
+          "seed": 13,
+          "unit": "task_family"
+        },
+        "by_family": [
+          {
+            "n": 10,
+            "task_family": "Drink",
+            "uplift": 0
+          },
+          {
+            "n": 7,
+            "task_family": "Listen_to_music",
+            "uplift": 0.14285714285714285
+          },
+          {
+            "n": 11,
+            "task_family": "Pet_cat",
+            "uplift": 0
+          },
+          {
+            "n": 12,
+            "task_family": "Pick_up_phone",
+            "uplift": 0
+          },
+          {
+            "n": 10,
+            "task_family": "Read_book",
+            "uplift": 0
+          },
+          {
+            "n": 20,
+            "task_family": "Relax_on_sofa",
+            "uplift": 0.05
+          },
+          {
+            "n": 7,
+            "task_family": "Turn_on_light",
+            "uplift": 0
+          },
+          {
+            "n": 7,
+            "task_family": "Watch_TV",
+            "uplift": 0.42857142857142855
+          }
+        ],
+        "equal_family_clustered_ci95": [
+          0.00625,
+          0.18482142857142855
+        ],
+        "equal_family_uplift": 0.07767857142857143,
+        "exact_family_sign_flip_p_value": 0.25,
+        "paired_task_count": 84,
+        "task_family_count": 8,
+        "task_weighted_family_clustered_ci95": [
+          0.01020150484436199,
+          0.14492753623188406
+        ],
+        "task_weighted_uplift": 0.05952380952380952
+      },
+      "left": "gpt_5_5__P1_rag__H0_open_loop",
+      "mcnemar": {
+        "discordant_count": 5,
+        "exact_two_sided_p_value": 0.0625,
+        "left_only_success": 0,
+        "paired_task_count": 84,
+        "right_only_success": 5
+      },
+      "right": "gpt_5_5__P2_graph_rag__H0_open_loop"
+    },
+    "gpt_5_5__H2_llm_reflection__P1_rag_to_P2_graph_rag": {
+      "family_clustered": {
+        "bootstrap": {
+          "samples": 10000,
+          "seed": 13,
+          "unit": "task_family"
+        },
+        "by_family": [
+          {
+            "n": 10,
+            "task_family": "Drink",
+            "uplift": 0
+          },
+          {
+            "n": 7,
+            "task_family": "Listen_to_music",
+            "uplift": 0
+          },
+          {
+            "n": 11,
+            "task_family": "Pet_cat",
+            "uplift": 0
+          },
+          {
+            "n": 12,
+            "task_family": "Pick_up_phone",
+            "uplift": 0
+          },
+          {
+            "n": 10,
+            "task_family": "Read_book",
+            "uplift": 0
+          },
+          {
+            "n": 20,
+            "task_family": "Relax_on_sofa",
+            "uplift": 0.05
+          },
+          {
+            "n": 7,
+            "task_family": "Turn_on_light",
+            "uplift": 0
+          },
+          {
+            "n": 7,
+            "task_family": "Watch_TV",
+            "uplift": 0.42857142857142855
+          }
+        ],
+        "equal_family_clustered_ci95": [
+          0.0,
+          0.1669642857142857
+        ],
+        "equal_family_uplift": 0.05982142857142857,
+        "exact_family_sign_flip_p_value": 0.5,
+        "paired_task_count": 84,
+        "task_family_count": 8,
+        "task_weighted_family_clustered_ci95": [
+          0.0,
+          0.13157894736842105
+        ],
+        "task_weighted_uplift": 0.047619047619047616
+      },
+      "left": "gpt_5_5__P1_rag__H2_llm_reflection",
+      "mcnemar": {
+        "discordant_count": 4,
+        "exact_two_sided_p_value": 0.125,
+        "left_only_success": 0,
+        "paired_task_count": 84,
+        "right_only_success": 4
+      },
+      "right": "gpt_5_5__P2_graph_rag__H2_llm_reflection"
+    },
+    "gpt_5_5__H2_memory__P1_rag_to_P2_graph_rag": {
+      "family_clustered": {
+        "bootstrap": {
+          "samples": 10000,
+          "seed": 13,
+          "unit": "task_family"
+        },
+        "by_family": [
+          {
+            "n": 10,
+            "task_family": "Drink",
+            "uplift": 0
+          },
+          {
+            "n": 7,
+            "task_family": "Listen_to_music",
+            "uplift": 0
+          },
+          {
+            "n": 11,
+            "task_family": "Pet_cat",
+            "uplift": 0
+          },
+          {
+            "n": 12,
+            "task_family": "Pick_up_phone",
+            "uplift": 0
+          },
+          {
+            "n": 10,
+            "task_family": "Read_book",
+            "uplift": 0
+          },
+          {
+            "n": 20,
+            "task_family": "Relax_on_sofa",
+            "uplift": 0.05
+          },
+          {
+            "n": 7,
+            "task_family": "Turn_on_light",
+            "uplift": 0
+          },
+          {
+            "n": 7,
+            "task_family": "Watch_TV",
+            "uplift": 0.42857142857142855
+          }
+        ],
+        "equal_family_clustered_ci95": [
+          0.0,
+          0.1669642857142857
+        ],
+        "equal_family_uplift": 0.05982142857142857,
+        "exact_family_sign_flip_p_value": 0.5,
+        "paired_task_count": 84,
+        "task_family_count": 8,
+        "task_weighted_family_clustered_ci95": [
+          0.0,
+          0.13157894736842105
+        ],
+        "task_weighted_uplift": 0.047619047619047616
+      },
+      "left": "gpt_5_5__P1_rag__H2_memory",
+      "mcnemar": {
+        "discordant_count": 4,
+        "exact_two_sided_p_value": 0.125,
+        "left_only_success": 0,
+        "paired_task_count": 84,
+        "right_only_success": 4
+      },
+      "right": "gpt_5_5__P2_graph_rag__H2_memory"
+    },
+    "gpt_5_5__H2_pddl_recovery__P1_rag_to_P2_graph_rag": {
+      "family_clustered": {
+        "bootstrap": {
+          "samples": 10000,
+          "seed": 13,
+          "unit": "task_family"
+        },
+        "by_family": [
+          {
+            "n": 10,
+            "task_family": "Drink",
+            "uplift": 0
+          },
+          {
+            "n": 7,
+            "task_family": "Listen_to_music",
+            "uplift": 0
+          },
+          {
+            "n": 11,
+            "task_family": "Pet_cat",
+            "uplift": 0
+          },
+          {
+            "n": 12,
+            "task_family": "Pick_up_phone",
+            "uplift": 0
+          },
+          {
+            "n": 10,
+            "task_family": "Read_book",
+            "uplift": 0
+          },
+          {
+            "n": 20,
+            "task_family": "Relax_on_sofa",
+            "uplift": 0.05
+          },
+          {
+            "n": 7,
+            "task_family": "Turn_on_light",
+            "uplift": 0
+          },
+          {
+            "n": 7,
+            "task_family": "Watch_TV",
+            "uplift": 0.42857142857142855
+          }
+        ],
+        "equal_family_clustered_ci95": [
+          0.0,
+          0.1669642857142857
+        ],
+        "equal_family_uplift": 0.05982142857142857,
+        "exact_family_sign_flip_p_value": 0.5,
+        "paired_task_count": 84,
+        "task_family_count": 8,
+        "task_weighted_family_clustered_ci95": [
+          0.0,
+          0.13157894736842105
+        ],
+        "task_weighted_uplift": 0.047619047619047616
+      },
+      "left": "gpt_5_5__P1_rag__H2_pddl_recovery",
+      "mcnemar": {
+        "discordant_count": 4,
+        "exact_two_sided_p_value": 0.125,
+        "left_only_success": 0,
+        "paired_task_count": 84,
+        "right_only_success": 4
+      },
+      "right": "gpt_5_5__P2_graph_rag__H2_pddl_recovery"
+    },
+    "gpt_5_5__P1_rag__H0_to_H2_llm_reflection": {
+      "family_clustered": {
+        "bootstrap": {
+          "samples": 10000,
+          "seed": 13,
+          "unit": "task_family"
+        },
+        "by_family": [
+          {
+            "n": 10,
+            "task_family": "Drink",
+            "uplift": 0
+          },
+          {
+            "n": 7,
+            "task_family": "Listen_to_music",
+            "uplift": 0.14285714285714285
+          },
+          {
+            "n": 11,
+            "task_family": "Pet_cat",
+            "uplift": 0
+          },
+          {
+            "n": 12,
+            "task_family": "Pick_up_phone",
+            "uplift": 0
+          },
+          {
+            "n": 10,
+            "task_family": "Read_book",
+            "uplift": 0
+          },
+          {
+            "n": 20,
+            "task_family": "Relax_on_sofa",
+            "uplift": 0
+          },
+          {
+            "n": 7,
+            "task_family": "Turn_on_light",
+            "uplift": 0
+          },
+          {
+            "n": 7,
+            "task_family": "Watch_TV",
+            "uplift": 0
+          }
+        ],
+        "equal_family_clustered_ci95": [
+          0.0,
+          0.05357142857142857
+        ],
+        "equal_family_uplift": 0.017857142857142856,
+        "exact_family_sign_flip_p_value": 1.0,
+        "paired_task_count": 84,
+        "task_family_count": 8,
+        "task_weighted_family_clustered_ci95": [
+          0.0,
+          0.043478260869565216
+        ],
+        "task_weighted_uplift": 0.011904761904761904
+      },
+      "left": "gpt_5_5__P1_rag__H0_open_loop",
+      "mcnemar": {
+        "discordant_count": 1,
+        "exact_two_sided_p_value": 1.0,
+        "left_only_success": 0,
+        "paired_task_count": 84,
+        "right_only_success": 1
+      },
+      "right": "gpt_5_5__P1_rag__H2_llm_reflection"
+    },
+    "gpt_5_5__P1_rag__H0_to_H2_memory": {
+      "family_clustered": {
+        "bootstrap": {
+          "samples": 10000,
+          "seed": 13,
+          "unit": "task_family"
+        },
+        "by_family": [
+          {
+            "n": 10,
+            "task_family": "Drink",
+            "uplift": 0
+          },
+          {
+            "n": 7,
+            "task_family": "Listen_to_music",
+            "uplift": 0.14285714285714285
+          },
+          {
+            "n": 11,
+            "task_family": "Pet_cat",
+            "uplift": 0
+          },
+          {
+            "n": 12,
+            "task_family": "Pick_up_phone",
+            "uplift": 0
+          },
+          {
+            "n": 10,
+            "task_family": "Read_book",
+            "uplift": 0
+          },
+          {
+            "n": 20,
+            "task_family": "Relax_on_sofa",
+            "uplift": 0
+          },
+          {
+            "n": 7,
+            "task_family": "Turn_on_light",
+            "uplift": 0
+          },
+          {
+            "n": 7,
+            "task_family": "Watch_TV",
+            "uplift": 0
+          }
+        ],
+        "equal_family_clustered_ci95": [
+          0.0,
+          0.05357142857142857
+        ],
+        "equal_family_uplift": 0.017857142857142856,
+        "exact_family_sign_flip_p_value": 1.0,
+        "paired_task_count": 84,
+        "task_family_count": 8,
+        "task_weighted_family_clustered_ci95": [
+          0.0,
+          0.043478260869565216
+        ],
+        "task_weighted_uplift": 0.011904761904761904
+      },
+      "left": "gpt_5_5__P1_rag__H0_open_loop",
+      "mcnemar": {
+        "discordant_count": 1,
+        "exact_two_sided_p_value": 1.0,
+        "left_only_success": 0,
+        "paired_task_count": 84,
+        "right_only_success": 1
+      },
+      "right": "gpt_5_5__P1_rag__H2_memory"
+    },
+    "gpt_5_5__P1_rag__H0_to_H2_pddl_recovery": {
+      "family_clustered": {
+        "bootstrap": {
+          "samples": 10000,
+          "seed": 13,
+          "unit": "task_family"
+        },
+        "by_family": [
+          {
+            "n": 10,
+            "task_family": "Drink",
+            "uplift": 0
+          },
+          {
+            "n": 7,
+            "task_family": "Listen_to_music",
+            "uplift": 0.14285714285714285
+          },
+          {
+            "n": 11,
+            "task_family": "Pet_cat",
+            "uplift": 0
+          },
+          {
+            "n": 12,
+            "task_family": "Pick_up_phone",
+            "uplift": 0
+          },
+          {
+            "n": 10,
+            "task_family": "Read_book",
+            "uplift": 0
+          },
+          {
+            "n": 20,
+            "task_family": "Relax_on_sofa",
+            "uplift": 0
+          },
+          {
+            "n": 7,
+            "task_family": "Turn_on_light",
+            "uplift": 0
+          },
+          {
+            "n": 7,
+            "task_family": "Watch_TV",
+            "uplift": 0
+          }
+        ],
+        "equal_family_clustered_ci95": [
+          0.0,
+          0.05357142857142857
+        ],
+        "equal_family_uplift": 0.017857142857142856,
+        "exact_family_sign_flip_p_value": 1.0,
+        "paired_task_count": 84,
+        "task_family_count": 8,
+        "task_weighted_family_clustered_ci95": [
+          0.0,
+          0.043478260869565216
+        ],
+        "task_weighted_uplift": 0.011904761904761904
+      },
+      "left": "gpt_5_5__P1_rag__H0_open_loop",
+      "mcnemar": {
+        "discordant_count": 1,
+        "exact_two_sided_p_value": 1.0,
+        "left_only_success": 0,
+        "paired_task_count": 84,
+        "right_only_success": 1
+      },
+      "right": "gpt_5_5__P1_rag__H2_pddl_recovery"
+    },
+    "gpt_5_5__P2_graph_rag__H0_to_H2_llm_reflection": {
+      "family_clustered": {
+        "bootstrap": {
+          "samples": 10000,
+          "seed": 13,
+          "unit": "task_family"
+        },
+        "by_family": [
+          {
+            "n": 10,
+            "task_family": "Drink",
+            "uplift": 0
+          },
+          {
+            "n": 7,
+            "task_family": "Listen_to_music",
+            "uplift": 0
+          },
+          {
+            "n": 11,
+            "task_family": "Pet_cat",
+            "uplift": 0
+          },
+          {
+            "n": 12,
+            "task_family": "Pick_up_phone",
+            "uplift": 0
+          },
+          {
+            "n": 10,
+            "task_family": "Read_book",
+            "uplift": 0
+          },
+          {
+            "n": 20,
+            "task_family": "Relax_on_sofa",
+            "uplift": 0
+          },
+          {
+            "n": 7,
+            "task_family": "Turn_on_light",
+            "uplift": 0
+          },
+          {
+            "n": 7,
+            "task_family": "Watch_TV",
+            "uplift": 0
+          }
+        ],
+        "equal_family_clustered_ci95": [
+          0.0,
+          0.0
+        ],
+        "equal_family_uplift": 0,
+        "exact_family_sign_flip_p_value": 1.0,
+        "paired_task_count": 84,
+        "task_family_count": 8,
+        "task_weighted_family_clustered_ci95": [
+          0.0,
+          0.0
+        ],
+        "task_weighted_uplift": 0
+      },
+      "left": "gpt_5_5__P2_graph_rag__H0_open_loop",
+      "mcnemar": {
+        "discordant_count": 0,
+        "exact_two_sided_p_value": 1.0,
+        "left_only_success": 0,
+        "paired_task_count": 84,
+        "right_only_success": 0
+      },
+      "right": "gpt_5_5__P2_graph_rag__H2_llm_reflection"
+    },
+    "gpt_5_5__P2_graph_rag__H0_to_H2_memory": {
+      "family_clustered": {
+        "bootstrap": {
+          "samples": 10000,
+          "seed": 13,
+          "unit": "task_family"
+        },
+        "by_family": [
+          {
+            "n": 10,
+            "task_family": "Drink",
+            "uplift": 0
+          },
+          {
+            "n": 7,
+            "task_family": "Listen_to_music",
+            "uplift": 0
+          },
+          {
+            "n": 11,
+            "task_family": "Pet_cat",
+            "uplift": 0
+          },
+          {
+            "n": 12,
+            "task_family": "Pick_up_phone",
+            "uplift": 0
+          },
+          {
+            "n": 10,
+            "task_family": "Read_book",
+            "uplift": 0
+          },
+          {
+            "n": 20,
+            "task_family": "Relax_on_sofa",
+            "uplift": 0
+          },
+          {
+            "n": 7,
+            "task_family": "Turn_on_light",
+            "uplift": 0
+          },
+          {
+            "n": 7,
+            "task_family": "Watch_TV",
+            "uplift": 0
+          }
+        ],
+        "equal_family_clustered_ci95": [
+          0.0,
+          0.0
+        ],
+        "equal_family_uplift": 0,
+        "exact_family_sign_flip_p_value": 1.0,
+        "paired_task_count": 84,
+        "task_family_count": 8,
+        "task_weighted_family_clustered_ci95": [
+          0.0,
+          0.0
+        ],
+        "task_weighted_uplift": 0
+      },
+      "left": "gpt_5_5__P2_graph_rag__H0_open_loop",
+      "mcnemar": {
+        "discordant_count": 0,
+        "exact_two_sided_p_value": 1.0,
+        "left_only_success": 0,
+        "paired_task_count": 84,
+        "right_only_success": 0
+      },
+      "right": "gpt_5_5__P2_graph_rag__H2_memory"
+    },
+    "gpt_5_5__P2_graph_rag__H0_to_H2_pddl_recovery": {
+      "family_clustered": {
+        "bootstrap": {
+          "samples": 10000,
+          "seed": 13,
+          "unit": "task_family"
+        },
+        "by_family": [
+          {
+            "n": 10,
+            "task_family": "Drink",
+            "uplift": 0
+          },
+          {
+            "n": 7,
+            "task_family": "Listen_to_music",
+            "uplift": 0
+          },
+          {
+            "n": 11,
+            "task_family": "Pet_cat",
+            "uplift": 0
+          },
+          {
+            "n": 12,
+            "task_family": "Pick_up_phone",
+            "uplift": 0
+          },
+          {
+            "n": 10,
+            "task_family": "Read_book",
+            "uplift": 0
+          },
+          {
+            "n": 20,
+            "task_family": "Relax_on_sofa",
+            "uplift": 0
+          },
+          {
+            "n": 7,
+            "task_family": "Turn_on_light",
+            "uplift": 0
+          },
+          {
+            "n": 7,
+            "task_family": "Watch_TV",
+            "uplift": 0
+          }
+        ],
+        "equal_family_clustered_ci95": [
+          0.0,
+          0.0
+        ],
+        "equal_family_uplift": 0,
+        "exact_family_sign_flip_p_value": 1.0,
+        "paired_task_count": 84,
+        "task_family_count": 8,
+        "task_weighted_family_clustered_ci95": [
+          0.0,
+          0.0
+        ],
+        "task_weighted_uplift": 0
+      },
+      "left": "gpt_5_5__P2_graph_rag__H0_open_loop",
+      "mcnemar": {
+        "discordant_count": 0,
+        "exact_two_sided_p_value": 1.0,
+        "left_only_success": 0,
+        "paired_task_count": 84,
+        "right_only_success": 0
+      },
+      "right": "gpt_5_5__P2_graph_rag__H2_pddl_recovery"
+    }
+  }
+}

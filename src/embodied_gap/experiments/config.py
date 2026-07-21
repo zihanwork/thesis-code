@@ -17,7 +17,7 @@ class ExperimentConfig:
     retrieval_top_k: int = 1
     retrieval_min_score: float = 0.0
     graph_path: str = "data/knowledge/eai_train/kg_edges.jsonl"
-    graph_top_k: int = 1
+    graph_top_k: int = 3
     failure_memory_path: str | None = None
     planners: tuple[str, ...] = (
         "P0_structured_prompt",
@@ -59,7 +59,7 @@ class ExperimentConfig:
             retrieval_top_k=int(data.get("retrieval_top_k", 1)),
             retrieval_min_score=float(data.get("retrieval_min_score", 0.0)),
             graph_path=str(data.get("graph_path", "data/knowledge/eai_train/kg_edges.jsonl")),
-            graph_top_k=int(data.get("graph_top_k", 1)),
+            graph_top_k=int(data.get("graph_top_k", 3)),
             failure_memory_path=data.get("failure_memory_path"),
             planners=tuple(data.get("planners", cls.planners)),
             harness_modes=tuple(data.get("harness_modes", cls.harness_modes)),

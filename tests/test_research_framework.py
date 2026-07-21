@@ -1311,7 +1311,7 @@ class ResearchFrameworkTests(unittest.TestCase):
                 "B0_minimal_prompt",
                 "P0_structured_prompt",
                 "P0_engineered_prompt",
-"P1_rag",
+                "P1_rag",
                 "P2_graph_rag",
             },
         )
@@ -1319,6 +1319,30 @@ class ResearchFrameworkTests(unittest.TestCase):
             set(config.base_experiment.harness_modes),
             {"H0_open_loop", "H2_llm_reflection", "H2_memory", "H2_pddl_recovery"},
         )
+        self.assertEqual(config.base_experiment.graph_top_k, 1)
+
+        development = ModelMatrixConfig.from_json(
+            "configs/experiments/graph_rag_development.json"
+        )
+        self.assertEqual(
+            set(development.base_experiment.planners),
+            {"P1_rag", "P2_graph_rag"},
+        )
+        self.assertEqual(
+            set(development.base_experiment.harness_modes),
+            {"H0_open_loop"},
+        )
+        self.assertEqual(development.base_experiment.graph_top_k, 3)
+        development_ids = {
+            task.id for task in load_tasks(development.base_experiment.tasks_path)
+        }
+        official_ids = {
+            task.id
+            for task in load_tasks(
+                "data/processed/tasksets/official_virtualhome_action_sequencing_v1.jsonl"
+            )
+        }
+        self.assertFalse(development_ids & official_ids)
 
         model = ModelSpec.from_dict(
             {
@@ -1457,11 +1481,56 @@ class ResearchFrameworkTests(unittest.TestCase):
             plan = planner.plan(self.eval_tasks["eval_move_apple"])
 
         self.assertEqual(plan.planner_name, "P2_graph_rag")
-        self.assertEqual(plan.metadata["engine"], "graph_subgraph_retrieval")
-        self.assertEqual(plan.metadata["retrieval_corpus"], "training_task_knowledge_graph")
-        self.assertEqual(len(plan.metadata["graph_retrieved_ids"]), 1)
+        self.assertEqual(plan.metadata["engine"], "global_relation_aware_graph_retrieval")
+        self.assertEqual(plan.metadata["retrieval_corpus"], "training_global_knowledge_graph")
+        self.assertGreaterEqual(len(plan.metadata["graph_retrieved_ids"]), 1)
+        self.assertLessEqual(len(plan.metadata["graph_retrieved_ids"]), 3)
         self.assertGreater(plan.metadata["graph_retrieved_edge_counts"][0], 0)
+        self.assertTrue(plan.metadata["graph_linked_entities"][0])
+        self.assertFalse(plan.metadata["query_gold_plan_used"])
+        self.assertEqual(
+            set(plan.metadata["graph_algorithms"]),
+            {
+                "entity_linking",
+                "graph_neural_retrieval",
+                "personalized_page_rank",
+                "multi_hop_path_search",
+                "relation_aware_reranking",
+                "state_constraint_scoring",
+            },
+        )
+        components = plan.metadata["graph_retrieval_components"][0]
+        self.assertIn("graph_embedding_cosine", components)
+        self.assertIn("personalized_page_rank", components)
+        self.assertGreaterEqual(components["relation_overlap_score"], 0.0)
+        self.assertIn("state_constraint_score", components)
+        self.assertEqual(
+            plan.metadata["graph_hyperparameters"]["rerank_weights"]["relation_overlap"],
+            0.15,
+        )
         self.assertNotIn("pddl_grounded_search", str(plan.metadata))
+
+    def test_graph_rag_does_not_use_query_gold_plan_for_retrieval(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            manifest = KnowledgeCorpusBuilder(self.examples).export(tmpdir)
+            planner = GraphRAGPlanner(
+                self.examples,
+                graph_path=manifest["files"]["kg_edges"],
+            )
+            query = self.eval_tasks["eval_move_apple"]
+            without_gold = query.to_dict()
+            without_gold["gold_plan"] = []
+            first = planner.plan(query)
+            second = planner.plan(Task.from_dict(without_gold))
+
+        self.assertEqual(
+            first.metadata["graph_retrieved_ids"],
+            second.metadata["graph_retrieved_ids"],
+        )
+        self.assertEqual(
+            first.metadata["graph_retrieval_scores"],
+            second.metadata["graph_retrieval_scores"],
+        )
 
     def test_parser_accepts_action_dictionary_formats(self) -> None:
         self.assertEqual(

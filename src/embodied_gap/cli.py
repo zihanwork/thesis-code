@@ -85,7 +85,19 @@ def build_tasksets(args: argparse.Namespace) -> int:
 
 def run_model_matrix(args: argparse.Namespace) -> int:
     matrix_config = ModelMatrixConfig.from_json(args.config)
-    _validate_uniform_final_matrix(matrix_config)
+    phase = str(matrix_config.base_experiment.metadata.get("phase", ""))
+    if phase == "uniform_full_factorial_confirmatory":
+        _validate_uniform_final_matrix(matrix_config)
+    elif phase == "graph_rag_development":
+        _validate_graph_rag_development_matrix(matrix_config)
+    elif phase == "graph_rag_replacement_replication":
+        _validate_graph_rag_replacement_replication(matrix_config)
+    elif phase == "graph_rag_replacement_replication_retry":
+        _validate_graph_rag_replacement_retry(matrix_config)
+    elif phase == "graph_rag_replacement_gpt_retry":
+        _validate_graph_rag_replacement_gpt_retry(matrix_config)
+    else:
+        raise ValueError(f"Unregistered model-matrix phase: {phase or '<missing>'}")
     summary = MultiModelExperimentRunner(matrix_config).run()
     compact = {
         model_id: {
@@ -143,6 +155,102 @@ def _validate_uniform_final_matrix(config: ModelMatrixConfig) -> None:
         raise ValueError(
             "The final matrix must contain exactly the four frozen harness conditions."
         )
+
+
+def _validate_graph_rag_development_matrix(config: ModelMatrixConfig) -> None:
+    if set(config.base_experiment.planners) != {"P1_rag", "P2_graph_rag"}:
+        raise ValueError("GraphRAG development must compare exactly P1_rag and P2_graph_rag.")
+    if set(config.base_experiment.harness_modes) != {"H0_open_loop"}:
+        raise ValueError("GraphRAG development must isolate planning under H0_open_loop.")
+    development = {
+        task.id
+        for task in load_tasks(config.base_experiment.tasks_path)
+        if task.split != "train"
+    }
+    observed_official = {
+        task.id
+        for task in load_tasks(
+            "data/processed/tasksets/official_virtualhome_action_sequencing_v1.jsonl"
+        )
+    }
+    overlap = sorted(development & observed_official)
+    if overlap:
+        raise ValueError(
+            "GraphRAG development tasks overlap the observed official cohort: "
+            + ", ".join(overlap[:10])
+        )
+    if not development:
+        raise ValueError("GraphRAG development matrix has no evaluation tasks.")
+
+
+def _validate_graph_rag_replacement_replication(config: ModelMatrixConfig) -> None:
+    expected_models = {"DeepSeek-V4-Flash", "gpt-5.5", "GLM-5-Turbo"}
+    enabled_models = {model.model for model in config.models if model.enabled}
+    if enabled_models != expected_models:
+        raise ValueError("GraphRAG replication must enable exactly the three frozen models.")
+    if set(config.base_experiment.planners) != {"P1_rag", "P2_graph_rag"}:
+        raise ValueError("GraphRAG replication must compare exactly P1_rag and P2_graph_rag.")
+    expected_harnesses = {
+        "H0_open_loop",
+        "H2_llm_reflection",
+        "H2_memory",
+        "H2_pddl_recovery",
+    }
+    if set(config.base_experiment.harness_modes) != expected_harnesses:
+        raise ValueError("GraphRAG replication must include all four frozen harnesses.")
+    expected_path = "data/processed/tasksets/official_virtualhome_action_sequencing_v1.jsonl"
+    if config.base_experiment.tasks_path != expected_path:
+        raise ValueError("GraphRAG replication must reuse the frozen observed 84-task cohort.")
+    tasks = [task for task in load_tasks(expected_path) if task.split != "train"]
+    if len(tasks) != 84:
+        raise ValueError(f"GraphRAG replication requires exactly 84 tasks; got {len(tasks)}.")
+    if config.base_experiment.graph_top_k != 3:
+        raise ValueError("Replacement P2_graph_rag is frozen with graph_top_k=3.")
+
+
+def _validate_graph_rag_replacement_retry(config: ModelMatrixConfig) -> None:
+    _validate_graph_rag_replacement_replication_shape(config)
+    expected_models = {"gpt-5.5", "GLM-5-Turbo"}
+    enabled_models = {model.model for model in config.models if model.enabled}
+    if enabled_models != expected_models:
+        raise ValueError("Replication retry must contain exactly the two missing models.")
+    if not config.continue_on_error:
+        raise ValueError("Replication retry must continue so one upstream failure cannot block the other model.")
+    for model in config.models:
+        if model.enabled and model.max_attempts != 5:
+            raise ValueError("Replication retry freezes max_attempts=5 for missing models.")
+    if config.base_experiment.llm_backoff_seconds != 15.0:
+        raise ValueError("Replication retry freezes a 15-second API backoff.")
+
+
+def _validate_graph_rag_replacement_gpt_retry(config: ModelMatrixConfig) -> None:
+    _validate_graph_rag_replacement_replication_shape(config)
+    enabled = [model for model in config.models if model.enabled]
+    if len(enabled) != 1 or enabled[0].model != "gpt-5.5":
+        raise ValueError("Final replication retry must contain only gpt-5.5.")
+    if enabled[0].max_attempts != 6:
+        raise ValueError("Final gpt-5.5 retry freezes max_attempts=6.")
+    if config.base_experiment.llm_backoff_seconds != 30.0:
+        raise ValueError("Final gpt-5.5 retry freezes a 30-second API backoff.")
+
+
+def _validate_graph_rag_replacement_replication_shape(config: ModelMatrixConfig) -> None:
+    if set(config.base_experiment.planners) != {"P1_rag", "P2_graph_rag"}:
+        raise ValueError("GraphRAG replication must compare exactly P1_rag and P2_graph_rag.")
+    if set(config.base_experiment.harness_modes) != {
+        "H0_open_loop",
+        "H2_llm_reflection",
+        "H2_memory",
+        "H2_pddl_recovery",
+    }:
+        raise ValueError("GraphRAG replication must include all four frozen harnesses.")
+    expected_path = "data/processed/tasksets/official_virtualhome_action_sequencing_v1.jsonl"
+    if config.base_experiment.tasks_path != expected_path:
+        raise ValueError("GraphRAG replication must reuse the frozen observed 84-task cohort.")
+    if len([task for task in load_tasks(expected_path) if task.split != "train"]) != 84:
+        raise ValueError("GraphRAG replication requires exactly 84 tasks.")
+    if config.base_experiment.graph_top_k != 3:
+        raise ValueError("Replacement P2_graph_rag is frozen with graph_top_k=3.")
 
 
 def inspect_matrix(args: argparse.Namespace) -> int:

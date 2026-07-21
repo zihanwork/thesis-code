@@ -4,7 +4,7 @@
   "required_git_tag": "final-protocol-v1",
   "required_clean_worktree": true,
   "source_generation_complete": true,
-  "claim_scope": "All outcome claims use the pinned official VirtualHome Action Sequencing evaluator on the fixed 84-task compatible cohort.",
+  "claim_scope": "Archived v4 non-P2 outcomes and the replacement P1/P2 replication use the pinned official VirtualHome Action Sequencing evaluator on the fixed 84-task cohort. Replacement P2 results are post-hoc same-cohort evidence, not untouched confirmatory or hidden-leaderboard evidence.",
   "artifacts": [
     {
       "role": "official_evaluator_cohort",
@@ -39,12 +39,42 @@
     {
       "role": "official_results_machine_evidence",
       "path": "docs/final_official_virtualhome_results_v4.json",
-      "sha256": "560305d7fd18b540e8347414ddf2c8786dbd9389ddd3c4253b69187d0ef73094"
+      "sha256": "88977cced193c0cafaab78e80437b643ab4d8a79ba9f3e2cca015d72a4d3bcf8"
     },
     {
       "role": "official_results_report",
       "path": "docs/final_official_virtualhome_results_v4.md",
-      "sha256": "6774d63606f67a12de6ecaeed2447edce49e631aaf2c5f6f3e7e4a4aa4cdcea7"
+      "sha256": "873dc1db99bce65ef722ec93c5fcb8faa0cbe8a0c60bcf996bc6ff39cce0f721"
+    },
+    {
+      "role": "replacement_graph_rag_implementation",
+      "path": "src/embodied_gap/planners/graph_rag.py",
+      "sha256": "04972908b2c35b86c68699a59817b4b8b7eac46eb5880c4bb9c134cd5f7f5978"
+    },
+    {
+      "role": "replacement_replication_config",
+      "path": "configs/experiments/graph_rag_replacement_replication.json",
+      "sha256": "c53561ba194b3446fdc58bf4db1793ee750d6b38f1895b9b0423f2273ae4a51a"
+    },
+    {
+      "role": "replacement_replication_api_retry_config",
+      "path": "configs/experiments/graph_rag_replacement_replication_retry.json",
+      "sha256": "0e0c76f1d05258bbb87a9ff878ddc15c60307f563791f892373a41a24e3a0129"
+    },
+    {
+      "role": "replacement_replication_gpt_retry_config",
+      "path": "configs/experiments/graph_rag_replacement_gpt_retry.json",
+      "sha256": "48ce83512a2f5099864a553f363885dc06cb77b55e4dbe701cb1c5a7b0ee5b6a"
+    },
+    {
+      "role": "replacement_graph_rag_machine_evidence",
+      "path": "docs/final_official_virtualhome_graph_rag_replacement.json",
+      "sha256": "132d73a771458d2e8aaade0049d600b29d86ce4cbad273d773032851dc164d8a"
+    },
+    {
+      "role": "replacement_graph_rag_report",
+      "path": "docs/final_official_virtualhome_graph_rag_replacement.md",
+      "sha256": "4368c0b759c862a3f1ec89cc3768ca238726b159794106cd1be27d9c20950b58"
     }
   ],
   "experiments": [
@@ -62,11 +92,31 @@
       "cell_count": 60,
       "record_count": 5040,
       "worst_case_llm_calls": 3780
+    },
+    {
+      "id": "replacement_graph_rag_posthoc_replication",
+      "runner": "model_matrix_with_recorded_api_retries",
+      "config": "configs/experiments/graph_rag_replacement_replication.json",
+      "output_root": "runs/graph_rag_replacement_replication",
+      "successful_model_runs": {
+        "DeepSeek-V4-Flash": "20260721T064546439225Z_0b25eef1",
+        "GLM-5-Turbo": "20260721T072011198689Z_e5e0ebaa",
+        "gpt-5.5": "20260721T090827480316Z_55a2c3dc"
+      },
+      "official_evaluation_log": "logs/action_sequencing_eval_20260721_173304.log",
+      "planner_count": 2,
+      "harness_count": 4,
+      "model_count": 3,
+      "task_count": 84,
+      "cell_count": 24,
+      "record_count": 2016,
+      "worst_case_llm_calls": 1512,
+      "claim_class": "post-hoc same-cohort implementation-replacement replication"
     }
   ],
   "totals": {
-    "record_count": 5040,
-    "worst_case_llm_calls": 3780
+    "record_count": 7056,
+    "worst_case_llm_calls": 5292
   },
   "models": {
     "full_grid": ["DeepSeek-V4-Flash", "gpt-5.5", "GLM-5-Turbo"],

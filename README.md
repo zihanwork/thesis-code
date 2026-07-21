@@ -37,10 +37,10 @@ standalone safety-benchmark entry points are not part of this project anymore.
 
 ## Current experiment table
 
-The historical 3 x 3 planner-by-harness grid has been retired. The completed
-experiment is a full 60-cell factorial matrix. Every planner-harness condition
-runs DeepSeek-V4-Flash, gpt-5.5, and GLM-5-Turbo on the same 84-task official
-VirtualHome Action Sequencing cohort:
+The historical 3 x 3 planner-by-harness grid has been retired. An archived
+60-cell factorial run covers every planner-harness-model condition on the same
+84-task VirtualHome cohort. Its P2 implementation has since been replaced, so
+archived P2 cells are not results for the current `P2_graph_rag`:
 
 | Dimension | Conditions | Count |
 |---|---|---:|
@@ -49,10 +49,14 @@ VirtualHome Action Sequencing cohort:
 | Model | DeepSeek-V4-Flash, gpt-5.5, GLM-5-Turbo | 3 |
 | **Total model-specific cells** | 5 x 4 x 3 | **60** |
 
-Every cell uses the same frozen 84-task cohort, yielding 5040 official records.
-P2-GraphRAG retrieves training-only task subgraphs from `kg_edges.jsonl` and
-cannot reuse deleted symbolic P2 outputs. The complete factorial matrix supports
-planner, recovery, and planner-by-recovery comparisons for all three models.
+The archived run contains 5040 official records. Current P2-GraphRAG performs
+entity linking, relation-aware graph-neural message passing, Personalized
+PageRank, multi-hop search, relation-aware reranking, and state-constraint
+scoring over the training-only graph. It was developed on 120 tasks disjoint
+from the observed cohort and then rerun as a post-hoc P1/P2 replication on the
+same 84 tasks. Results are in
+`docs/final_official_virtualhome_graph_rag_replacement.md`. A new untouched
+compatible cohort remains necessary only for confirmatory generalization claims.
 
 ## Final official evidence
 

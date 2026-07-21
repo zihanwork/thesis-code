@@ -10,7 +10,7 @@ Initial planners generate the first candidate action sequence.
 - `P0_structured_prompt`: structured PDDL-informed prompt baseline.
 - `P0_engineered_prompt`: structured prompt with a fixed constraint checklist.
 - `P1_rag`: retrieves task demonstrations on top of the engineered prompt.
-- `P2_graph_rag`: graph-conditioned planning from training-only task subgraphs.
+- `P2_graph_rag`: global training-graph planning with entity linking, relation-aware graph-neural embeddings, Personalized PageRank, multi-hop evidence paths, relation-aware reranking, and state constraints.
 
 ## Layer 2: Execution Harness
 

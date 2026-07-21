@@ -91,16 +91,21 @@ may be omitted from confirmatory reporting.
 
 ## GraphRAG treatment definition
 
-P2-GraphRAG is now a distinct planning treatment. It reads the frozen,
-training-only `data/knowledge/eai_train/kg_edges.jsonl`, retrieves task-specific
-subgraphs using graph node/relation overlap, renders graph triples and the
-graph-derived action chain, and then generates an action list. It does not
-invoke PDDL search and does not reuse the deleted symbolic P2 outputs.
+P2-GraphRAG is a distinct planning treatment. It reads the frozen, training-only
+`data/knowledge/eai_train/kg_edges.jsonl` as one global graph and performs entity
+linking, relation-aware graph-neural message passing, Personalized PageRank,
+three-hop path search, relation-aware reranking, and state-constraint scoring.
+The selected graph evidence is rendered with triples, paths, score components,
+and action chains before action generation. Query gold plans are never read.
 
-The flat `P1_rag` condition remains the direct control. The completed GraphRAG
-run records retrieved task IDs, graph scores, edge counts, graph path, token
-telemetry, and official Action Sequencing outcomes. Its official results are
-reported in `docs/final_official_virtualhome_results_v4.md`.
+The flat `P1_rag` condition remains the direct control. Development uses
+`configs/experiments/graph_rag_development.json` on 120 tasks with zero overlap
+with the observed 84-task cohort. The P2 implementation in the archived v4 run
+has been superseded; its P2 rows are historical evidence only. The replacement
+P1/P2 replication is reported in
+`docs/final_official_virtualhome_graph_rag_replacement.md`. It is post-hoc
+same-cohort evidence; confirmatory generalization claims still require a new
+untouched compatible cohort.
 
 ## Single evaluation authority
 

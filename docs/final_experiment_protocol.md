@@ -2,9 +2,12 @@
 
 ## Confirmatory source runs
 
-The final protocol is a complete factorial planner-harness-model matrix. Every
-cell is executed; there are no intentional empty cells or model-specific gaps.
-All cells use the same 84-task official VirtualHome Action Sequencing cohort.
+The archived protocol produced a complete factorial planner-harness-model
+matrix with no empty cells or model-specific gaps on one 84-task cohort. The
+`P2_graph_rag` implementation used by that run has been replaced; archived P2
+cells no longer describe current code. A 24-cell P1/P2 replacement replication
+has now completed on the same observed cohort. It supports post-hoc implementation
+comparison, while untouched confirmatory claims require a new cohort.
 
 | Dimension | Conditions | Count |
 |---|---|---:|
@@ -21,7 +24,7 @@ configs were removed so that there is only one formal experiment definition.
 
 ## Planner-Harness Matrix
 
-Every entry in this matrix is run with all three models and all 84 tasks.
+Every archived entry was run with all three models and all 84 tasks. P2 entries are superseded evidence.
 
 | Planner / initial planning method | H0 open loop | H2-R validator-feedback recovery | H2-M memory-augmented recovery | H2-P PDDL recovery |
 |---|---|---|---|---|

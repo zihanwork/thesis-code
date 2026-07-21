@@ -1562,6 +1562,7 @@
     }
   },
   "claim_boundaries": [
+    "The P2_graph_rag implementation used in this archived run has been replaced. All P2 cells and P1-to-P2 contrasts are historical evidence and do not describe the current P2_graph_rag implementation.",
     "All reported outcome scores come from the pinned official evaluator.",
     "The local verifier is an intervention component, not an outcome authority.",
     "The 84-task cohort is not the complete official hidden challenge set.",

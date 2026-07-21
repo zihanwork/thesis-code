@@ -30,5 +30,9 @@ used as outcomes.
 
 ## Graph boundary
 
-P1 remains flat example retrieval. P2-GraphRAG is the separate graph-conditioned
-control and uses the same three models, 84 tasks, and H0 execution condition.
+P1 remains flat example retrieval. The replacement P2-GraphRAG was developed
+against P1 under H0 on 120 development tasks disjoint from the observed cohort.
+Archived v4 P2 rows belong to the superseded implementation. The replacement
+P1/P2 same-cohort replication is complete and reported in
+`docs/final_official_virtualhome_graph_rag_replacement.md`; it is not an
+untouched confirmatory outcome.

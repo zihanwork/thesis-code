@@ -147,11 +147,20 @@ def export_official_results_report(
             ),
         }
 
+    planner_ids = {cell_id.split("__")[1] for cell_id in cells}
+    harness_ids = {cell_id.split("__")[2] for cell_id in cells}
+    scope_claim = (
+        "This report is a post-hoc replacement replication on the observed cohort; "
+        "it supports same-cohort P1-to-P2 comparisons, not untouched confirmatory claims."
+        if planner_ids == {"P1_rag", "P2_graph_rag"}
+        else "The complete 5 x 4 planner-harness grid supports model-stratified planning, recovery, and interaction analyses."
+    )
+    grid_claim = (
+        f"The reported grid contains {len(planner_ids)} planners and {len(harness_ids)} harnesses."
+    )
     report = {
-        "schema_version": 1,
-        "evaluation_authority": "Pinned official VirtualHome Action Sequencing evaluator",
-        "primary_metric": "goal_evaluation.task_success_rate",
         "cohort": {
+
             "path": str(cohort_path),
             "task_count": len(identifiers),
             "task_family_count": len(set(family_by_identifier.values())),
@@ -167,7 +176,8 @@ def export_official_results_report(
             "All reported outcome scores come from the pinned official evaluator.",
             "The local verifier is an intervention component, not an outcome authority.",
             "The 84-task cohort is not the complete official hidden challenge set.",
-            "The complete 5 x 4 planner-harness grid supports model-stratified planning, recovery, and interaction analyses.",
+            scope_claim,
+            grid_claim,
         ],
     }
 
