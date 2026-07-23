@@ -1,13 +1,11 @@
 # Final Experiment Protocol
 
-## Confirmatory source runs
+## Evidence structure
 
-The archived protocol produced a complete factorial planner-harness-model
-matrix with no empty cells or model-specific gaps on one 84-task cohort. The
-`P2_graph_rag` implementation used by that run has been replaced; archived P2
-cells no longer describe current code. A 24-cell P1/P2 replacement replication
-has now completed on the same observed cohort. It supports post-hoc implementation
-comparison, while untouched confirmatory claims require a new cohort.
+The primary factorial study covers B0, P0-S, P0-E, and P1 across all harnesses
+and models. The GraphRAG follow-up directly compares P1 and P2 across the same
+harnesses, models, and 84-task cohort. Both use the pinned official evaluator;
+results are reported as primary and matched follow-up evidence respectively.
 
 | Dimension | Conditions | Count |
 |---|---|---:|
@@ -18,13 +16,14 @@ comparison, while untouched confirmatory claims require a new cohort.
 | **Total cells** | 5 x 4 x 3 | **60** |
 | **Total records** | 60 x 84 | **5040** |
 
-The machine-readable source-run configuration is
-`configs/experiments/final_full_matrix_v2.json`. The previous staged final
-configs were removed so that there is only one formal experiment definition.
+The machine-readable primary configuration is
+`configs/experiments/final_full_matrix_v2.json`. The P1/P2 follow-up is defined
+by `configs/experiments/graph_rag_replacement_replication.json` and its recorded
+transient-error amendments.
 
 ## Planner-Harness Matrix
 
-Every archived entry was run with all three models and all 84 tasks. P2 entries are superseded evidence.
+Every claim-bearing cell contains all three models and the same 84 tasks.
 
 | Planner / initial planning method | H0 open loop | H2-R validator-feedback recovery | H2-M memory-augmented recovery | H2-P PDDL recovery |
 |---|---|---|---|---|
@@ -35,11 +34,10 @@ Every archived entry was run with all three models and all 84 tasks. P2 entries 
 | **P2 GraphRAG** | 3 models | 3 models | 3 models | 3 models |
 | **Total** | **15** | **15** | **15** | **15** |
 
-This gives 20 planner-harness combinations and 60 model-specific cells. H2-P
-is deliberately included for every planner so that recovery comparisons do not
-silently change the initial planning method. P2 is the new GraphRAG treatment:
-it retrieves training-only graph subgraphs and graph-derived action chains. It
-does not reuse the deleted symbolic P2 artifacts.
+The combined evidence covers 20 planner-harness combinations and 60
+model-specific cells. H2-P is included for every planner so recovery comparisons
+hold the initial planning method fixed. P2 retrieves training-only graph
+subgraphs and graph-derived action chains as an optimisation of P1.
 
 Every source run preserves raw plans, prompts, model-call telemetry, retrieval
 provenance, local verifier traces, and repair traces. Local PDDL execution is
@@ -62,7 +60,8 @@ and evaluator error categories.
 - B0, P0-S, P0-E, P1, and P2 vary planning-time information.
 - H2-R, H2-M, and H2-P vary execution-time recovery while holding the initial
   planner condition fixed within each row.
-- H2-P is a symbolic recovery mechanism, not the P2 planning method.
+- H2-P is a composite symbolic recovery mechanism (macro plan, grounded PDDL
+  search, then action-model fallback), not the P2 planning method.
 - P2-GraphRAG is a graph retrieval treatment and is evaluated independently of
   PDDL search.
 - The pinned official evaluator is the sole outcome authority.
@@ -74,9 +73,18 @@ Exact two-sided McNemar tests quantify discordant binary outcomes. Confidence
 intervals resample all observations in a task family together, using 10,000
 bootstrap samples and seed 13.
 
-## Reproducibility
+## Reproducibility and deviations
 
 The machine-readable protocol is `configs/experiments/final_protocol_v1.json`.
-Official export and evaluation commands are in
-`docs/official_eai_protocol.md`. All 60 cells and the official evaluator run are
-complete; frozen evidence is in `docs/final_official_virtualhome_results_v4.*`.
+Official export and evaluation commands are in `docs/official_eai_protocol.md`.
+Frozen evidence is in `docs/final_official_virtualhome_results_v4.*` and
+`docs/final_official_virtualhome_graph_rag_replacement.*`.
+
+The run manifests record a dirty worktree, so the commit alone is not a complete
+reconstruction key; artifact hashes, frozen configs, raw outputs, and official
+exports define the evidence of record. The GraphRAG follow-up also used recorded
+operational amendments for missing model outputs after HTTP 429/503 failures:
+model generation settings were unchanged, while transient transport retries
+increased to five or six attempts with exponential backoff. These amendments
+reran only missing model outputs and are not interpreted as additional reasoning
+attempts.

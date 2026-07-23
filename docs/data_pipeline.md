@@ -37,8 +37,10 @@ template-overlapping. It is not described as unseen-family generalization.
 ## Retrieval and graph artifacts
 
 The 57 training examples generate a flat retrieval corpus and a 4,986-edge
-knowledge graph. Final P1 uses the flat retrieval corpus. The graph is retained
-for exploratory analysis but is not a final treatment.
+knowledge graph. P1 uses the flat corpus. P2 is the matched GraphRAG follow-up:
+it retrieves from the same training boundary using deterministic relation-aware
+graph propagation, Personalized PageRank, multi-hop paths, reranking, and state
+constraints.
 
 ## Official evaluation cohort
 

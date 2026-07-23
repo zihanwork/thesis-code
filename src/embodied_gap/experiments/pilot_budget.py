@@ -15,19 +15,11 @@ LLM_PLANNERS = {
     "P0_engineered_prompt",
     "P1_rag",
     "P2_graph_rag",
-    # Historical aliases remain inspectable for reproducibility.
-    "P0_prompt_only",
-    "P1_retrieval_augmented",
 }
 
 LLM_RECOVERY_MODES = {
     HarnessMode.H2_LLM_REFLECTION.value,
-    HarnessMode.H2_ERROR_SPECIFIC.value,
     HarnessMode.H2_MEMORY.value,
-    HarnessMode.H2_COMBINED.value,
-    HarnessMode.H2_COMBINED_NO_LOCAL.value,
-    HarnessMode.H2_COMBINED_NO_ERROR.value,
-    HarnessMode.H2_COMBINED_NO_MEMORY.value,
 }
 
 

@@ -90,7 +90,7 @@ class ModelMatrixConfig:
                     base_data.get("harness_modes", ExperimentConfig.harness_modes)
                 ),
                 seed=int(base_data.get("seed", 13)),
-                max_retries=int(base_data.get("max_retries", 3)),
+                max_retries=int(base_data.get("max_retries", 1)),
                 llm_backend=base_data.get("llm_backend", "one_api"),
                 use_llm_for_planners=bool(base_data.get("use_llm_for_planners", True)),
                 llm_model=base_data.get("llm_model"),

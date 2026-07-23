@@ -18,17 +18,12 @@ automated, deterministic submissions. Source: [CVPR 2026 rules]. The NeurIPS
 starter-kit submission contains eight output files: four modules for each of the
 two environments. Source: [NeurIPS 2025 participation guide].
 
-Therefore this project's current custom score and an official EAI score are
-different estimands:
-
-| Result | Data/protocol | Metric | Directly comparable? |
-|---|---|---|---|
-| Current `197/202` historical result | Custom 202-task executable development subset | Local PDDL final-state task success after symbolic replanning | No |
-| Frozen local held-out result | 119 task-ID-unseen but task-family-seen executable VirtualHome instances | Local evaluator task success | No; useful as a seen-family instance-transfer test |
-| Official EAI challenge result | Official hidden set, eight required outputs, official evaluator | Four-module, two-environment official metrics and aggregate | Yes, but only after official submission/evaluation |
-
-The thesis must label the first two as **custom subset** results and must never
-rank `97.5%` against an official leaderboard average.
+This project's thesis evidence is narrower than the complete EAI challenge. It
+uses the pinned official VirtualHome Action Sequencing evaluator on a frozen,
+compatibility-screened 84-task cohort. It does not evaluate the other three EAI
+modules, BEHAVIOR, or the hidden challenge set. Consequently, its task-success
+results must not be ranked against the challenge's multi-module aggregate or
+presented as leaderboard performance.
 
 ## Public challenge evidence
 
@@ -59,25 +54,24 @@ system to use RAG, reflection, memory, constraints, or symbolic planning.
 
 The defensible contribution package is:
 
-1. A controlled two-axis experiment that separates prompt/RAG planning from
-   local, feedback-based, memory-based, and symbolic recovery.
-2. A mechanism-overlap audit: symbolic PDDL planning and PDDL fallback are
-   reported separately instead of being counted as two independent gains.
-3. Task-paired statistical analysis, cost/search accounting, frozen data
-   boundaries, and failure-type analysis across model strengths and environments.
-4. A direct comparison of plain reflection, error-specific repair, frozen-memory
-   repair, and leave-one-component-out combinations under the same planner and
-   task set.
+1. A controlled two-axis experiment that separates prompt and retrieval-based
+   initial planning from feedback, frozen-memory, and symbolic recovery.
+2. A matched follow-up that evaluates deterministic GraphRAG as an incremental
+   optimisation of Flat RAG without rerunning unrelated baselines.
+3. Task-paired statistical analysis, cost and search accounting, frozen data
+   boundaries, and failure-type analysis across three model backends.
+4. An explicit overlap audit that limits P1 claims to seen-family, unseen-ID
+   template transfer.
 
-The strongest research question is not “Can a harness reach 97.5%?” It is:
+The strongest research question is:
 
 > Under matched tasks and models, how much does retrieval improve initial plans,
-> how many residual RAG failures does feedback recovery repair, and at what
+> how many residual failures does execution-time recovery repair, and at what
 > token, latency, and symbolic-search cost?
 
-The frozen final design does not contain the P0/Reflection cell required to
-estimate a planning-by-recovery interaction. It must not use "complementary" as
-a factorial or causal interaction claim.
+The full B0-to-P1 factorial evidence can describe planner-by-recovery patterns on
+this cohort. Such patterns remain observational treatment contrasts, not claims
+of general causal interaction beyond the tested tasks and models.
 
 ## Literature structure for the thesis
 
@@ -99,16 +93,16 @@ prompt-strategy comparisons. Cite that fact when describing `H2-LLM`; the
 project's value must come from controlled isolation and analysis rather than
 from presenting feedback replanning as new.
 
-## Immediate experimental consequences
+## Reporting consequences
 
 - Keep fine-tuning outside the critical path, but discuss AxisTilted2 and CtrlAct
   as evidence that training can be a strong comparison when resources permit.
 - Treat prompt engineering as a required baseline, not a cosmetic addition.
-- Compare BEHAVIOR and VirtualHome separately; both the EAI paper and public
-  reports show materially different failure patterns and distributions.
-- Do not promote development scores to final claims.
-- Generate official eight-file outputs and run the official evaluator before
-  making leaderboard comparisons.
+- Report only the evaluated VirtualHome Action Sequencing scope; do not imply
+  BEHAVIOR or full challenge coverage.
+- Do not promote development scores to outcome claims.
+- Do not make leaderboard comparisons without a complete official challenge
+  submission and hidden-set evaluation.
 - Cite unsuccessful methods and resource costs, as requested by the official
   technical-report guidance.
 

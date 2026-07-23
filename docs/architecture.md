@@ -10,35 +10,30 @@ Initial planners generate the first candidate action sequence.
 - `P0_structured_prompt`: structured PDDL-informed prompt baseline.
 - `P0_engineered_prompt`: structured prompt with a fixed constraint checklist.
 - `P1_rag`: retrieves task demonstrations on top of the engineered prompt.
-- `P2_graph_rag`: global training-graph planning with entity linking, relation-aware graph-neural embeddings, Personalized PageRank, multi-hop evidence paths, relation-aware reranking, and state constraints.
+- `P2_graph_rag`: a matched P1 optimisation using entity linking, deterministic relation-aware graph propagation, Personalized PageRank, multi-hop evidence paths, reranking, and state constraints.
 
 ## Layer 2: Execution Harness
 
 Harness modes control what happens after a candidate plan is generated.
 
 - `H0_open_loop`: execute directly.
-- `H1_verifier_gated`: validate before execution and block/reject unsafe plans.
-- `H2_local_recovery`: safety rules and isolated local deterministic repair.
-- `H2_llm_reflection`: explicit validator feedback to the original model.
-- `H2_error_specific`: error-type-specific LLM repair guidance.
-- `H2_memory`: LLM repair with a frozen failure-repair example.
-- `H2_combined`: local, error-specific, and memory recovery without PDDL fallback.
-- `H2_pddl_recovery`: isolated symbolic PDDL fallback.
-- `H2_full_recovery`: legacy mixed pilot policy; excluded from final experiments.
+- `H2_llm_reflection`: replan once from explicit validator feedback.
+- `H2_memory`: reflection with one frozen development repair example.
+- `H2_pddl_recovery`: composite symbolic recovery using a macro plan, grounded
+  PDDL search, and an action-model fallback.
 
 ## Research Claims Supported
 
-This architecture supports separable ablations:
+This architecture supports separable comparisons:
 
-1. Planning-time improvement: B0 vs P0 vs P0-PE vs P1 under H0.
-2. Recovery improvement: isolated Local vs LLM vs typed vs memory vs PDDL recovery.
-3. Conditional recovery effect: how much LLM feedback recovery improves P1 RAG
-   plans. A true interaction requires the currently absent P0/Reflection cell.
-4. Symbolic reference: P2 once, outside the LLM model matrix.
+1. Planning-time improvement from B0 through P1 under a fixed harness.
+2. Recovery improvement within every initial planner.
+3. Conditional recovery effects across the complete planner-harness cells.
+4. Matched P1-to-P2 comparison for the GraphRAG optimisation.
 
-P2 is now in this list as a distinct GraphRAG treatment. It reads the frozen
-training-only KG edge artifact and renders retrieved graph triples before
-planning. It is not the same implementation as the deleted PDDL-backed P2.
+P2 reads the frozen training-only KG edge artifact and renders retrieved graph
+triples, paths, score components, and action chains before generation. H2-P is
+the separately labelled symbolic recovery reference.
 
 ## Data Flow
 

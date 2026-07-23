@@ -20,18 +20,20 @@ class ExperimentConfig:
     graph_top_k: int = 3
     failure_memory_path: str | None = None
     planners: tuple[str, ...] = (
+        "B0_minimal_prompt",
         "P0_structured_prompt",
         "P0_engineered_prompt",
         "P1_rag",
+        "P2_graph_rag",
     )
     harness_modes: tuple[str, ...] = (
         "H0_open_loop",
-        "H2_local_recovery",
         "H2_llm_reflection",
+        "H2_memory",
         "H2_pddl_recovery",
     )
     seed: int = 13
-    max_retries: int = 3
+    max_retries: int = 1
     llm_backend: str = "deterministic"
     use_llm_for_planners: bool = False
     llm_model: str | None = None
@@ -64,7 +66,7 @@ class ExperimentConfig:
             planners=tuple(data.get("planners", cls.planners)),
             harness_modes=tuple(data.get("harness_modes", cls.harness_modes)),
             seed=int(data.get("seed", 13)),
-            max_retries=int(data.get("max_retries", 3)),
+            max_retries=int(data.get("max_retries", 1)),
             llm_backend=data.get("llm_backend", "deterministic"),
             use_llm_for_planners=bool(data.get("use_llm_for_planners", False)),
             llm_model=data.get("llm_model"),

@@ -12,31 +12,26 @@ percentages remain descriptive, while primary uplift intervals resample whole
 families with 10,000 bootstrap samples and seed 13. Exact paired McNemar tests
 are reported for binary task changes.
 
-## Planned paired contrasts
+## Reported paired contrasts
 
-No result table is currently valid. All former numeric contrasts were removed
-because the old runs did not satisfy the current uniform model/task protocol.
-After the new run, the primary comparisons will be computed separately for
-DeepSeek-V4-Flash, gpt-5.5, and GLM-5-Turbo:
-
-- `B0/H0 -> P0-S/H0 -> P0-E/H0 -> P1/H0`
-- `P1/H0 -> P1/H2-R`
-- `P1/H0 -> P1/H2-M`
-- `P1/H0 -> P1/H2-P`
-- `P1/H0 -> P2-GraphRAG/H0`
+The primary study reports the planning progression
+`B0/H0 -> P0-S/H0 -> P0-E/H0 -> P1/H0` and the H0-to-recovery contrasts within
+each planner. The matched GraphRAG follow-up reports P1-to-P2 and H0-to-recovery
+contrasts for P1 and P2. Every contrast is computed separately for
+DeepSeek-V4-Flash, gpt-5.5, and GLM-5-Turbo.
 
 The clustered interval and exact paired McNemar test answer different
-questions. A family-bootstrap interval measures sensitivity of the average
-uplift to family composition; McNemar tests whether paired task changes are
-asymmetric. Both will be retained for the new 84-task cohort.
+questions. A family-bootstrap interval measures sensitivity of average uplift
+to family composition; McNemar tests whether paired task changes are
+asymmetric. Both use the same fixed 84-task denominator.
 
 ## Multiplicity and interpretation
 
-The matrix contains multiple planned contrasts. Exact p-values are evidence
-strength indicators, not independent discovery claims. The analysis will
-emphasize effect sizes, family-clustered intervals, consistency across all
-three models, and the distinction between official task success, total-goal
-completion, and execution success.
+Exact p-values are evidence-strength indicators, not independent discovery
+claims. Interpretation emphasizes effect sizes, family-clustered intervals,
+consistency across models, and the distinction between official task success,
+total-goal completion, and execution success.
 
-All result files will be generated only from the pinned VirtualHome Action
-Sequencing evaluator after the complete 60-cell run completes.
+Frozen results are in `docs/final_official_virtualhome_results_v4.*` and
+`docs/final_official_virtualhome_graph_rag_replacement.*`. Both were generated
+from the pinned VirtualHome Action Sequencing evaluator.

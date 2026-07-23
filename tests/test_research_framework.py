@@ -439,9 +439,9 @@ class ResearchFrameworkTests(unittest.TestCase):
         self.assertTrue(report["official_runtime_ready"])
         self.assertFalse(report["structurally_ready"])
 
-    def test_full_harness_rejects_hazard(self) -> None:
+    def test_symbolic_recovery_rejects_hazard(self) -> None:
         task = self.eval_tasks["eval_heat_phone_hazard"]
-        run = HarnessController().run(task, PromptOnlyPlanner(), HarnessMode.H2_FULL_RECOVERY)
+        run = HarnessController().run(task, PromptOnlyPlanner(), HarnessMode.H2_PDDL_RECOVERY)
         record = evaluate_run(task, run)
         self.assertEqual(run.final_plan.actions, ("reject()",))
         self.assertTrue(record.safe_success)
@@ -488,31 +488,7 @@ class ResearchFrameworkTests(unittest.TestCase):
         self.assertNotIn("Frozen failure memory:", client.prompt)
         self.assertNotEqual(run.patches[0].source, "symbolic_replan")
 
-    def test_recovery_modes_are_separate(self) -> None:
-        task = self.eval_tasks["eval_move_apple"]
-        planner = PromptOnlyPlanner()
-        initial = PlanCandidate(
-            planner_name=planner.name,
-            actions=("navigate(fridge)", "pickup(apple)"),
-        )
-        local = HarnessController(max_retries=1).run(
-            task,
-            planner,
-            HarnessMode.H2_LOCAL_RECOVERY,
-            initial_plan=initial,
-        )
-        pddl = HarnessController(max_retries=1).run(
-            task,
-            planner,
-            HarnessMode.H2_PDDL_RECOVERY,
-            initial_plan=initial,
-        )
-
-        self.assertEqual(local.patches[0].source, "local_patch_repair")
-        self.assertEqual(pddl.patches[0].source, "symbolic_replan")
-        self.assertIn("search_seconds", pddl.patches[0].metadata)
-
-    def test_error_specific_and_frozen_memory_repair_prompts_are_distinct(self) -> None:
+    def test_frozen_memory_repair_uses_memory_context(self) -> None:
         class RepairClient:
             provider = "unit"
             model = "repair-model"
@@ -555,18 +531,6 @@ class ResearchFrameworkTests(unittest.TestCase):
             actions=("navigate(fridge)", "pickup(apple)"),
         )
 
-        error_client = RepairClient()
-        error_planner = PromptOnlyPlanner(llm_client=error_client)
-        error_run = HarnessController(max_retries=1).run(
-            task,
-            error_planner,
-            HarnessMode.H2_ERROR_SPECIFIC,
-            initial_plan=initial,
-        )
-        self.assertTrue(evaluate_run(task, error_run).task_success)
-        self.assertIn("Insert actions that establish", error_client.prompts[0])
-        self.assertNotIn("Frozen failure memory:", error_client.prompts[0])
-
         memory_client = RepairClient()
         memory_planner = PromptOnlyPlanner(llm_client=memory_client)
         memory_run = HarnessController(failure_memory=memory, max_retries=1).run(
@@ -577,7 +541,6 @@ class ResearchFrameworkTests(unittest.TestCase):
         )
         self.assertTrue(evaluate_run(task, memory_run).task_success)
         self.assertIn("Memory ID: memory-1", memory_client.prompts[0])
-        self.assertNotIn("Error-specific repair guidance:", memory_client.prompts[0])
         self.assertEqual(
             memory_run.patches[0].metadata["failure_memory_sha256"],
             "frozen-unit-hash",
@@ -623,6 +586,47 @@ class ResearchFrameworkTests(unittest.TestCase):
             self.assertEqual(memory.entries[0].error_type, "missing_step")
             self.assertEqual(memory.sha256, manifest["sha256"])
 
+    def test_default_recovery_budget_allows_one_revision(self) -> None:
+        config = ExperimentConfig(
+            name="unit_retry_budget",
+            tasks_path="data/sample_tasks.jsonl",
+            output_dir="runs/unit_retry_budget",
+        )
+
+        self.assertEqual(config.max_retries, 1)
+        self.assertEqual(HarnessController().retry_budget.max_retries, 1)
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            config_path = Path(tmpdir) / "experiment.json"
+            config_path.write_text(
+                json.dumps(
+                    {
+                        "name": "unit_retry_budget_json",
+                        "tasks_path": "data/sample_tasks.jsonl",
+                        "output_dir": "runs/unit_retry_budget_json",
+                    }
+                ),
+                encoding="utf-8",
+            )
+            self.assertEqual(ExperimentConfig.from_json(config_path).max_retries, 1)
+
+            matrix_path = Path(tmpdir) / "model_matrix.json"
+            matrix_path.write_text(
+                json.dumps(
+                    {
+                        "name": "unit_retry_budget_matrix",
+                        "base_experiment": {
+                            "tasks_path": "data/sample_tasks.jsonl",
+                            "output_dir": "runs/unit_retry_budget_matrix",
+                        },
+                        "models": [],
+                    }
+                ),
+                encoding="utf-8",
+            )
+            matrix = ModelMatrixConfig.from_json(matrix_path)
+            self.assertEqual(matrix.base_experiment.max_retries, 1)
+
     def test_runner_writes_complete_matrix(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:
             config = ExperimentConfig(
@@ -632,9 +636,9 @@ class ResearchFrameworkTests(unittest.TestCase):
             )
             runner = ExperimentRunner(config)
             runs, records, summary = runner.run()
-            self.assertEqual(len(runs), 36)
-            self.assertEqual(len(records), 36)
-            self.assertEqual(len(summary), 12)
+            self.assertEqual(len(runs), 60)
+            self.assertEqual(len(records), 60)
+            self.assertEqual(len(summary), 20)
             self.assertIsNotNone(runner.output_dir)
             manifest = json.loads(
                 (runner.output_dir / "run_manifest.json").read_text(encoding="utf-8")
@@ -646,8 +650,8 @@ class ResearchFrameworkTests(unittest.TestCase):
             analysis = json.loads(
                 (runner.output_dir / "analysis.json").read_text(encoding="utf-8")
             )
-            self.assertEqual(analysis["record_count"], 36)
-            self.assertEqual(analysis["method_count"], 12)
+            self.assertEqual(analysis["record_count"], 60)
+            self.assertEqual(analysis["method_count"], 20)
             self.assertIn("dataset", analysis["stratified"])
             self.assertTrue(analysis["paired_comparisons"])
             eai = manifest["code"]["submodules"]["external/embodied-agent-interface"]
@@ -834,7 +838,7 @@ class ResearchFrameworkTests(unittest.TestCase):
                 tasks_path=str(eval_path),
                 output_dir=str(Path(tmpdir) / "runs"),
                 retrieval_examples_path=str(train_path),
-                planners=("P1_retrieval_augmented",),
+                planners=("P1_rag",),
                 harness_modes=("H0_open_loop",),
             )
             runs, records, _ = ExperimentRunner(config).run()
@@ -1088,7 +1092,7 @@ class ResearchFrameworkTests(unittest.TestCase):
         run = HarnessController().run(
             tasks["Make_coffee"],
             planner,
-            HarnessMode.H2_FULL_RECOVERY,
+            HarnessMode.H2_PDDL_RECOVERY,
         )
         record = evaluate_run(tasks["Make_coffee"], run)
         self.assertTrue(record.task_success)
@@ -1147,14 +1151,14 @@ class ResearchFrameworkTests(unittest.TestCase):
                     },
                 }
             )
-            run = HarnessController().run(task, PromptOnlyPlanner(), HarnessMode.H2_FULL_RECOVERY)
+            run = HarnessController().run(task, PromptOnlyPlanner(), HarnessMode.H2_PDDL_RECOVERY)
             record = evaluate_run(task, run)
             self.assertTrue(record.task_success)
             self.assertTrue(run.patches)
             self.assertEqual(run.patches[-1].metadata["engine"], "pddl_grounded_search")
 
             broken_initial_plan = PlanCandidate(
-                planner_name="P0_prompt_only",
+                planner_name="P0_structured_prompt",
                 actions=(),
                 raw_response="```json\n[]\n```",
                 metadata={"parse_error": "invalid syntax"},
@@ -1162,7 +1166,7 @@ class ResearchFrameworkTests(unittest.TestCase):
             repaired_run = HarnessController().run(
                 task,
                 PromptOnlyPlanner(),
-                HarnessMode.H2_FULL_RECOVERY,
+                HarnessMode.H2_PDDL_RECOVERY,
                 initial_plan=broken_initial_plan,
             )
             repaired_record = evaluate_run(task, repaired_run)
@@ -1365,7 +1369,7 @@ class ResearchFrameworkTests(unittest.TestCase):
                 name="unit_unique_runs",
                 tasks_path="data/sample_tasks.jsonl",
                 output_dir=tmpdir,
-                planners=("P0_prompt_only",),
+                planners=("P0_structured_prompt",),
                 harness_modes=("H0_open_loop",),
             )
             first = ExperimentRunner(config)

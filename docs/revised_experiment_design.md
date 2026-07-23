@@ -14,23 +14,6 @@ more precise than the engineering label “harness engineering.” It separates
 where information enters the pipeline, which failure it can affect, and which
 mechanism deserves credit for an improvement.
 
-## Why the historical 3 × 3 was retired
-
-The historical matrix crossed prompt-only, RAG, and “graph grounded” planners
-with open loop, verifier gating, and full recovery. It was not a valid
-factorial design:
-
-- the final P2 path used `pddl_grounded_search`, not the knowledge graph;
-- P2 and H2 both called the same symbolic PDDL machinery, so their cells were
-  not independent mechanisms;
-- verifier-only H1 blocks invalid actions but does not repair them, making many
-  H0/H1 cells mechanically identical;
-- “full recovery” bundled local patching, LLM feedback, memory, and symbolic
-  fallback, preventing causal attribution.
-
-The old grid looked simple, but its apparent symmetry concealed confounding.
-It must not be presented as the confirmatory thesis experiment.
-
 ## Final interventions
 
 ### Planning-time knowledge constraint
@@ -50,26 +33,21 @@ It must not be presented as the confirmatory thesis experiment.
 | H0 | Open loop | No post-generation intervention |
 | H2-R | Validator-feedback reflection | Return the concrete validation failure to the same LLM and replan once |
 | H2-M | Memory-augmented repair | Reflection plus one frozen development repair example |
-| H2-P | Symbolic recovery reference | Replace the failed plan using PDDL search |
+| H2-P | Composite symbolic recovery reference | Replace the failed plan using a macro plan, grounded PDDL search, then action-model fallback |
 
 The verifier is an intervention component. Its internal PDDL/state checks are
 not an outcome metric and are never reported as task success.
 
-## Actual confirmatory design
+## Evidence design
 
-The final design is a complete 5 x 4 x 3 factorial matrix:
+The primary factorial study crosses B0, P0-S, P0-E, and P1 with four harnesses
+and three models on the same 84-task cohort. It estimates planning, recovery,
+and planner-by-recovery effects through Flat RAG.
 
-- **Five planners:** B0, P0-S, P0-E, P1 Flat RAG, and P2 GraphRAG.
-- **Four harnesses:** H0, H2-R, H2-M, and H2-P.
-- **Three models:** DeepSeek-V4-Flash, gpt-5.5, and GLM-5-Turbo.
-- **One cohort:** the same 84 official-compatible VirtualHome tasks in every
-  model-specific cell.
-
-This yields 20 planner-harness combinations, 60 model-specific cells, and 5040
-official records. There are no empty cells. The former symbolic P2 source runs
-and result rows were deleted and cannot be reused. Crossing every planner with
-every harness supports direct planning, recovery, and planner-by-recovery
-comparisons without changing model coverage or task denominators.
+GraphRAG is a matched follow-up optimisation of P1. The P1/P2 follow-up crosses
+both planners with the same four harnesses, three models, and 84 tasks. This
+2 x 4 x 3 design directly estimates P1-to-P2 changes without rerunning unrelated
+prompt baselines.
 
 ## Research questions and identifiable claims
 
@@ -93,19 +71,16 @@ may be omitted from confirmatory reporting.
 
 P2-GraphRAG is a distinct planning treatment. It reads the frozen, training-only
 `data/knowledge/eai_train/kg_edges.jsonl` as one global graph and performs entity
-linking, relation-aware graph-neural message passing, Personalized PageRank,
+linking, deterministic relation-aware graph propagation, Personalized PageRank,
 three-hop path search, relation-aware reranking, and state-constraint scoring.
 The selected graph evidence is rendered with triples, paths, score components,
 and action chains before action generation. Query gold plans are never read.
 
-The flat `P1_rag` condition remains the direct control. Development uses
-`configs/experiments/graph_rag_development.json` on 120 tasks with zero overlap
-with the observed 84-task cohort. The P2 implementation in the archived v4 run
-has been superseded; its P2 rows are historical evidence only. The replacement
-P1/P2 replication is reported in
-`docs/final_official_virtualhome_graph_rag_replacement.md`. It is post-hoc
-same-cohort evidence; confirmatory generalization claims still require a new
-untouched compatible cohort.
+The flat `P1_rag` condition is the direct control. Development uses
+`configs/experiments/graph_rag_development.json` on 120 tasks with zero task-ID
+overlap with the observed 84-task cohort. The matched P1/P2 follow-up is reported
+in `docs/final_official_virtualhome_graph_rag_replacement.md`; its claim boundary
+is the observed cohort and tested model APIs.
 
 ## Single evaluation authority
 

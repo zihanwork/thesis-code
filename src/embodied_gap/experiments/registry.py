@@ -69,9 +69,6 @@ def build_planners(
         "P0_engineered_prompt": engineered,
         "P1_rag": rag,
         "P2_graph_rag": graph_rag,
-        # Stable aliases for non-final pilot configurations.
-        "P0_prompt_only": structured,
-        "P1_retrieval_augmented": rag,
     }
 
 

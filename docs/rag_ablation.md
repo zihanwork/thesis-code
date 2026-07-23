@@ -28,11 +28,13 @@ outcomes and paired contrasts are reported in
 `docs/final_official_virtualhome_results_v4.md`; local verifier scores are not
 used as outcomes.
 
-## Graph boundary
+## GraphRAG follow-up boundary
 
-P1 remains flat example retrieval. The replacement P2-GraphRAG was developed
-against P1 under H0 on 120 development tasks disjoint from the observed cohort.
-Archived v4 P2 rows belong to the superseded implementation. The replacement
-P1/P2 same-cohort replication is complete and reported in
-`docs/final_official_virtualhome_graph_rag_replacement.md`; it is not an
-untouched confirmatory outcome.
+P1 uses flat example retrieval. P2 adds deterministic relation-aware graph
+propagation and graph-structured ranking as an incremental optimisation of P1.
+It was developed against P1 under H0 on 120 development tasks disjoint from the
+84-task outcome cohort. The matched P1/P2 follow-up across all four harnesses is
+reported in `docs/final_official_virtualhome_graph_rag_replacement.md`. Because
+that cohort had already been observed, these results are post-hoc same-cohort
+evidence rather than an untouched confirmatory outcome. The version notice in
+the frozen primary report preserves provenance for its P2 rows.

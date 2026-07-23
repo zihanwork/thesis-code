@@ -14,12 +14,6 @@ The study separates two intervention stages:
   reflection, frozen repair memory, and a separately labelled symbolic PDDL
   recovery reference.
 
-The historical “RAG + graph × harness” 3 × 3 is retired. Its graph-grounded
-planner and full-recovery harness both called the same PDDL search, so the old
-P2 data and charts are invalid and have been removed. P2 is now a new
-GraphRAG treatment that reads training-only graph edges and must be evaluated
-from a fresh run.
-
 ## One evaluation authority
 
 All thesis outcome claims use the pinned official VirtualHome Action Sequencing
@@ -37,10 +31,9 @@ standalone safety-benchmark entry points are not part of this project anymore.
 
 ## Current experiment table
 
-The historical 3 x 3 planner-by-harness grid has been retired. An archived
-60-cell factorial run covers every planner-harness-model condition on the same
-84-task VirtualHome cohort. Its P2 implementation has since been replaced, so
-archived P2 cells are not results for the current `P2_graph_rag`:
+The evidence covers the five planning treatments and four recovery conditions
+on one 84-task VirtualHome cohort. B0 through P1 form the primary factorial
+study; P1 and P2 form the matched GraphRAG follow-up.
 
 | Dimension | Conditions | Count |
 |---|---|---:|
@@ -49,14 +42,12 @@ archived P2 cells are not results for the current `P2_graph_rag`:
 | Model | DeepSeek-V4-Flash, gpt-5.5, GLM-5-Turbo | 3 |
 | **Total model-specific cells** | 5 x 4 x 3 | **60** |
 
-The archived run contains 5040 official records. Current P2-GraphRAG performs
-entity linking, relation-aware graph-neural message passing, Personalized
-PageRank, multi-hop search, relation-aware reranking, and state-constraint
-scoring over the training-only graph. It was developed on 120 tasks disjoint
-from the observed cohort and then rerun as a post-hoc P1/P2 replication on the
-same 84 tasks. Results are in
-`docs/final_official_virtualhome_graph_rag_replacement.md`. A new untouched
-compatible cohort remains necessary only for confirmatory generalization claims.
+The combined evidence contains 5,040 official records. P2-GraphRAG performs
+entity linking, deterministic relation-aware graph propagation, Personalized
+PageRank, multi-hop search, reranking, and state-constraint scoring over the
+training-only graph. It was developed on 120 task-ID-disjoint development tasks
+and evaluated against P1 on the same 84-task outcome cohort. Results are in
+`docs/final_official_virtualhome_graph_rag_replacement.md`.
 
 ## Final official evidence
 
@@ -67,8 +58,10 @@ compatible cohort remains necessary only for confirmatory generalization claims.
   `data/processed/tasksets/official_virtualhome_action_sequencing_v1.manifest.json`
 - Official result report:
   `docs/final_official_virtualhome_results_v4.md`
-- Machine-readable evidence:
+- Machine-readable primary evidence:
   `docs/final_official_virtualhome_results_v4.json`
+- Matched GraphRAG follow-up:
+  `docs/final_official_virtualhome_graph_rag_replacement.md`
 - Evaluation protocol:
   `docs/official_eai_protocol.md`
 - Converged experiment design:
@@ -82,9 +75,9 @@ official evaluator.
 
 ## Results status
 
-The complete 60-cell matrix has been run with all three models on all 84 tasks
-and scored by the pinned VirtualHome Action Sequencing evaluator. Current
-results and paired statistics are reported only in the v4 evidence files above.
+All claim-bearing cells have been scored with the pinned VirtualHome Action
+Sequencing evaluator. Primary B0-to-P1 results are in the v4 evidence files;
+the matched P1/P2 follow-up is in the GraphRAG replacement evidence files.
 
 ## Reproduction
 
@@ -115,6 +108,6 @@ family-clustered analysis commands.
 ## Claim boundary
 
 This is an official-evaluator compatible-subset study, not a complete hidden
-EAI leaderboard submission. The complete 5 x 4 planner-harness grid supports
-model-stratified planning, recovery, and interaction analyses on the frozen
-84-task cohort; it does not establish generalization beyond this cohort.
+EAI leaderboard submission. The primary factorial study and matched GraphRAG
+follow-up support model-stratified planning and recovery analyses on the frozen
+84-task cohort; they do not establish generalization beyond this cohort.

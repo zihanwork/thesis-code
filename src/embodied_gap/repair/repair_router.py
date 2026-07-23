@@ -5,20 +5,11 @@ from embodied_gap.core.plan_schema import PlanCandidate
 from embodied_gap.core.task_schema import Task
 from embodied_gap.core.violation_schema import Violation
 
-from .full_replan import FullReplanRepair
-from .local_patch import LocalPatchRepair
-from .rule_repair import SafetyRuleRepair
-
-
 class RepairRouter:
-    """Orders repair strategies from low-cost patches to full replanning."""
+    """Apply the explicitly configured repair strategies in order."""
 
-    def __init__(self, strategies: list[object] | None = None) -> None:
-        self.strategies = strategies or [
-            SafetyRuleRepair(),
-            LocalPatchRepair(),
-            FullReplanRepair(),
-        ]
+    def __init__(self, strategies: list[object]) -> None:
+        self.strategies = strategies
 
     def repair(self, task: Task, plan: PlanCandidate, violation: Violation | None) -> PlanPatch:
         last_patch: PlanPatch | None = None
