@@ -31,9 +31,10 @@ standalone safety-benchmark entry points are not part of this project anymore.
 
 ## Current experiment table
 
-The evidence covers the five planning treatments and four recovery conditions
-on one 84-task VirtualHome cohort. B0 through P1 form the primary factorial
-study; P1 and P2 form the matched GraphRAG follow-up.
+The headline analysis uses a deduplicated grid of five planning treatments,
+four recovery conditions, three language models, and one frozen 84-task
+VirtualHome cohort. B0 through P1 form the primary factorial study; P1 and P2
+form the matched, post-hoc GraphRAG follow-up.
 
 | Dimension | Conditions | Count |
 |---|---|---:|
@@ -42,15 +43,21 @@ study; P1 and P2 form the matched GraphRAG follow-up.
 | Model | DeepSeek-V4-Flash, gpt-5.5, GLM-5-Turbo | 3 |
 | **Total model-specific cells** | 5 x 4 x 3 | **60** |
 
-The combined evidence contains 5,040 official records. P2-GraphRAG performs
-entity linking, deterministic relation-aware graph propagation, Personalized
-PageRank, multi-hop search, reranking, and state-constraint scoring over the
-training-only graph. It was developed on 120 task-ID-disjoint development tasks
-and evaluated against P1 on the same 84-task outcome cohort. Results are in
+The headline total is therefore **5 x 4 x 3 x 84 = 5,040 official records**,
+matching the dissertation-defence presentation. This count treats each
+planner-harness-model-task combination once. P1 was rerun in the matched P1/P2
+follow-up to provide a within-run control; those repeated P1 records support
+the paired comparison and are not counted a second time in the 5,040 headline
+total.
+
+P2-GraphRAG performs entity linking, deterministic relation-aware graph
+propagation, Personalized PageRank, multi-hop search, reranking, and
+state-constraint scoring over the training-only graph. It was developed on 120
+task-ID-disjoint development tasks and evaluated against P1 on the same
+84-task outcome cohort. Results are in
 `docs/final_official_virtualhome_graph_rag_replacement.md`.
 
 ## Final official evidence
-
 
 - Fixed official cohort:
   `data/processed/tasksets/official_virtualhome_action_sequencing_v1.jsonl`
@@ -77,7 +84,9 @@ official evaluator.
 
 All claim-bearing cells have been scored with the pinned VirtualHome Action
 Sequencing evaluator. Primary B0-to-P1 results are in the v4 evidence files;
-the matched P1/P2 follow-up is in the GraphRAG replacement evidence files.
+the matched P1/P2 follow-up is in the GraphRAG replacement evidence files. The
+5,040-record headline total is the deduplicated analysis grid described above,
+not a count that double-counts the follow-up P1 control.
 
 ## Reproduction
 
